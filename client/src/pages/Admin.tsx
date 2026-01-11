@@ -7,6 +7,7 @@ import RoomManagement from "@/pages/admin/RoomManagement";
 import BookingManagement from "@/pages/admin/BookingManagement";
 import NewsManagement from "@/pages/admin/NewsManagement";
 import GalleryManagement from "@/pages/admin/GalleryManagement";
+import ImageGallery from "@/pages/admin/ImageGallery";
 
 export default function Admin() {
   const { user, isAuthenticated } = useAuth();
@@ -45,11 +46,12 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="rooms" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="rooms">房型管理</TabsTrigger>
             <TabsTrigger value="bookings">訂單管理</TabsTrigger>
             <TabsTrigger value="news">最新消息</TabsTrigger>
             <TabsTrigger value="gallery">圖片庫</TabsTrigger>
+            <TabsTrigger value="images">圖片上傳</TabsTrigger>
           </TabsList>
 
           <TabsContent value="rooms" className="space-y-4">
@@ -66,6 +68,10 @@ export default function Admin() {
 
           <TabsContent value="gallery" className="space-y-4">
             <GalleryManagement />
+          </TabsContent>
+
+          <TabsContent value="images" className="space-y-4">
+            <ImageGallery />
           </TabsContent>
         </Tabs>
       </div>
