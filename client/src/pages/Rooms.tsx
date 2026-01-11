@@ -4,6 +4,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { Users, Maximize2 } from "lucide-react";
 
+// 安全解析 JSON 的輔助函數
+const safeJsonParse = (jsonString: string | null | undefined, defaultValue: any[] = []) => {
+  if (!jsonString) return defaultValue;
+  try {
+    const parsed = JSON.parse(jsonString);
+    return Array.isArray(parsed) ? parsed : defaultValue;
+  } catch (error) {
+    console.error('JSON parse error:', error);
+    return defaultValue;
+  }
+};
+
 export default function Rooms() {
   const { data: roomTypes, isLoading } = trpc.roomTypes.list.useQuery();
 
@@ -56,8 +68,8 @@ export default function Rooms() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {roomTypes?.map((room) => {
-              const images = room.images ? JSON.parse(room.images) : [];
-              const amenities = room.amenities ? JSON.parse(room.amenities) : [];
+              const images = safeJsonParse(room.images);
+              const amenities = safeJsonParse(room.amenities);
               
               return (
                 <Card 
@@ -186,14 +198,12 @@ export default function Rooms() {
                   聯絡我們
                 </Button>
               </Link>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-primary text-primary hover:bg-primary/10"
+              <button 
+                className="px-6 py-3 border-2 border-primary text-primary hover:bg-primary/10 rounded text-lg font-semibold transition-colors"
                 onClick={() => window.location.href = "tel:06-6359577"}
               >
                 電話訂房：06-635-9577
-              </Button>
+              </button>
             </div>
           </div>
         </div>
