@@ -57,16 +57,20 @@ export default function Navbar() {
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center space-x-4">
             <Link href="/booking">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-                立即訂房
-              </Button>
+              <a className="no-underline">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+                  立即訂房
+                </Button>
+              </a>
             </Link>
             
             {isAuthenticated ? (
               <>
                 {user?.role === 'admin' && (
                   <Link href="/admin">
-                    <Button variant="outline">管理後台</Button>
+                    <a className="no-underline">
+                      <Button variant="outline">管理後台</Button>
+                    </a>
                   </Link>
                 )}
                 <Button variant="ghost" onClick={() => logout()}>
@@ -107,25 +111,29 @@ export default function Navbar() {
               ))}
               
               <Link href="/booking">
-                <Button 
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  立即訂房
-                </Button>
+                <a className="no-underline block">
+                  <Button 
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    立即訂房
+                  </Button>
+                </a>
               </Link>
               
               {isAuthenticated ? (
                 <>
                   {user?.role === 'admin' && (
                     <Link href="/admin">
-                      <Button 
-                        variant="outline" 
-                        className="w-full"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        管理後台
-                      </Button>
+                      <a className="no-underline block">
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          管理後台
+                        </Button>
+                      </a>
                     </Link>
                   )}
                   <Button 
