@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Edit2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, Upload, X } from "lucide-react";
 
 export default function RoomManagement() {
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -21,6 +24,39 @@ export default function RoomManagement() {
   const createMutation = trpc.roomTypes.create.useMutation();
   const updateMutation = trpc.roomTypes.update.useMutation();
   const deleteMutation = trpc.roomTypes.delete.useMutation();
+  const uploadMutation = trpc.upload.image.useMutation();
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    setIsUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const base64 = (event.target?.result as string).split(',')[1];
+          if (base64) {
+            try {
+              const result = await uploadMutation.mutateAsync({
+                filename: file.name,
+                data: base64,
+              });
+              setUploadedImages((prev) => [...prev, result.url]);
+            } catch (error) {
+              console.error('Upload failed:', error);
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +67,8 @@ export default function RoomManagement() {
     }
 
     try {
+      const images = uploadedImages.length > 0 ? JSON.stringify(uploadedImages) : undefined;
+
       if (editingId) {
         await updateMutation.mutateAsync({
           id: editingId,
@@ -39,6 +77,7 @@ export default function RoomManagement() {
           capacity: parseInt(formData.capacity),
           price: formData.price,
           amenities: formData.amenities,
+          images,
         });
         toast.success("房型已更新");
         setEditingId(null);
@@ -49,6 +88,7 @@ export default function RoomManagement() {
           capacity: parseInt(formData.capacity),
           price: formData.price,
           amenities: formData.amenities,
+          images,
         });
         toast.success("房型已新增");
       }
@@ -60,6 +100,7 @@ export default function RoomManagement() {
         price: "",
         amenities: "",
       });
+      setUploadedImages([]);
     } catch (error) {
       toast.error("操作失敗，請重試");
     }
@@ -74,6 +115,8 @@ export default function RoomManagement() {
       price: room.price,
       amenities: room.amenities || "",
     });
+    const images = room.images ? JSON.parse(room.images) : [];
+    setUploadedImages(images);
   };
 
   const handleDelete = async (id: number) => {
@@ -174,6 +217,69 @@ export default function RoomManagement() {
             />
           </div>
 
+          {/* Photo Upload Section */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              房型照片
+            </label>
+            <div className="flex gap-2 mb-3">
+              <Button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                variant="outline"
+                size="sm"
+                className="border-primary text-primary hover:bg-primary/10"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 size={16} className="mr-2 animate-spin" />
+                    上傳中...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={16} className="mr-2" />
+                    選擇圖片
+                  </>
+                )}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </div>
+
+            {uploadedImages.length > 0 && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">已上傳的照片：</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {uploadedImages.map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <img
+                        src={img}
+                        alt={`房型照片 ${idx + 1}`}
+                        className="w-full h-20 object-cover rounded border border-border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setUploadedImages(uploadedImages.filter((_, i) => i !== idx))
+                        }
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2">
             <Button
               type="submit"
@@ -205,6 +311,7 @@ export default function RoomManagement() {
                     price: "",
                     amenities: "",
                   });
+                  setUploadedImages([]);
                 }}
               >
                 取消編輯

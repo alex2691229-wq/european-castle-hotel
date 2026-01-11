@@ -2,17 +2,13 @@ import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { Users, Maximize2, ArrowLeft, Check, Upload, X, Loader2 } from "lucide-react";
-import { useState, useRef } from "react";
+import { Users, Maximize2, ArrowLeft, Check } from "lucide-react";
+import { useState } from "react";
 
 export default function RoomDetail() {
   const [, params] = useRoute("/rooms/:id");
   const roomId = params?.id ? parseInt(params.id) : 0;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadMutation = trpc.upload.image.useMutation();
 
   const { data: room, isLoading } = trpc.roomTypes.getById.useQuery(
     { id: roomId },
@@ -46,39 +42,6 @@ export default function RoomDetail() {
 
   const images = room.images ? JSON.parse(room.images) : [];
   const amenities = room.amenities ? JSON.parse(room.amenities) : [];
-  const allImages = [...images, ...uploadedImages];
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
-    setIsUploading(true);
-    try {
-      for (const file of Array.from(files)) {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const base64 = (event.target?.result as string).split(',')[1];
-          if (base64) {
-            try {
-              const result = await uploadMutation.mutateAsync({
-                filename: file.name,
-                data: base64,
-              });
-              setUploadedImages((prev) => [...prev, result.url]);
-            } catch (error) {
-              console.error('Upload failed:', error);
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background pt-20">
@@ -92,77 +55,13 @@ export default function RoomDetail() {
         </Link>
       </div>
 
-      {/* Photo Management Section */}
-      <section className="container mx-auto mb-12">
-        <Card className="bg-card border-border shadow-luxury">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-foreground">房型照片管理</h3>
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                variant="outline"
-                size="sm"
-                className="border-primary text-primary hover:bg-primary/10"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 size={16} className="mr-2 animate-spin" />
-                    上傳中...
-                  </>
-                ) : (
-                  <>
-                    <Upload size={16} className="mr-2" />
-                    選擇圖片
-                  </>
-                )}
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-            </div>
-
-            {/* Uploaded Images Preview */}
-            {uploadedImages.length > 0 && (
-              <div className="mb-4">
-                <p className="text-sm text-muted-foreground mb-3">新上傳的照片：</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {uploadedImages.map((img, idx) => (
-                    <div key={idx} className="relative group">
-                      <img
-                        src={img}
-                        alt={`上傳的照片 ${idx + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border border-border"
-                      />
-                      <button
-                        onClick={() =>
-                          setUploadedImages(uploadedImages.filter((_, i) => i !== idx))
-                        }
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </section>
-
       {/* Image Gallery */}
       <section className="container mx-auto mb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Main Image */}
           <div className="relative h-96 lg:h-[600px] overflow-hidden shadow-luxury">
             <img
-              src={allImages[currentImageIndex] || "/placeholder-room.jpg"}
+              src={images[currentImageIndex] || "/placeholder-room.jpg"}
               alt={`${room.name} ${currentImageIndex + 1}`}
               className="w-full h-full object-cover"
             />
@@ -171,7 +70,7 @@ export default function RoomDetail() {
 
           {/* Thumbnail Grid */}
           <div className="grid grid-cols-2 gap-4">
-            {allImages.slice(0, 4).map((img: string, idx: number) => (
+            {images.slice(0, 4).map((img: string, idx: number) => (
               <div
                 key={idx}
                 className={`relative h-44 lg:h-[290px] overflow-hidden cursor-pointer transition-all ${
