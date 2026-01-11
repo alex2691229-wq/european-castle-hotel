@@ -42,14 +42,14 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <a
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    location === link.href ? "text-primary" : "text-foreground"
-                  }`}
-                >
-                  {link.label}
-                </a>
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  location === link.href ? "text-primary" : "text-foreground"
+                }`}
+              >
+                {link.label}
               </Link>
             ))}
           </div>
@@ -57,20 +57,16 @@ export default function Navbar() {
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center space-x-4">
             <Link href="/booking">
-              <a className="no-underline">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-                  立即訂房
-                </Button>
-              </a>
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+                立即訂房
+              </Button>
             </Link>
             
             {isAuthenticated ? (
               <>
                 {user?.role === 'admin' && (
                   <Link href="/admin">
-                    <a className="no-underline">
-                      <Button variant="outline">管理後台</Button>
-                    </a>
+                    <Button variant="outline">管理後台</Button>
                   </Link>
                 )}
                 <Button variant="ghost" onClick={() => logout()}>
@@ -98,43 +94,39 @@ export default function Navbar() {
           <div className="lg:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-4">
               {navLinks.map((link) => (
-                <Link key={link.href} href={link.href}>
-                  <a
-                    className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${
-                      location === link.href ? "text-primary" : "text-foreground"
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </a>
-                </Link>
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${
+                  location === link.href ? "text-primary" : "text-foreground"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
               ))}
               
               <Link href="/booking">
-                <a className="no-underline block">
-                  <Button 
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    立即訂房
-                  </Button>
-                </a>
+                <Button 
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  立即訂房
+                </Button>
               </Link>
               
               {isAuthenticated ? (
                 <>
                   {user?.role === 'admin' && (
-                    <Link href="/admin">
-                      <a className="no-underline block">
-                        <Button 
-                          variant="outline" 
-                          className="w-full"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          管理後台
-                        </Button>
-                      </a>
-                    </Link>
+                  <Link href="/admin">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      管理後台
+                    </Button>
+                  </Link>
                   )}
                   <Button 
                     variant="ghost" 
