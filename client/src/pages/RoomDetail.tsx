@@ -2,16 +2,17 @@ import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { Users, Maximize2, ArrowLeft, Check, Upload, X } from "lucide-react";
-import { useState } from "react";
+import { Users, Maximize2, ArrowLeft, Check, Upload, X, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
 
 export default function RoomDetail() {
   const [, params] = useRoute("/rooms/:id");
   const roomId = params?.id ? parseInt(params.id) : 0;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showUploadForm, setShowUploadForm] = useState(false);
-  const [newImageUrl, setNewImageUrl] = useState("");
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadMutation = trpc.upload.image.useMutation();
 
   const { data: room, isLoading } = trpc.roomTypes.getById.useQuery(
     { id: roomId },
@@ -47,6 +48,38 @@ export default function RoomDetail() {
   const amenities = room.amenities ? JSON.parse(room.amenities) : [];
   const allImages = [...images, ...uploadedImages];
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    setIsUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const base64 = (event.target?.result as string).split(',')[1];
+          if (base64) {
+            try {
+              const result = await uploadMutation.mutateAsync({
+                filename: file.name,
+                data: base64,
+              });
+              setUploadedImages((prev) => [...prev, result.url]);
+            } catch (error) {
+              console.error('Upload failed:', error);
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pt-20">
       {/* Back Button */}
@@ -66,54 +99,33 @@ export default function RoomDetail() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-foreground">房型照片管理</h3>
               <Button
-                onClick={() => setShowUploadForm(!showUploadForm)}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
                 variant="outline"
                 size="sm"
                 className="border-primary text-primary hover:bg-primary/10"
               >
-                <Upload size={16} className="mr-2" />
-                上傳新照片
+                {isUploading ? (
+                  <>
+                    <Loader2 size={16} className="mr-2 animate-spin" />
+                    上傳中...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={16} className="mr-2" />
+                    選擇圖片
+                  </>
+                )}
               </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
             </div>
-
-            {showUploadForm && (
-              <div className="mb-6 p-4 bg-background rounded-lg border border-border">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      照片 URL
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="例如：/hotel_exterior_night.webp 或 https://example.com/image.jpg"
-                      value={newImageUrl}
-                      onChange={(e) => setNewImageUrl(e.target.value)}
-                      className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => {
-                        if (newImageUrl) {
-                          setUploadedImages([...uploadedImages, newImageUrl]);
-                          setNewImageUrl("");
-                        }
-                      }}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90"
-                    >
-                      添加照片
-                    </Button>
-                    <Button
-                      onClick={() => setShowUploadForm(false)}
-                      variant="outline"
-                      className="border-border text-foreground hover:bg-background/50"
-                    >
-                      取消
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Uploaded Images Preview */}
             {uploadedImages.length > 0 && (

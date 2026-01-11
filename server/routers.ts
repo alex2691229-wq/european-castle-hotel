@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "./_core/notification";
+import { storagePut } from "./storage";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -25,6 +26,25 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+  }),
+
+  upload: router({
+    image: protectedProcedure
+      .input(z.object({
+        filename: z.string(),
+        data: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        try {
+          const buffer = Buffer.from(input.data, 'base64');
+          const key = `room-images/${ctx.user.id}/${Date.now()}-${input.filename}`;
+          const result = await storagePut(key, buffer, 'image/jpeg');
+          return { success: true, url: result.url, key: result.key };
+        } catch (error) {
+          console.error('Upload error:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Upload failed' });
+        }
+      }),
   }),
 
   // Room Types
