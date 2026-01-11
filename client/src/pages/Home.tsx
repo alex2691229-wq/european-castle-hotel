@@ -1,9 +1,9 @@
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { Sparkles, Bed, Car, Wifi, Coffee, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 
 export default function Home() {
   const { data: roomTypes, isLoading: roomsLoading } = trpc.roomTypes.list.useQuery();
@@ -35,6 +35,18 @@ export default function Home() {
     { icon: Shield, title: "安全隱私", description: "完善的安全設施" },
     { icon: Sparkles, title: "豪華設備", description: "頂級衛浴與設施", image: "/bHcq5GRVaZdM.jpg" },
   ];
+
+  // 安全解析 JSON 的輔助函數
+  const safeJsonParse = (jsonString: string | null | undefined, defaultValue: any[] = []) => {
+    if (!jsonString) return defaultValue;
+    try {
+      const parsed = JSON.parse(jsonString);
+      return Array.isArray(parsed) ? parsed : defaultValue;
+    } catch (error) {
+      console.error('JSON parse error:', error);
+      return defaultValue;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -170,8 +182,8 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {roomTypes?.slice(0, 6).map((room) => {
-                const images = room.images ? JSON.parse(room.images) : [];
-                const amenities = room.amenities ? JSON.parse(room.amenities) : [];
+                const images = safeJsonParse(room.images);
+                const amenities = safeJsonParse(room.amenities);
                 
                 return (
                   <Card key={room.id} className="bg-card border-border overflow-hidden group hover:border-primary transition-all shadow-luxury">
@@ -254,68 +266,44 @@ export default function Home() {
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     </div>
                   )}
                   <CardContent className="p-6">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <span className="px-3 py-1 bg-primary/20 text-primary text-xs font-semibold border border-primary">
-                        {item.type === "promotion" ? "優惠活動" : item.type === "event" ? "活動公告" : "最新消息"}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {new Date(item.publishDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground mb-3 line-clamp-2">
+                    <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-sm font-semibold mb-3 rounded">
+                      {item.type === 'announcement' ? '公告' : item.type === 'promotion' ? '優惠' : '活動'}
+                    </span>
+                    <h3 className="text-lg font-bold text-foreground mb-2">
                       {item.title}
                     </h3>
-                    <p className="text-muted-foreground line-clamp-3 mb-4">
+                    <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
                       {item.content}
                     </p>
-                    <Link href={`/news/${item.id}`}>
-                      <Button variant="ghost" className="text-primary hover:text-primary/80 p-0">
-                        閱讀更多 →
-                      </Button>
-                    </Link>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </p>
                   </CardContent>
                 </Card>
               ))}
-            </div>
-
-            <div className="text-center mt-12">
-              <Link href="/news">
-                <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                  查看所有消息
-                </Button>
-              </Link>
             </div>
           </div>
         </section>
       )}
 
       {/* CTA Section */}
-      <section className="py-20 bg-card/50 relative overflow-hidden">
-        <div className="absolute inset-0 geometric-bg" />
-        <div className="container mx-auto text-center relative z-10">
-          <div className="corner-frame max-w-3xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              立即預訂您的完美假期
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              體驗台南新營最優質的住宿服務，讓我們為您打造難忘的旅程
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/booking">
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6">
-                  線上訂房
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-primary text-primary hover:bg-primary/10">
-                  聯絡我們
-                </Button>
-              </Link>
-            </div>
-          </div>
+      <section className="py-20 bg-primary/10">
+        <div className="container mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+            準備好享受奢華住宿了嗎？
+          </h2>
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            立即預訂您的房間，體驗歐堡商務汽車旅館的獨特魅力
+          </p>
+          <Link href="/booking">
+            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6">
+              立即訂房
+            </Button>
+          </Link>
         </div>
       </section>
     </div>

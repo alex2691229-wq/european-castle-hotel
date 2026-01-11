@@ -8,6 +8,7 @@ import BookingManagement from "@/pages/admin/BookingManagement";
 import NewsManagement from "@/pages/admin/NewsManagement";
 import GalleryManagement from "@/pages/admin/GalleryManagement";
 import ImageGallery from "@/pages/admin/ImageGallery";
+import RoomBatchUpdate from "@/pages/admin/RoomBatchUpdate";
 
 export default function Admin() {
   const { user, isAuthenticated } = useAuth();
@@ -46,8 +47,9 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="rooms" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="rooms">房型管理</TabsTrigger>
+            <TabsTrigger value="batch-update">批量更新</TabsTrigger>
             <TabsTrigger value="bookings">訂單管理</TabsTrigger>
             <TabsTrigger value="news">最新消息</TabsTrigger>
             <TabsTrigger value="gallery">圖片庫</TabsTrigger>
@@ -56,6 +58,10 @@ export default function Admin() {
 
           <TabsContent value="rooms" className="space-y-4">
             <RoomManagement />
+          </TabsContent>
+
+          <TabsContent value="batch-update" className="space-y-4">
+            <RoomBatchUpdate />
           </TabsContent>
 
           <TabsContent value="bookings" className="space-y-4">
