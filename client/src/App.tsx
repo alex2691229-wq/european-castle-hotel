@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import AIChatBot from "./components/AIChatBot";
 import Home from "./pages/Home";
 import Rooms from "./pages/Rooms";
 import RoomDetail from "./pages/RoomDetail";
@@ -37,6 +38,7 @@ function Router() {
         </Switch>
       </div>
       <Footer />
+      <AIChatBot />
     </>
   );
 }

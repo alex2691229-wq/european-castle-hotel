@@ -7,6 +7,7 @@ import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "./_core/notification";
 import { storagePut } from "./storage";
+import { invokeLLM } from "./_core/llm";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -309,6 +310,52 @@ export const appRouter = router({
         const { id, ...data } = input;
         await db.updateFacility(id, data);
         return { success: true };
+      }),
+  }),
+
+  // AI Chat
+  chat: router({
+    ask: publicProcedure
+      .input(z.object({
+        message: z.string(),
+        history: z.array(z.object({
+          role: z.enum(['user', 'assistant']),
+          content: z.string(),
+        })).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          // Get all room types and facilities for context
+          const rooms = await db.getAllRoomTypes();
+          const facilities = await db.getAllFacilities();
+          
+          // Build context for the AI
+          const roomsContext = rooms.map(r => `${r.name}: NT$${r.price}/晚, 容納${r.capacity}人`).join('\n');
+          const facilitiesContext = facilities.map(f => f.name).join(', ');
+          
+          const systemPrompt = `你是歐堡商務汽車旅館的 AI 客服助手。旅館位於台南市新營區長榮路一段41號，電話06-635-9577。
+
+可用房型：
+${roomsContext}
+
+設施：${facilitiesContext}
+
+請用繁體中文回答訪客的問題。如果問題超出範圍，請禮貌地建議訪客聯絡旅館。`;
+          
+          const messages = [
+            { role: 'system' as const, content: systemPrompt },
+            ...(input.history || []),
+            { role: 'user' as const, content: input.message },
+          ];
+          
+          const response = await invokeLLM({ messages });
+          const reply = response.choices[0]?.message?.content || '抱歉，我無法回答您的問題。';
+          
+          return { reply };
+        } catch (error) {
+          console.error('Chat error:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Chat service unavailable' });
+        }
       }),
   }),
 
