@@ -10,12 +10,14 @@ export default function Home() {
   const { data: newsItems } = trpc.news.list.useQuery();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Hero carousel images
+  // Hero carousel images - 使用上傳的真實照片
   const heroImages = [
+    "/hotel_exterior_night.webp",
     "/aLGXkllI60jA.jpg",
     "/7bImBALYq9l1.jpg",
     "/pFBLqdisXmBi.jpg",
     "/cz6FcKw42jqQ.jpg",
+    "/hotel_exterior_day.webp",
   ];
 
   useEffect(() => {
@@ -26,12 +28,12 @@ export default function Home() {
   }, []);
 
   const features = [
-    { icon: Bed, title: "精緻客房", description: "舒適優雅的住宿空間" },
-    { icon: Car, title: "VIP車庫", description: "獨立私密停車空間" },
+    { icon: Bed, title: "精緻客房", description: "舒適優雅的住宿空間", image: "/AbVYUA17Rufq.jpg" },
+    { icon: Car, title: "VIP車庫", description: "獨立私密停車空間", image: "/OfTqVUKmzbwK.jpg" },
     { icon: Wifi, title: "高速網路", description: "全館免費WiFi" },
     { icon: Coffee, title: "貼心服務", description: "24小時專業服務" },
     { icon: Shield, title: "安全隱私", description: "完善的安全設施" },
-    { icon: Sparkles, title: "豪華設備", description: "頂級衛浴與設施" },
+    { icon: Sparkles, title: "豪華設備", description: "頂級衛浴與設施", image: "/bHcq5GRVaZdM.jpg" },
   ];
 
   return (
@@ -122,9 +124,19 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="bg-card border-border hover:border-primary transition-all shadow-luxury group">
-                <CardContent className="p-8 text-center">
+            {features.map((feature: any, index) => (
+              <Card key={index} className="bg-card border-border hover:border-primary transition-all shadow-luxury group overflow-hidden">
+                {feature.image && (
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={feature.image}
+                      alt={feature.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  </div>
+                )}
+                <CardContent className={`${feature.image ? 'p-6' : 'p-8'} text-center`}>
                   <div className="w-16 h-16 mx-auto mb-6 border-2 border-primary flex items-center justify-center group-hover:scale-110 transition-transform">
                     <feature.icon size={32} className="text-primary" />
                   </div>
