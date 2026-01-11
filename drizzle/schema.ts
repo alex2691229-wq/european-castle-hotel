@@ -1,17 +1,10 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
  */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -25,4 +18,106 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Room types table - stores different room categories
+ */
+export const roomTypes = mysqlTable("room_types", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  nameEn: varchar("nameEn", { length: 100 }),
+  description: text("description").notNull(),
+  descriptionEn: text("descriptionEn"),
+  size: varchar("size", { length: 50 }), // e.g., "30坪"
+  capacity: int("capacity").notNull().default(2), // number of guests
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  weekendPrice: decimal("weekendPrice", { precision: 10, scale: 2 }),
+  images: text("images"), // JSON array of image URLs
+  amenities: text("amenities"), // JSON array of amenities
+  isAvailable: boolean("isAvailable").default(true).notNull(),
+  displayOrder: int("displayOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RoomType = typeof roomTypes.$inferSelect;
+export type InsertRoomType = typeof roomTypes.$inferInsert;
+
+/**
+ * Bookings table - stores reservation information
+ */
+export const bookings = mysqlTable("bookings", {
+  id: int("id").autoincrement().primaryKey(),
+  roomTypeId: int("roomTypeId").notNull(),
+  userId: int("userId"),
+  guestName: varchar("guestName", { length: 100 }).notNull(),
+  guestEmail: varchar("guestEmail", { length: 320 }),
+  guestPhone: varchar("guestPhone", { length: 20 }).notNull(),
+  checkInDate: timestamp("checkInDate").notNull(),
+  checkOutDate: timestamp("checkOutDate").notNull(),
+  numberOfGuests: int("numberOfGuests").notNull().default(2),
+  totalPrice: decimal("totalPrice", { precision: 10, scale: 2 }).notNull(),
+  specialRequests: text("specialRequests"),
+  status: mysqlEnum("status", ["pending", "confirmed", "cancelled", "completed"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Booking = typeof bookings.$inferSelect;
+export type InsertBooking = typeof bookings.$inferInsert;
+
+/**
+ * News/Announcements table
+ */
+export const news = mysqlTable("news", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  titleEn: varchar("titleEn", { length: 200 }),
+  content: text("content").notNull(),
+  contentEn: text("contentEn"),
+  type: mysqlEnum("type", ["announcement", "promotion", "event"]).default("announcement").notNull(),
+  coverImage: varchar("coverImage", { length: 500 }),
+  isPublished: boolean("isPublished").default(true).notNull(),
+  publishDate: timestamp("publishDate").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type News = typeof news.$inferSelect;
+export type InsertNews = typeof news.$inferInsert;
+
+/**
+ * Facilities table - hotel amenities and services
+ */
+export const facilities = mysqlTable("facilities", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  nameEn: varchar("nameEn", { length: 100 }),
+  description: text("description").notNull(),
+  descriptionEn: text("descriptionEn"),
+  icon: varchar("icon", { length: 50 }), // lucide icon name
+  images: text("images"), // JSON array of image URLs
+  displayOrder: int("displayOrder").default(0).notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Facility = typeof facilities.$inferSelect;
+export type InsertFacility = typeof facilities.$inferInsert;
+
+/**
+ * Contact messages table
+ */
+export const contactMessages = mysqlTable("contact_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  subject: varchar("subject", { length: 200 }),
+  message: text("message").notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ContactMessage = typeof contactMessages.$inferSelect;
+export type InsertContactMessage = typeof contactMessages.$inferInsert;
