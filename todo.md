@@ -179,3 +179,9 @@
 - [x] 刪除首頁「VIP車庫」部分
   - 刪除：隆藏了VIP車庫特色區域
 - [x] 驗證首頁顯示正確（28項測試全部通過）
+
+
+## 社交媒體連結更新
+- [x] 更新 Facebook 粉絲團連結為 https://www.facebook.com/castlehoteltainan
+  - 更新：頁腳中的 Facebook 連結已更新，並添加了 target="_blank" 和 rel="noopener noreferrer"
+- [x] 驗證所有社交媒體連結正確（28項測試全部通過）

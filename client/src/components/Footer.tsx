@@ -86,7 +86,9 @@ export default function Footer() {
             <h3 className="text-lg font-bold text-foreground mb-4">追蹤我們</h3>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.facebook.com/castlehoteltainan"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 border border-border flex items-center justify-center hover:border-primary hover:bg-primary/10 transition-all"
                 aria-label="Facebook"
               >
