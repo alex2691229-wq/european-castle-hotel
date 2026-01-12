@@ -357,7 +357,7 @@ export default function Home() {
           </p>
           <button
             onClick={() => window.location.href = '/booking'}
-            className="px-12 py-4 bg-gold text-black font-bold text-lg hover:bg-gold/90 transition-colors rounded"
+            className="px-12 py-4 bg-gold text-white font-bold text-lg hover:bg-gold/90 transition-colors rounded"
           >
             立即訂房
           </button>
