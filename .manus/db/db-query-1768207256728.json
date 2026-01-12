@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, carouselImages, vipGarageImage, deluxeRoomImage, facilitiesImage FROM home_config LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, carouselImages, vipGarageImage, deluxeRoomImage, facilitiesImage FROM home_config LIMIT 1;",
+  "rows": [
+    {
+      "id": "1",
+      "carouselImages": "[\"https://example.com/carousel1.jpg\",\"https://example.com/carousel2.jpg\",\"https://example.com/carousel3.jpg\"]",
+      "vipGarageImage": "https://example.com/vip-garage-new.jpg",
+      "deluxeRoomImage": "https://example.com/deluxe-room-new.jpg",
+      "facilitiesImage": "https://example.com/facilities-new.jpg"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcarouselImages\tvipGarageImage\tdeluxeRoomImage\tfacilitiesImage\n1\t[\"https://example.com/carousel1.jpg\",\"https://example.com/carousel2.jpg\",\"https://example.com/carousel3.jpg\"]\thttps://example.com/vip-garage-new.jpg\thttps://example.com/deluxe-room-new.jpg\thttps://example.com/facilities-new.jpg\n",
+  "stderr": "",
+  "execution_time_ms": 1528
+}

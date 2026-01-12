@@ -81,8 +81,22 @@ export default function HomeManagement() {
           reader.readAsDataURL(file);
         });
       }
-      setCarouselImages([...carouselImages, ...newImages]);
-      toast.success("輪播照片已上傳");
+      const updatedImages = [...carouselImages, ...newImages];
+      setCarouselImages(updatedImages);
+      
+      // 自動保存到資料庫
+      try {
+        await updateConfigMutation.mutateAsync({
+          carouselImages: JSON.stringify(updatedImages),
+          vipGarageImage: featureImages.vipGarage,
+          deluxeRoomImage: featureImages.deluxeRoom,
+          facilitiesImage: featureImages.facilities,
+        });
+        toast.success("輪播照片已上傳並保存");
+      } catch (error) {
+        console.error('Save failed:', error);
+        toast.error('保存失敗，請手動點擊儲存設定');
+      }
     } finally {
       setIsUploading(false);
       setUploadingSection("");
