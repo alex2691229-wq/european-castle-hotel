@@ -20,32 +20,24 @@ export default function Footer() {
             <h3 className="text-lg font-bold text-foreground mb-4">快速連結</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/rooms">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    客房介紹
-                  </a>
-                </Link>
+                <button onClick={() => window.location.href = '/rooms'} className="text-sm text-muted-foreground hover:text-primary transition-colors text-left">
+                  客房介紹
+                </button>
               </li>
               <li>
-                <Link href="/facilities">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    設施服務
-                  </a>
-                </Link>
+                <button onClick={() => window.location.href = '/facilities'} className="text-sm text-muted-foreground hover:text-primary transition-colors text-left">
+                  設施服務
+                </button>
               </li>
               <li>
-                <Link href="/news">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    最新消息
-                  </a>
-                </Link>
+                <button onClick={() => window.location.href = '/news'} className="text-sm text-muted-foreground hover:text-primary transition-colors text-left">
+                  最新消息
+                </button>
               </li>
               <li>
-                <Link href="/booking">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    線上訂房
-                  </a>
-                </Link>
+                <button onClick={() => window.location.href = '/booking'} className="text-sm text-muted-foreground hover:text-primary transition-colors text-left">
+                  線上訂房
+                </button>
               </li>
             </ul>
           </div>
@@ -114,16 +106,12 @@ export default function Footer() {
             © {new Date().getFullYear()} 歐堡商務汽車旅館有限公司. All rights reserved.
           </p>
           <div className="flex space-x-6">
-            <Link href="/privacy">
-              <a className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                隱私權政策
-              </a>
-            </Link>
-            <Link href="/terms">
-              <a className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                服務條款
-              </a>
-            </Link>
+            <button onClick={() => window.location.href = '/privacy'} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              隱私政策
+            </button>
+            <button onClick={() => window.location.href = '/terms'} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              服務條款
+            </button>
           </div>
         </div>
       </div>

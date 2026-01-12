@@ -185,3 +185,9 @@
 - [x] 更新 Facebook 粉絲團連結為 https://www.facebook.com/castlehoteltainan
   - 更新：頁腳中的 Facebook 連結已更新，並添加了 target="_blank" 和 rel="noopener noreferrer"
 - [x] 驗證所有社交媒體連結正確（28項測試全部通過）
+
+
+## 管理後台嵌套 <a> 標籤錯誤修復
+- [ ] 診斷管理後台的嵌套 <a> 標籤錯誤
+- [ ] 修復 Admin.tsx 中的嵌套 <a> 標籤
+- [ ] 測試管理後台功能

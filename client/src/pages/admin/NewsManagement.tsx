@@ -17,10 +17,23 @@ export default function NewsManagement() {
     type: "announcement" as NewsType,
   });
 
+  const utils = trpc.useUtils();
   const { data: news, isLoading } = trpc.news.list.useQuery();
-  const createMutation = trpc.news.create.useMutation();
-  const updateMutation = trpc.news.update.useMutation();
-  const deleteMutation = trpc.news.delete.useMutation();
+  const createMutation = trpc.news.create.useMutation({
+    onSuccess: () => {
+      utils.news.list.invalidate();
+    },
+  });
+  const updateMutation = trpc.news.update.useMutation({
+    onSuccess: () => {
+      utils.news.list.invalidate();
+    },
+  });
+  const deleteMutation = trpc.news.delete.useMutation({
+    onSuccess: () => {
+      utils.news.list.invalidate();
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
