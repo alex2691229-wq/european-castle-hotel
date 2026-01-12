@@ -156,8 +156,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-black/40 border-y border-gold/20">
+      {/* Features Section - REMOVED */}
+      <section className="hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gold mb-4">
