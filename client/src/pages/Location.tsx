@@ -147,11 +147,11 @@ export default function Location() {
                 <div className="space-y-4 text-muted-foreground">
                   <div>
                     <h4 className="font-semibold text-foreground mb-2">火車</h4>
-                    <p>搭乘火車至新營火車站，出站後步行約10分鐘或搭乘計程車約3分鐘即可抵達</p>
+                    <p>搭乘火車至新營火車站，出站後步行約20分鐘或搭乘計程車約3分鐘即可抵達</p>
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-2">高鐵</h4>
-                    <p>搭乘高鐵至嘉義站，轉乘台鐵至新營站，再步行或搭乘計程車前往</p>
+                    <p>搭乘高鐵至嘉義站，轉乘搞鐵接駁車至新營東仁長榮路口公車站，步行2分鐘</p>
                   </div>
                   <div className="pt-4 border-t border-border">
                     <p className="text-sm">
