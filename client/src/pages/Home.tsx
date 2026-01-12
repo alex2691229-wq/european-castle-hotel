@@ -8,6 +8,7 @@ export default function Home() {
   const { data: roomTypes, isLoading: roomsLoading } = trpc.roomTypes.list.useQuery();
   const { data: newsItems } = trpc.news.list.useQuery();
   const { data: homeConfig } = trpc.homeConfig.get.useQuery();
+  const { data: featuredServices } = trpc.featuredServices.list.useQuery();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [heroImages, setHeroImages] = useState<string[]>([
     "/hotel_exterior_night.webp",
@@ -168,27 +169,50 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <Card key={index} className="bg-black/60 border-gold/20 hover:border-gold/50 transition-all overflow-hidden group">
-                  {feature.image && (
+            {/* Display featured services from database */}
+            {featuredServices && featuredServices.length > 0 ? (
+              featuredServices.map((service) => (
+                <Card key={service.id} className="bg-black/60 border-gold/20 hover:border-gold/50 transition-all overflow-hidden group">
+                  {service.image && (
                     <div className="h-40 overflow-hidden">
                       <img
-                        src={feature.image}
-                        alt={feature.title}
+                        src={service.image}
+                        alt={service.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     </div>
                   )}
                   <CardContent className="p-6">
-                    <Icon className="w-12 h-12 text-gold mb-4" />
-                    <h3 className="text-xl font-bold text-gold mb-2">{feature.title}</h3>
-                    <p className="text-gray-400">{feature.description}</p>
+                    <h3 className="text-xl font-bold text-gold mb-2">{service.title}</h3>
+                    <p className="text-sm text-gold/70 mb-3">{service.titleEn}</p>
+                    <p className="text-gray-400">{service.description}</p>
                   </CardContent>
                 </Card>
-              );
-            })}
+              ))
+            ) : (
+              /* Fallback to default features if no featured services */
+              features.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <Card key={index} className="bg-black/60 border-gold/20 hover:border-gold/50 transition-all overflow-hidden group">
+                    {feature.image && (
+                      <div className="h-40 overflow-hidden">
+                        <img
+                          src={feature.image}
+                          alt={feature.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
+                    <CardContent className="p-6">
+                      <Icon className="w-12 h-12 text-gold mb-4" />
+                      <h3 className="text-xl font-bold text-gold mb-2">{feature.title}</h3>
+                      <p className="text-gray-400">{feature.description}</p>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
           </div>
         </div>
       </section>
