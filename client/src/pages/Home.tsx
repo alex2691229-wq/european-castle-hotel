@@ -124,16 +124,18 @@ export default function Home() {
               </p>
 
               <div className="flex gap-4 justify-center pt-6">
-                <Link href="/booking">
-                  <button className="px-8 py-3 bg-gold text-black font-bold hover:bg-gold/90 transition-colors rounded">
-                    立即訂房
-                  </button>
-                </Link>
-                <Link href="/rooms">
-                  <button className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 transition-colors rounded font-semibold">
-                    探索客房
-                  </button>
-                </Link>
+                <button 
+                  onClick={() => window.location.href = '/booking'}
+                  className="px-8 py-3 bg-gold text-black font-bold hover:bg-gold/90 transition-colors rounded"
+                >
+                  立即訂房
+                </button>
+                <button 
+                  onClick={() => window.location.href = '/rooms'}
+                  className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 transition-colors rounded font-semibold"
+                >
+                  探索客房
+                </button>
               </div>
             </div>
           </div>
@@ -214,8 +216,12 @@ export default function Home() {
                 const amenities = safeJsonParse(room.amenities);
 
                 return (
-                  <Link key={room.id} href={`/rooms/${room.id}`}>
-                    <Card className="bg-black/60 border-gold/20 hover:border-gold/50 transition-all cursor-pointer overflow-hidden group">
+                  <div
+                    key={room.id}
+                    onClick={() => window.location.href = `/rooms/${room.id}`}
+                    className="cursor-pointer"
+                  >
+                    <Card className="bg-black/60 border-gold/20 hover:border-gold/50 transition-all overflow-hidden group">
                       {images.length > 0 && (
                         <div className="h-48 overflow-hidden">
                           <img
@@ -250,18 +256,19 @@ export default function Home() {
                         </div>
                       </CardContent>
                     </Card>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
           )}
 
           <div className="text-center mt-12">
-            <Link href="/rooms">
-              <button className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 transition-colors rounded font-semibold">
-                查看全部客房
-              </button>
-            </Link>
+            <button
+              onClick={() => window.location.href = '/rooms'}
+              className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 transition-colors rounded font-semibold"
+            >
+              查看全部客房
+            </button>
           </div>
         </div>
       </section>
@@ -278,8 +285,12 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {newsItems.slice(0, 2).map((news) => (
-                <Link key={news.id} href={`/news`}>
-                  <Card className="bg-black/60 border-gold/20 hover:border-gold/50 transition-all cursor-pointer overflow-hidden group">
+                <div
+                  key={news.id}
+                  onClick={() => window.location.href = '/news'}
+                  className="cursor-pointer"
+                >
+                  <Card className="bg-black/60 border-gold/20 hover:border-gold/50 transition-all overflow-hidden group">
                     {news.coverImage && (
                       <div className="h-48 overflow-hidden">
                         <img
@@ -304,7 +315,7 @@ export default function Home() {
                       <p className="text-gray-400 text-sm line-clamp-3">{news.content}</p>
                     </CardContent>
                   </Card>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -320,11 +331,12 @@ export default function Home() {
           <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
             立即預訂您的房間，體驗歐堡商務汽車旅館的獨特魅力
           </p>
-          <Link href="/booking">
-            <button className="px-12 py-4 bg-gold text-black font-bold text-lg hover:bg-gold/90 transition-colors rounded">
-              立即訂房
-            </button>
-          </Link>
+          <button
+            onClick={() => window.location.href = '/booking'}
+            className="px-12 py-4 bg-gold text-black font-bold text-lg hover:bg-gold/90 transition-colors rounded"
+          >
+            立即訂房
+          </button>
         </div>
       </section>
     </div>
