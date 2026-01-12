@@ -173,12 +173,23 @@ export default function RoomDetail() {
           <div>
             <Card className="bg-card border-border shadow-luxury sticky top-24">
               <CardContent className="p-8">
-                <div className="mb-6">
-                  <p className="text-sm text-muted-foreground mb-2">平日起</p>
-                  <p className="text-4xl font-bold text-primary mb-1">
-                    NT$ {Number(room.price).toLocaleString()}
-                  </p>
-                  <p className="text-sm text-muted-foreground">/晚</p>
+                <div className="mb-6 space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">平日價格</p>
+                    <p className="text-4xl font-bold text-primary mb-1">
+                      NT$ {Number(room.price).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-muted-foreground">/晚</p>
+                  </div>
+                  {room.weekendPrice && (
+                    <div className="pt-4 border-t border-border">
+                      <p className="text-sm text-muted-foreground mb-2">假日價格</p>
+                      <p className="text-4xl font-bold text-primary mb-1">
+                        NT$ {Number(room.weekendPrice).toLocaleString()}
+                      </p>
+                      <p className="text-sm text-muted-foreground">/晚</p>
+                    </div>
+                  )}
                 </div>
 
                 <Link href="/booking">

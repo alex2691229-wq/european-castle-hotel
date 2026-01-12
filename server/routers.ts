@@ -410,6 +410,25 @@ ${roomsContext}
       }),
   }),
 
+  // Home Config
+  homeConfig: router({
+    get: publicProcedure.query(async () => {
+      return await db.getHomeConfig();
+    }),
+    
+    update: adminProcedure
+      .input(z.object({
+        carouselImages: z.string().optional(),
+        vipGarageImage: z.string().optional(),
+        deluxeRoomImage: z.string().optional(),
+        facilitiesImage: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateHomeConfig(input);
+        return { success: true };
+      }),
+  }),
+
   // Contact Messages
   contact: router({
     send: publicProcedure

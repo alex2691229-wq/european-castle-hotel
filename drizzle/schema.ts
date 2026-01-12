@@ -137,3 +137,19 @@ export const roomAvailability = mysqlTable("room_availability", {
 
 export type RoomAvailability = typeof roomAvailability.$inferSelect;
 export type InsertRoomAvailability = typeof roomAvailability.$inferInsert;
+
+/**
+ * Home page configuration table - stores carousel and feature images
+ */
+export const homeConfig = mysqlTable("home_config", {
+  id: int("id").autoincrement().primaryKey(),
+  carouselImages: text("carouselImages"), // JSON array of carousel image URLs
+  vipGarageImage: varchar("vipGarageImage", { length: 500 }),
+  deluxeRoomImage: varchar("deluxeRoomImage", { length: 500 }),
+  facilitiesImage: varchar("facilitiesImage", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type HomeConfig = typeof homeConfig.$inferSelect;
+export type InsertHomeConfig = typeof homeConfig.$inferInsert;

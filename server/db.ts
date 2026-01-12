@@ -20,7 +20,10 @@ import {
   InsertContactMessage,
   roomAvailability,
   RoomAvailability,
-  InsertRoomAvailability
+  InsertRoomAvailability,
+  homeConfig,
+  HomeConfig,
+  InsertHomeConfig
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -448,4 +451,33 @@ export async function getUnavailableDates(
   });
   
   return Array.from(allUnavailableDates).map(dateStr => new Date(dateStr));
+}
+
+// Home Config queries
+export async function getHomeConfig(): Promise<HomeConfig | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db
+    .select()
+    .from(homeConfig)
+    .limit(1);
+  
+  return result[0];
+}
+
+export async function updateHomeConfig(data: Partial<InsertHomeConfig>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get existing config
+  const existing = await getHomeConfig();
+  
+  if (existing) {
+    // Update existing
+    await db.update(homeConfig).set(data).where(eq(homeConfig.id, existing.id));
+  } else {
+    // Create new
+    await db.insert(homeConfig).values(data as InsertHomeConfig);
+  }
 }
