@@ -462,6 +462,73 @@ ${roomsContext}
         return { success: true };
       }),
   }),
+
+  // Featured Services Management
+  featuredServices: router({
+    list: publicProcedure.query(async () => {
+      return await db.getAllFeaturedServices();
+    }),
+
+    getById: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const service = await db.getFeaturedServiceById(input.id);
+        if (!service) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Featured service not found' });
+        }
+        return service;
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        title: z.string(),
+        titleEn: z.string().optional(),
+        description: z.string(),
+        descriptionEn: z.string().optional(),
+        image: z.string().optional(),
+        displayOrder: z.number().default(0),
+        isActive: z.boolean().default(true),
+      }))
+      .mutation(async ({ input }) => {
+        const service = await db.createFeaturedService(input);
+        if (!service) {
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create featured service' });
+        }
+        return service;
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().optional(),
+        titleEn: z.string().optional(),
+        description: z.string().optional(),
+        descriptionEn: z.string().optional(),
+        image: z.string().optional(),
+        displayOrder: z.number().optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        const service = await db.updateFeaturedService(id, data);
+        if (!service) {
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update featured service' });
+        }
+        return service;
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const success = await db.deleteFeaturedService(input.id);
+        if (!success) {
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to delete featured service' });
+        }
+        return { success: true };
+      }),
+  }),
+
+
 });
 
 export type AppRouter = typeof appRouter;

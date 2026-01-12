@@ -153,3 +153,23 @@ export const homeConfig = mysqlTable("home_config", {
 
 export type HomeConfig = typeof homeConfig.$inferSelect;
 export type InsertHomeConfig = typeof homeConfig.$inferInsert;
+
+
+/**
+ * Featured services configuration table - stores featured services with images and descriptions
+ */
+export const featuredServices = mysqlTable("featured_services", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 100 }).notNull(),
+  titleEn: varchar("titleEn", { length: 100 }),
+  description: text("description").notNull(),
+  descriptionEn: text("descriptionEn"),
+  image: varchar("image", { length: 500 }),
+  displayOrder: int("displayOrder").default(0).notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FeaturedService = typeof featuredServices.$inferSelect;
+export type InsertFeaturedService = typeof featuredServices.$inferInsert;

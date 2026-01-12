@@ -29,6 +29,13 @@
       "when": 1768205212903,
       "tag": "0003_wakeful_major_mapleleaf",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1768206171532,
+      "tag": "0004_puzzling_serpent_society",
+      "breakpoints": true
     }
   ]
 }

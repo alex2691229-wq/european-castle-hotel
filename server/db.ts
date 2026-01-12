@@ -23,7 +23,10 @@ import {
   InsertRoomAvailability,
   homeConfig,
   HomeConfig,
-  InsertHomeConfig
+  InsertHomeConfig,
+  featuredServices,
+  FeaturedService,
+  InsertFeaturedService
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -286,6 +289,18 @@ export async function getAllFacilities(): Promise<Facility[]> {
   return result;
 }
 
+export async function getFacilityById(id: number): Promise<Facility | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db
+    .select()
+    .from(facilities)
+    .where(eq(facilities.id, id));
+  
+  return result[0] || null;
+}
+
 export async function createFacility(data: InsertFacility): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -481,3 +496,85 @@ export async function updateHomeConfig(data: Partial<InsertHomeConfig>): Promise
     await db.insert(homeConfig).values(data as InsertHomeConfig);
   }
 }
+
+
+// Featured Services Management
+export async function getAllFeaturedServices(): Promise<FeaturedService[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  try {
+    const result = await db
+      .select()
+      .from(featuredServices)
+      .where(eq(featuredServices.isActive, true))
+      .orderBy(featuredServices.displayOrder);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get featured services:", error);
+    return [];
+  }
+}
+
+export async function getFeaturedServiceById(id: number): Promise<FeaturedService | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  try {
+    const result = await db
+      .select()
+      .from(featuredServices)
+      .where(eq(featuredServices.id, id));
+    return result[0] || null;
+  } catch (error) {
+    console.error("[Database] Failed to get featured service:", error);
+    return null;
+  }
+}
+
+export async function createFeaturedService(data: InsertFeaturedService): Promise<FeaturedService | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  try {
+    const result = await db.insert(featuredServices).values(data);
+    const id = (result as any).insertId;
+    return getFeaturedServiceById(id);
+  } catch (error) {
+    console.error("[Database] Failed to create featured service:", error);
+    return null;
+  }
+}
+
+export async function updateFeaturedService(id: number, data: Partial<InsertFeaturedService>): Promise<FeaturedService | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  try {
+    await db
+      .update(featuredServices)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(featuredServices.id, id));
+    return getFeaturedServiceById(id);
+  } catch (error) {
+    console.error("[Database] Failed to update featured service:", error);
+    return null;
+  }
+}
+
+export async function deleteFeaturedService(id: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  
+  try {
+    await db
+      .delete(featuredServices)
+      .where(eq(featuredServices.id, id));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to delete featured service:", error);
+    return false;
+  }
+}
+
+
