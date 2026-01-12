@@ -72,10 +72,10 @@ export default function Footer() {
               <li className="flex items-center space-x-3">
                 <Mail size={18} className="text-primary flex-shrink-0" />
                 <a 
-                  href="mailto:info@europeancastle.com.tw" 
+                  href="mailto:castle6359577@gmail.com" 
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  info@europeancastle.com.tw
+                  castle6359577@gmail.com
                 </a>
               </li>
             </ul>
