@@ -152,7 +152,7 @@ export async function deleteRoomType(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  await db.update(roomTypes).set({ isAvailable: false }).where(eq(roomTypes.id, id));
+  await db.delete(roomTypes).where(eq(roomTypes.id, id));
 }
 
 // Bookings queries
