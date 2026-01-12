@@ -121,3 +121,19 @@ export const contactMessages = mysqlTable("contact_messages", {
 
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = typeof contactMessages.$inferInsert;
+
+/**
+ * Room availability table - stores which dates are available for booking
+ */
+export const roomAvailability = mysqlTable("room_availability", {
+  id: int("id").autoincrement().primaryKey(),
+  roomTypeId: int("roomTypeId").notNull(),
+  date: timestamp("date").notNull(),
+  isAvailable: boolean("isAvailable").default(true).notNull(),
+  reason: varchar("reason", { length: 200 }), // optional reason for unavailability
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RoomAvailability = typeof roomAvailability.$inferSelect;
+export type InsertRoomAvailability = typeof roomAvailability.$inferInsert;

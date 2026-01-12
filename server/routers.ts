@@ -359,6 +359,57 @@ ${roomsContext}
       }),
   }),
 
+  // Room Availability Management
+  roomAvailability: router({
+    // Get availability for a specific room type and date range
+    getByRoomAndDateRange: publicProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        startDate: z.date(),
+        endDate: z.date(),
+      }))
+      .query(async ({ input }) => {
+        return await db.getRoomAvailabilityByDateRange(
+          input.roomTypeId,
+          input.startDate,
+          input.endDate
+        );
+      }),
+    
+    // Set availability for specific dates (batch operation)
+    setAvailability: adminProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        dates: z.array(z.date()),
+        isAvailable: z.boolean(),
+        reason: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.setRoomAvailability(
+          input.roomTypeId,
+          input.dates,
+          input.isAvailable,
+          input.reason
+        );
+        return { success: true };
+      }),
+    
+    // Get all unavailable dates for a room type (for calendar display)
+    getUnavailableDates: publicProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        startDate: z.date(),
+        endDate: z.date(),
+      }))
+      .query(async ({ input }) => {
+        return await db.getUnavailableDates(
+          input.roomTypeId,
+          input.startDate,
+          input.endDate
+        );
+      }),
+  }),
+
   // Contact Messages
   contact: router({
     send: publicProcedure

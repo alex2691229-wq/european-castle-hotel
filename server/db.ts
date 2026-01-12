@@ -17,7 +17,10 @@ import {
   InsertFacility,
   contactMessages,
   ContactMessage,
-  InsertContactMessage
+  InsertContactMessage,
+  roomAvailability,
+  RoomAvailability,
+  InsertRoomAvailability
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -321,4 +324,128 @@ export async function markMessageAsRead(id: number): Promise<void> {
   if (!db) throw new Error("Database not available");
   
   await db.update(contactMessages).set({ isRead: true }).where(eq(contactMessages.id, id));
+}
+
+// Room Availability queries
+export async function getRoomAvailabilityByDateRange(
+  roomTypeId: number,
+  startDate: Date,
+  endDate: Date
+): Promise<RoomAvailability[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select()
+    .from(roomAvailability)
+    .where(
+      and(
+        eq(roomAvailability.roomTypeId, roomTypeId),
+        gte(roomAvailability.date, startDate),
+        lte(roomAvailability.date, endDate)
+      )
+    )
+    .orderBy(roomAvailability.date);
+  
+  return result;
+}
+
+export async function setRoomAvailability(
+  roomTypeId: number,
+  dates: Date[],
+  isAvailable: boolean,
+  reason?: string
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // For each date, insert or update the availability record
+  for (const date of dates) {
+    // Normalize date to midnight UTC
+    const normalizedDate = new Date(date);
+    normalizedDate.setUTCHours(0, 0, 0, 0);
+    
+    // Check if record exists
+    const existing = await db
+      .select()
+      .from(roomAvailability)
+      .where(
+        and(
+          eq(roomAvailability.roomTypeId, roomTypeId),
+          eq(roomAvailability.date, normalizedDate)
+        )
+      )
+      .limit(1);
+    
+    if (existing.length > 0) {
+      // Update existing record
+      await db
+        .update(roomAvailability)
+        .set({ isAvailable, reason, updatedAt: new Date() })
+        .where(eq(roomAvailability.id, existing[0].id));
+    } else {
+      // Insert new record
+      await db.insert(roomAvailability).values({
+        roomTypeId,
+        date: normalizedDate,
+        isAvailable,
+        reason,
+      });
+    }
+  }
+}
+
+export async function getUnavailableDates(
+  roomTypeId: number,
+  startDate: Date,
+  endDate: Date
+): Promise<Date[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get dates marked as unavailable by admin
+  const unavailableRecords = await db
+    .select()
+    .from(roomAvailability)
+    .where(
+      and(
+        eq(roomAvailability.roomTypeId, roomTypeId),
+        eq(roomAvailability.isAvailable, false),
+        gte(roomAvailability.date, startDate),
+        lte(roomAvailability.date, endDate)
+      )
+    );
+  
+  // Get dates with confirmed bookings
+  const bookedDates = await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.roomTypeId, roomTypeId),
+        eq(bookings.status, "confirmed"),
+        gte(bookings.checkInDate, startDate),
+        lte(bookings.checkInDate, endDate)
+      )
+    );
+  
+  // Combine both sets of dates
+  const allUnavailableDates = new Set<string>();
+  
+  unavailableRecords.forEach(record => {
+    allUnavailableDates.add(record.date.toISOString().split('T')[0]);
+  });
+  
+  bookedDates.forEach(booking => {
+    // Add all dates between check-in and check-out
+    const current = new Date(booking.checkInDate);
+    const end = new Date(booking.checkOutDate);
+    
+    while (current < end) {
+      allUnavailableDates.add(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+  });
+  
+  return Array.from(allUnavailableDates).map(dateStr => new Date(dateStr));
 }

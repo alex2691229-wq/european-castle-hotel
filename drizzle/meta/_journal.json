@@ -15,6 +15,13 @@
       "when": 1768146830791,
       "tag": "0001_flaky_blonde_phantom",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1768199621337,
+      "tag": "0002_aromatic_blazing_skull",
+      "breakpoints": true
     }
   ]
 }
