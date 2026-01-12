@@ -36,6 +36,20 @@
       "when": 1768206171532,
       "tag": "0004_puzzling_serpent_society",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1768208718653,
+      "tag": "0005_zippy_tyger_tiger",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1768208970613,
+      "tag": "0006_vengeful_sinister_six",
+      "breakpoints": true
     }
   ]
 }
