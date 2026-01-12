@@ -262,12 +262,12 @@ export default function Home() {
                         <div className="flex justify-between items-center mb-4">
                           <div>
                             <p className="text-sm text-gray-500">平日價格</p>
-                            <p className="text-xl font-bold text-gold">NT${room.price}</p>
+                            <p className="text-xl font-bold text-gold">NT${Math.floor(Number(room.price)).toLocaleString()}</p>
                           </div>
                           {room.weekendPrice && (
                             <div>
                               <p className="text-sm text-gray-500">假日價格</p>
-                              <p className="text-xl font-bold text-gold">NT${room.weekendPrice}</p>
+                              <p className="text-xl font-bold text-gold">NT${Math.floor(Number(room.weekendPrice)).toLocaleString()}</p>
                             </div>
                           )}
                         </div>
