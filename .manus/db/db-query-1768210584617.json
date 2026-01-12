@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE facilities SET description = '配備高級衛浴設備，包含浴缸與頂級盥洗用品，讓您享受極致放鬆的沐浴體驗。' WHERE name LIKE '%衛浴%';\nUPDATE facilities SET description = '車庫客房皆配備獨立車庫，確保您的愛車安全與隱私。車庫空間寬敞，方便停車與上下車。' WHERE name LIKE '%車庫%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute UPDATE facilities SET description = '配備高級衛浴設備，包含浴缸與頂級盥洗用品，讓您享受極致放鬆的沐浴體驗。' WHERE name LIKE '%衛浴%';\nUPDATE facilities SET description = '車庫客房皆配備獨立車庫，確保您的愛車安全與隱私。車庫空間寬敞，方便停車與上下車。' WHERE name LIKE '%車庫%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1862
+}

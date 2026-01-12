@@ -1,0 +1,30 @@
+{
+  "query": "SELECT id, name, description FROM facilities LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, name, description FROM facilities LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "VIP獨立車庫",
+      "description": "每間客房皆配備獨立車庫，確保您的愛車安全與隱私。車庫空間寬敞，方便停車與上下車。"
+    },
+    {
+      "id": "2",
+      "name": "豪華衛浴設備",
+      "description": "配備高級衛浴設備，包含按摩浴缸、蒸氣室與頂級盥洗用品，讓您享受極致放鬆的沐浴體驗。"
+    },
+    {
+      "id": "3",
+      "name": "高速無線網路",
+      "description": "全館提供高速無線網路，無論是商務需求或休閒娛樂，都能享受流暢的網路體驗。"
+    },
+    {
+      "id": "4",
+      "name": "24小時服務",
+      "description": "提供全天候專業服務，隨時為您解決各種需求，確保您的住宿體驗完美無瑕。"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tdescription\n1\tVIP獨立車庫\t每間客房皆配備獨立車庫，確保您的愛車安全與隱私。車庫空間寬敞，方便停車與上下車。\n2\t豪華衛浴設備\t配備高級衛浴設備，包含按摩浴缸、蒸氣室與頂級盥洗用品，讓您享受極致放鬆的沐浴體驗。\n3\t高速無線網路\t全館提供高速無線網路，無論是商務需求或休閒娛樂，都能享受流暢的網路體驗。\n4\t24小時服務\t提供全天候專業服務，隨時為您解決各種需求，確保您的住宿體驗完美無瑕。\n",
+  "stderr": "",
+  "execution_time_ms": 1618
+}
