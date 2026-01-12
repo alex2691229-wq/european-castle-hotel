@@ -127,13 +127,13 @@ export default function Home() {
               <div className="flex gap-4 justify-center pt-6">
                 <button 
                   onClick={() => window.location.href = '/booking'}
-                  className="px-8 py-3 bg-gold text-white font-bold hover:bg-gold/90 transition-colors rounded"
+                  className="px-8 py-3 border-2 border-white text-white font-bold hover:bg-white/10 transition-colors rounded"
                 >
                   立即訂房
                 </button>
                 <button 
                   onClick={() => window.location.href = '/rooms'}
-                  className="px-8 py-3 border-2 border-gold text-gold hover:bg-gold/10 transition-colors rounded font-semibold"
+                  className="px-8 py-3 border-2 border-white text-white hover:bg-white/10 transition-colors rounded font-semibold"
                 >
                   探索客房
                 </button>

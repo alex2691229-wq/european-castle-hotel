@@ -41,8 +41,21 @@ export default function RoomDetail() {
     );
   }
 
-  const images = room.images ? JSON.parse(room.images) : [];
-  const amenities = room.amenities ? JSON.parse(room.amenities) : [];
+  const safeJsonParse = (str: any) => {
+    if (!str) return [];
+    if (typeof str === 'string') {
+      try {
+        return JSON.parse(str);
+      } catch (e) {
+        // If it's a comma-separated string, split it
+        return str.split(',').map((item: string) => item.trim()).filter(Boolean);
+      }
+    }
+    return Array.isArray(str) ? str : [];
+  };
+
+  const images = safeJsonParse(room.images);
+  const amenities = safeJsonParse(room.amenities);
 
   return (
     <div className="min-h-screen bg-background pt-20">
@@ -177,7 +190,7 @@ export default function RoomDetail() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">平日價格</p>
                     <p className="text-4xl font-bold text-primary mb-1">
-                      NT$ {Number(room.price).toLocaleString()}
+                      NT$ {Math.floor(Number(room.price)).toLocaleString()}
                     </p>
                     <p className="text-sm text-muted-foreground">/晚</p>
                   </div>

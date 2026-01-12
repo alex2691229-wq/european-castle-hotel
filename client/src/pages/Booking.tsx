@@ -164,7 +164,7 @@ export default function Booking() {
                         <SelectContent>
                           {roomTypes?.map((room) => (
                             <SelectItem key={room.id} value={room.id.toString()}>
-                              {room.name} - NT$ {Number(room.price).toLocaleString()}
+                              {room.name} - NT$ {Math.floor(Number(room.price)).toLocaleString()}
                             </SelectItem>
                           ))}
                         </SelectContent>

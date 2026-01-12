@@ -159,7 +159,7 @@ export default function Rooms() {
                       <div>
                         <p className="text-sm text-muted-foreground mb-1">平日價格</p>
                         <p className="text-3xl font-bold text-primary">
-                          NT$ {Number(room.price).toLocaleString()}
+                          NT$ {Math.floor(Number(room.price)).toLocaleString()}
                         </p>
                         {room.weekendPrice && (
                           <p className="text-sm text-muted-foreground mt-1">
