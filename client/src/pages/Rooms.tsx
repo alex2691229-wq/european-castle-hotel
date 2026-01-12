@@ -6,12 +6,22 @@ import { Users, Maximize2 } from "lucide-react";
 
 // 安全解析 JSON 的輔助函數
 const safeJsonParse = (jsonString: string | null | undefined, defaultValue: any[] = []) => {
-  if (!jsonString) return defaultValue;
+  if (!jsonString || jsonString.trim() === '') return defaultValue;
+  
+  // 如果已經是陣列，直接返回
+  if (Array.isArray(jsonString)) return jsonString;
+  
+  // 如果不是 JSON 格式（不以 [ 或 { 開頭），返回預設值
+  const trimmed = jsonString.trim();
+  if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) {
+    return defaultValue;
+  }
+  
   try {
-    const parsed = JSON.parse(jsonString);
+    const parsed = JSON.parse(trimmed);
     return Array.isArray(parsed) ? parsed : defaultValue;
   } catch (error) {
-    console.error('JSON parse error:', error);
+    console.warn('JSON parse error, using default value:', error);
     return defaultValue;
   }
 };
