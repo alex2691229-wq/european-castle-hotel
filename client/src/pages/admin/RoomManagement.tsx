@@ -20,10 +20,27 @@ export default function RoomManagement() {
     amenities: "",
   });
 
+  const utils = trpc.useUtils();
   const { data: rooms, isLoading } = trpc.roomTypes.list.useQuery();
-  const createMutation = trpc.roomTypes.create.useMutation();
-  const updateMutation = trpc.roomTypes.update.useMutation();
-  const deleteMutation = trpc.roomTypes.delete.useMutation();
+  const createMutation = trpc.roomTypes.create.useMutation({
+    onSuccess: () => {
+      utils.roomTypes.list.invalidate();
+    },
+  });
+  const updateMutation = trpc.roomTypes.update.useMutation({
+    onSuccess: () => {
+      utils.roomTypes.list.invalidate();
+    },
+  });
+  const deleteMutation = trpc.roomTypes.delete.useMutation({
+    onSuccess: () => {
+      utils.roomTypes.list.invalidate();
+      toast.success("房型已刪除");
+    },
+    onError: () => {
+      toast.error("刪除失敗，請重試");
+    },
+  });
   const uploadMutation = trpc.upload.image.useMutation();
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,12 +138,7 @@ export default function RoomManagement() {
 
   const handleDelete = async (id: number) => {
     if (confirm("確定要刪除此房型嗎？")) {
-      try {
-        await deleteMutation.mutateAsync({ id });
-        toast.success("房型已刪除");
-      } catch (error) {
-        toast.error("刪除失敗，請重試");
-      }
+      await deleteMutation.mutateAsync({ id });
     }
   };
 

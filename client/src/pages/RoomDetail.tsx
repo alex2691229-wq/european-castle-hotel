@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { Users, Maximize2, ArrowLeft, Check } from "lucide-react";
 import { useState } from "react";
+import BookingCalendar from "@/components/BookingCalendar";
 
 export default function RoomDetail() {
   const [, params] = useRoute("/rooms/:id");
@@ -191,6 +192,24 @@ export default function RoomDetail() {
                 >
                   詢問房型
                 </Button>
+              </CardContent>
+            </Card>
+            
+            {/* 可預訂日期日曆 */}
+            <Card className="bg-card border-border">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold text-foreground mb-6">
+                  可預訂日期
+                </h3>
+                <BookingCalendar 
+                  roomTypeId={roomId}
+                  onDateSelect={(date) => {
+                    console.log('選擇的日期:', date);
+                  }}
+                />
+                <p className="text-sm text-muted-foreground mt-4">
+                  點擊可預訂日期即可快速選擇入住日期
+                </p>
               </CardContent>
             </Card>
           </div>
