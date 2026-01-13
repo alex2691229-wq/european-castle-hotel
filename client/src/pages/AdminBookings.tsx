@@ -44,6 +44,8 @@ export default function AdminBookings() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState<Partial<PaymentInfo>>({});
   const [dateFilter, setDateFilter] = useState<"all" | "today" | "tomorrow" | "week">("all");
+  const [lastFiveDigits, setLastFiveDigits] = useState<Record<number, string>>({});
+  const [lastFiveDigitsError, setLastFiveDigitsError] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (!user) {
