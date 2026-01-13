@@ -26,22 +26,30 @@ export default function Booking() {
   const [guestPhone, setGuestPhone] = useState("");
   const [numberOfGuests, setNumberOfGuests] = useState("2");
   const [specialRequests, setSpecialRequests] = useState("");
+  const [minDate, setMinDate] = useState("");
 
   const { data: roomTypes } = trpc.roomTypes.list.useQuery();
   const createBookingMutation = trpc.bookings.create.useMutation();
 
-  // Get roomId from URL query if available
+  // Get roomId from URL query if available and set min date
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const roomId = params.get("roomId");
     if (roomId) {
       setSelectedRoomId(roomId);
     }
+    
+    // Set minimum date to today (using local date)
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    setMinDate(`${year}-${month}-${day}`);
   }, []);
 
   const selectedRoom = roomTypes?.find(
     (room) => room.id === parseInt(selectedRoomId)
-  );
+  ) || null;
 
   const calculateTotalPrice = () => {
     if (!selectedRoom || !checkInDate || !checkOutDate) return 0;
@@ -159,7 +167,9 @@ export default function Booking() {
                       </Label>
                       <Select value={selectedRoomId} onValueChange={setSelectedRoomId}>
                         <SelectTrigger className="bg-background border-border">
-                          <SelectValue placeholder="請選擇房型" />
+                          <SelectValue placeholder="請選擇房型">
+                            {selectedRoom ? `${selectedRoom.name} - NT$ ${Math.floor(Number(selectedRoom.price)).toLocaleString()}` : "請選擇房型"}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {roomTypes?.map((room) => (
@@ -183,7 +193,7 @@ export default function Booking() {
                             type="date"
                             value={checkInDate}
                             onChange={(e) => setCheckInDate(e.target.value)}
-                            min={new Date().toISOString().split("T")[0]}
+                            min={minDate}
                             className="bg-background border-border"
                             required
                           />
@@ -200,7 +210,7 @@ export default function Booking() {
                             type="date"
                             value={checkOutDate}
                             onChange={(e) => setCheckOutDate(e.target.value)}
-                            min={checkInDate || new Date().toISOString().split("T")[0]}
+                            min={checkInDate || minDate}
                             className="bg-background border-border"
                             required
                           />

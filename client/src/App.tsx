@@ -13,6 +13,7 @@ import RoomDetail from "./pages/RoomDetail";
 import Booking from "./pages/Booking";
 import Facilities from "./pages/Facilities";
 import News from "./pages/News";
+import NewsDetail from "./pages/NewsDetail";
 import Location from "./pages/Location";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
@@ -29,6 +30,7 @@ function Router() {
           <Route path="/booking" component={Booking} />
           <Route path="/facilities" component={Facilities} />
           <Route path="/news" component={News} />
+          <Route path="/news/:id" component={NewsDetail} />
           <Route path="/location" component={Location} />
           <Route path="/contact" component={Contact} />
           <Route path="/admin" component={Admin} />
