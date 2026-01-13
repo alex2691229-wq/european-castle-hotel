@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, username, name, role, status, loginMethod FROM users WHERE username = 'jason';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, username, name, role, status, loginMethod FROM users WHERE username = 'jason';",
+  "rows": [
+    {
+      "id": "211351",
+      "username": "jason",
+      "name": "Jason",
+      "role": "admin",
+      "status": "active",
+      "loginMethod": "local"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\trole\tstatus\tloginMethod\n211351\tjason\tJason\tadmin\tactive\tlocal\n",
+  "stderr": "",
+  "execution_time_ms": 1542
+}

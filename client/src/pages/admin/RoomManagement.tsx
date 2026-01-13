@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Edit2, Upload, X, AlertCircle } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, Upload, X, AlertCircle, ChevronUp, ChevronDown } from "lucide-react";
 
 export default function RoomManagement() {
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -167,6 +167,44 @@ export default function RoomManagement() {
     if (confirm("確定要刪除此房型嗎？")) {
       await deleteMutation.mutateAsync({ id });
     }
+  };
+
+  const handleMoveUp = async (id: number) => {
+    if (!rooms) return;
+    const index = rooms.findIndex((r: any) => r.id === id);
+    if (index <= 0) return;
+    
+    const currentRoom = rooms[index];
+    const previousRoom = rooms[index - 1];
+    
+    // 交換 displayOrder
+    await updateMutation.mutateAsync({
+      id: currentRoom.id,
+      displayOrder: previousRoom.displayOrder,
+    });
+    await updateMutation.mutateAsync({
+      id: previousRoom.id,
+      displayOrder: currentRoom.displayOrder,
+    });
+  };
+
+  const handleMoveDown = async (id: number) => {
+    if (!rooms) return;
+    const index = rooms.findIndex((r: any) => r.id === id);
+    if (index < 0 || index >= rooms.length - 1) return;
+    
+    const currentRoom = rooms[index];
+    const nextRoom = rooms[index + 1];
+    
+    // 交換 displayOrder
+    await updateMutation.mutateAsync({
+      id: currentRoom.id,
+      displayOrder: nextRoom.displayOrder,
+    });
+    await updateMutation.mutateAsync({
+      id: nextRoom.id,
+      displayOrder: currentRoom.displayOrder,
+    });
   };
 
   return (
@@ -531,6 +569,24 @@ export default function RoomManagement() {
                       </p>
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleMoveUp(room.id)}
+                        disabled={rooms.indexOf(room) === 0}
+                        title="上移"
+                      >
+                        <ChevronUp className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleMoveDown(room.id)}
+                        disabled={rooms.indexOf(room) === rooms.length - 1}
+                        title="下移"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"

@@ -16,7 +16,7 @@ export default function Login() {
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: (data) => {
       toast.success(`歡迎回來，${data.user.name || data.user.username}！`);
-      setLocation("/admin/booking-management");
+      setLocation("/admin");
     },
     onError: (error) => {
       toast.error(error.message);

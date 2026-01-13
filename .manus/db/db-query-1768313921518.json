@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO users (username, passwordHash, name, role, status, loginMethod, createdAt, updatedAt, lastSignedIn)\nVALUES ('jason', '$2b$10$UvT.0Kv24tSor0yX3AbmIO6TF2YpwqI8wyVoZA0TgGs7b7tNOWjWy', 'Jason', 'admin', 'active', 'local', NOW(), NOW(), NOW())\nON DUPLICATE KEY UPDATE \npasswordHash = '$2b$10$UvT.0Kv24tSor0yX3AbmIO6TF2YpwqI8wyVoZA0TgGs7b7tNOWjWy',\nrole = 'admin',\nloginMethod = 'local',\nupdatedAt = NOW();",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute INSERT INTO users (username, passwordHash, name, role, status, loginMethod, createdAt, updatedAt, lastSignedIn)\nVALUES ('jason', '$2b$10$UvT.0Kv24tSor0yX3AbmIO6TF2YpwqI8wyVoZA0TgGs7b7tNOWjWy', 'Jason', 'admin', 'active', 'local', NOW(), NOW(), NOW())\nON DUPLICATE KEY UPDATE \npasswordHash = '$2b$10$UvT.0Kv24tSor0yX3AbmIO6TF2YpwqI8wyVoZA0TgGs7b7tNOWjWy',\nrole = 'admin',\nloginMethod = 'local',\nupdatedAt = NOW();",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1547
+}
