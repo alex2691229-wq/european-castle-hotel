@@ -299,6 +299,23 @@ export default function AvailabilityManagement() {
                   const record = availabilityRecords.find(r => new Date(r.date).toISOString().split('T')[0] === dateStr);
                   const maxQty = record?.maxSalesQuantity || 10;
                   const bookedQty = record?.bookedQuantity || 0;
+                  
+                  // 計算當天的房價
+                  const dayOfWeek = date.getDay();
+                  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                  const selectedRoomData = roomTypes.find(r => r.id === selectedRoomTypeId);
+                  // 根據房型的價格欄位名稱（price 是平日價， weekendPrice 是假日價）
+                  const basePrice = isWeekend ? 
+                    (typeof selectedRoomData?.weekendPrice === 'string' ? parseInt(selectedRoomData.weekendPrice) : selectedRoomData?.weekendPrice) :
+                    (typeof selectedRoomData?.price === 'string' ? parseInt(selectedRoomData.price) : selectedRoomData?.price);
+                  
+                  let displayPrice: number | string | null | undefined = basePrice;
+                  // 如果有動態價格，使用動態價格
+                  if (record?.weekdayPrice && !isWeekend) {
+                    displayPrice = typeof record.weekdayPrice === 'string' ? parseInt(record.weekdayPrice) : record.weekdayPrice;
+                  } else if (record?.weekendPrice && isWeekend) {
+                    displayPrice = typeof record.weekendPrice === 'string' ? parseInt(record.weekendPrice) : record.weekendPrice;
+                  }
 
                   return (
                     <div key={index} className="relative">
@@ -312,6 +329,7 @@ export default function AvailabilityManagement() {
                                 ${isSelected ? "scale-95" : ""}`}
                             >
                               <span className="font-semibold">{date.getDate()}</span>
+                              {displayPrice && <span className="text-xs text-gold mt-0.5">NT${typeof displayPrice === 'number' ? displayPrice.toLocaleString() : displayPrice}</span>}
                               <span className="text-xs text-gray-400 mt-0.5">{bookedQty}/{maxQty}</span>
                               {isBooked && (
                                 <span className="text-xs text-red-400 mt-1">已訂</span>
