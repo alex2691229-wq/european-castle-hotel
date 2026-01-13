@@ -251,6 +251,11 @@ export function generateBookingConfirmationEmail(
             我們將在 24 小時內確認您的訂房。如有任何問題，歡迎隨時聯絡我們。
           </p>
           
+          <div style="text-align: center; margin: 30px 0;">
+            <p style="margin-bottom: 15px; color: #666;">需要取消訂單嗎？</p>
+            <a href="https://3000-i6tfff90fhdcsut2i9gdb-8dc5f50d.sg1.manus.computer/cancel-booking?bookingId=${bookingId}" class="button" style="background-color: #e74c3c; display: inline-block; padding: 12px 30px; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">取消訂單</a>
+          </div>
+          
           <div class="footer">
             <p>
               © 2026 歐堡商務汽車旅館有限公司<br>

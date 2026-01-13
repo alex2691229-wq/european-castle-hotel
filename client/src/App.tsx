@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
@@ -24,6 +24,7 @@ import Admin from "./pages/Admin";
 import Privacy from "./pages/Privacy";
 import Transportation from "./pages/Transportation";
 import TermsOfService from "./pages/TermsOfService";
+import CancelBooking from "./pages/CancelBooking";
 
 function Router() {
   return (
@@ -47,6 +48,7 @@ function Router() {
           <Route path="/admin" component={Admin} />          <Route path="/privacy" component={Privacy} />
           <Route path="/transportation" component={Transportation} />
           <Route path="/terms" component={TermsOfService} />
+          <Route path="/cancel-booking" component={CancelBooking} />
           <Route path="/404" component={NotFound} />
           {/* Final fallback route */}
           <Route component={NotFound} />
