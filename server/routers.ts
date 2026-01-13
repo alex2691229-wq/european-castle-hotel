@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "./_core/notification";
+import { sendEmail, generateBookingConfirmationEmail, generateAdminNotificationEmail } from "./_core/email";
 import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
 import bcrypt from "bcrypt";
@@ -232,12 +233,51 @@ export const appRouter = router({
         
         const id = await db.createBooking(bookingData);
         
-        // Update booked quantity for each date
-        // Note: This is handled by the booking creation itself
-        // await db.updateBookedQuantity(input.roomTypeId, checkInDate, 1);
-        
-        // Notify owner about new booking
+        // Get room type information for email
         const roomType = await db.getRoomTypeById(input.roomTypeId);
+        
+        // Send confirmation email to guest
+        if (input.guestEmail) {
+          const guestEmailHtml = generateBookingConfirmationEmail(
+            input.guestName,
+            roomType?.name || '房型',
+            checkInDate,
+            checkOutDate,
+            input.numberOfGuests,
+            input.totalPrice,
+            id,
+            input.specialRequests
+          );
+          await sendEmail(
+            input.guestEmail,
+            `訂房確認 - 歐堡商務汽車旅館 (訂房編號: #${id})`,
+            guestEmailHtml
+          );
+        }
+        
+        // Send notification email to admin
+        const adminEmail = process.env.SMTP_USER;
+        if (adminEmail) {
+          const adminEmailHtml = generateAdminNotificationEmail(
+            input.guestName,
+            input.guestEmail || '未提供',
+            input.guestPhone,
+            roomType?.name || '房型',
+            checkInDate,
+            checkOutDate,
+            input.numberOfGuests,
+            input.totalPrice,
+            id,
+            input.specialRequests
+          );
+          await sendEmail(
+            adminEmail,
+            `新訂房通知 - ${input.guestName} (訂房編號: #${id})`,
+            adminEmailHtml
+          );
+        }
+        
+        // Notify owner about new booking (existing notification system)
         await notifyOwner({
           title: '新訂房通知',
           content: `收到新的訂房申請\n房型：${roomType?.name}\n入住日期：${checkInDate.toLocaleDateString()}\n退房日期：${checkOutDate.toLocaleDateString()}\n訂房人：${input.guestName}\n聯絡電話：${input.guestPhone}`,
