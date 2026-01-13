@@ -9,11 +9,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, CheckCircle, XCircle, AlertCircle, Clock } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, AlertCircle, Clock, Mail, CheckSquare } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function BookingManagement() {
   const { data: bookings, isLoading } = trpc.bookings.list.useQuery();
+  const utils = trpc.useUtils();
+  
+  // 快速操作 mutations
+  const confirmBookingMutation = trpc.bookings.confirmBooking.useMutation({
+    onSuccess: () => {
+      utils.bookings.list.invalidate();
+      toast.success('訂房已確認');
+    },
+    onError: (error) => {
+      toast.error(`確認失敗：${error.message}`);
+    },
+  });
+  
+  const markCheckedInMutation = trpc.bookings.markCheckedIn.useMutation({
+    onSuccess: () => {
+      utils.bookings.list.invalidate();
+      toast.success('已標記入住');
+    },
+    onError: (error) => {
+      toast.error(`標記失敗：${error.message}`);
+    },
+  });
+  
+  const sendEmailMutation = trpc.bookings.sendEmail.useMutation({
+    onSuccess: () => {
+      toast.success('郵件已發送');
+    },
+    onError: (error) => {
+      toast.error(`發送失敗：${error.message}`);
+    },
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
@@ -298,28 +330,66 @@ export default function BookingManagement() {
                   </div>
 
                   {/* 快速操作按鈕 */}
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {booking.status === "pending" && (
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => {
+                          if (confirm('確定要確認這個訂房嗎？')) {
+                            confirmBookingMutation.mutate({ id: booking.id });
+                          }
+                        }}
+                        disabled={confirmBookingMutation.isPending}
                       >
-                        ✓ 確認訂房
+                        {confirmBookingMutation.isPending ? (
+                          <Loader2 size={14} className="animate-spin mr-1" />
+                        ) : (
+                          <CheckCircle size={14} className="mr-1" />
+                        )}
+                        確認訂房
+                      </Button>
+                    )}
+                    {(booking.status === "confirmed" || booking.status === "pending") && (
+                      <Button
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => {
+                          if (confirm('確定要標記客人已入住嗎？')) {
+                            markCheckedInMutation.mutate({ id: booking.id });
+                          }
+                        }}
+                        disabled={markCheckedInMutation.isPending}
+                      >
+                        {markCheckedInMutation.isPending ? (
+                          <Loader2 size={14} className="animate-spin mr-1" />
+                        ) : (
+                          <CheckSquare size={14} className="mr-1" />
+                        )}
+                        標記入住
                       </Button>
                     )}
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-border text-foreground hover:bg-background"
+                      className="border-border text-foreground hover:bg-accent"
+                      onClick={() => {
+                        if (!booking.guestEmail) {
+                          toast.error('該訂單沒有郵件地址');
+                          return;
+                        }
+                        if (confirm(`確定要發送確認郵件給 ${booking.guestEmail} 嗎？`)) {
+                          sendEmailMutation.mutate({ id: booking.id });
+                        }
+                      }}
+                      disabled={sendEmailMutation.isPending || !booking.guestEmail}
                     >
-                      📧 發送郵件
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-border text-foreground hover:bg-background"
-                    >
-                      編輯
+                      {sendEmailMutation.isPending ? (
+                        <Loader2 size={14} className="animate-spin mr-1" />
+                      ) : (
+                        <Mail size={14} className="mr-1" />
+                      )}
+                      發送郵件
                     </Button>
                   </div>
                 </div>

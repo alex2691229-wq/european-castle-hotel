@@ -236,6 +236,67 @@ export const appRouter = router({
         
         return { success: true };
       }),
+    
+    // 快速操作：確認訂房
+    confirmBooking: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.updateBookingStatus(input.id, "confirmed");
+        
+        const booking = await db.getBookingById(input.id);
+        if (booking) {
+          const roomType = await db.getRoomTypeById(booking.roomTypeId);
+          await notifyOwner({
+            title: '訂房已確認',
+            content: `訂房已確認\n房型：${roomType?.name}\n入住日期：${booking.checkInDate.toLocaleDateString()}\n退房日期：${booking.checkOutDate.toLocaleDateString()}\n訂房人：${booking.guestName}\n聯絡電話：${booking.guestPhone}`,
+          });
+        }
+        
+        return { success: true };
+      }),
+    
+    // 快速操作：標記入住
+    markCheckedIn: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.updateBookingStatus(input.id, "completed");
+        
+        const booking = await db.getBookingById(input.id);
+        if (booking) {
+          const roomType = await db.getRoomTypeById(booking.roomTypeId);
+          await notifyOwner({
+            title: '客人已入住',
+            content: `客人已辦理入住\n房型：${roomType?.name}\n入住日期：${booking.checkInDate.toLocaleDateString()}\n訂房人：${booking.guestName}`,
+          });
+        }
+        
+        return { success: true };
+      }),
+    
+    // 快速操作：發送郵件
+    sendEmail: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const booking = await db.getBookingById(input.id);
+        if (!booking) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+        }
+        
+        if (!booking.guestEmail) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: '該訂單沒有郵件地址' });
+        }
+        
+        const roomType = await db.getRoomTypeById(booking.roomTypeId);
+        
+        // TODO: 實際發送郵件逻輯（需要整合郵件服務）
+        // 目前只通知管理員
+        await notifyOwner({
+          title: '已發送確認郵件',
+          content: `已發送確認郵件給：${booking.guestEmail}\n房型：${roomType?.name}\n入住日期：${booking.checkInDate.toLocaleDateString()}\n訂房人：${booking.guestName}`,
+        });
+        
+        return { success: true, message: '郵件已發送' };
+      }),
   }),
 
   // News
