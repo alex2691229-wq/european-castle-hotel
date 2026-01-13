@@ -383,11 +383,10 @@ export default function Home() {
 
               <div className="bg-black/30 p-6 rounded-lg border border-green-500/30">
                 <h3 className="text-lg font-bold text-green-400 mb-4">
-                  📞 服務時間
+                  ⏰ 全年無休
                 </h3>
                 <p className="text-gray-300 text-sm">
-                  每天 09:00 - 22:00<br/>
-                  全年無休
+                  我們全年無休為您服務
                 </p>
               </div>
             </div>
