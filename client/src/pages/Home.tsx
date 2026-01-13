@@ -235,7 +235,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {roomTypes?.slice(0, 3).map((room) => {
+              {roomTypes?.map((room) => {
                 const images = safeJsonParse(room.images);
                 const amenities = safeJsonParse(room.amenities);
 

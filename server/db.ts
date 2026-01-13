@@ -178,6 +178,18 @@ export async function getAllRoomTypes(): Promise<RoomType[]> {
   const result = await db
     .select()
     .from(roomTypes)
+    .orderBy(roomTypes.displayOrder);
+  
+  return result;
+}
+
+export async function getAvailableRoomTypes(): Promise<RoomType[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select()
+    .from(roomTypes)
     .where(eq(roomTypes.isAvailable, true))
     .orderBy(roomTypes.displayOrder);
   

@@ -28,10 +28,10 @@ export default function RoomManagement() {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const utils = trpc.useUtils();
-  const { data: rooms, isLoading } = trpc.roomTypes.list.useQuery();
+  const { data: rooms, isLoading } = trpc.roomTypes.listAll.useQuery();
   const createMutation = trpc.roomTypes.create.useMutation({
     onSuccess: () => {
-      utils.roomTypes.list.invalidate();
+      utils.roomTypes.listAll.invalidate();
       setHasUnsavedChanges(false);
       toast.success('房型已成功創建 ✓');
     },
@@ -41,7 +41,7 @@ export default function RoomManagement() {
   });
   const updateMutation = trpc.roomTypes.update.useMutation({
     onSuccess: () => {
-      utils.roomTypes.list.invalidate();
+      utils.roomTypes.listAll.invalidate();
       setHasUnsavedChanges(false);
       toast.success('房型已成功更新 ✓');
     },
@@ -51,7 +51,7 @@ export default function RoomManagement() {
   });
   const deleteMutation = trpc.roomTypes.delete.useMutation({
     onSuccess: () => {
-      utils.roomTypes.list.invalidate();
+      utils.roomTypes.listAll.invalidate();
       toast.success("房型已刪除");
     },
     onError: () => {
