@@ -45,8 +45,9 @@ export async function getDb() {
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
+  // Support both openId (OAuth) and username (password) authentication
+  if (!user.openId && !user.username) {
+    throw new Error("Either openId or username is required for upsert");
   }
 
   const db = await getDb();
@@ -56,10 +57,16 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
+    const values: InsertUser = {};
     const updateSet: Record<string, unknown> = {};
+
+    // Set unique identifier
+    if (user.openId) {
+      values.openId = user.openId;
+    }
+    if (user.username) {
+      values.username = user.username;
+    }
 
     const textFields = ["name", "email", "loginMethod"] as const;
     type TextField = (typeof textFields)[number];
@@ -73,6 +80,12 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     };
 
     textFields.forEach(assignNullable);
+
+    // Handle password hash for username/password auth
+    if (user.passwordHash !== undefined) {
+      values.passwordHash = user.passwordHash;
+      updateSet.passwordHash = user.passwordHash;
+    }
 
     if (user.lastSignedIn !== undefined) {
       values.lastSignedIn = user.lastSignedIn;
@@ -113,6 +126,41 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByUsername(username: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(users).orderBy(desc(users.createdAt));
+
+  return result;
+}
+
+export async function updateUser(id: number, data: Partial<InsertUser>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(users).set(data).where(eq(users.id, id));
+}
+
+export async function deleteUser(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(users).where(eq(users.id, id));
 }
 
 // Room Types queries
@@ -376,205 +424,173 @@ export async function setRoomAvailability(
 ): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  // For each date, insert or update the availability record
+
   for (const date of dates) {
-    // Normalize date to midnight UTC
-    const normalizedDate = new Date(date);
-    normalizedDate.setUTCHours(0, 0, 0, 0);
-    
-    // Check if record exists
     const existing = await db
       .select()
       .from(roomAvailability)
       .where(
         and(
           eq(roomAvailability.roomTypeId, roomTypeId),
-          eq(roomAvailability.date, normalizedDate)
+          eq(roomAvailability.date, date)
         )
       )
       .limit(1);
-    
+
     if (existing.length > 0) {
-      // Update existing record
       await db
         .update(roomAvailability)
         .set({ isAvailable, reason, updatedAt: new Date() })
-        .where(eq(roomAvailability.id, existing[0].id));
+        .where(
+          and(
+            eq(roomAvailability.roomTypeId, roomTypeId),
+            eq(roomAvailability.date, date)
+          )
+        );
     } else {
-      // Insert new record
       await db.insert(roomAvailability).values({
         roomTypeId,
-        date: normalizedDate,
+        date,
         isAvailable,
         reason,
+        maxSalesQuantity: 10,
+        bookedQuantity: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     }
   }
 }
 
-export async function getUnavailableDates(
+export async function getRoomAvailability(
   roomTypeId: number,
-  startDate: Date,
-  endDate: Date
-): Promise<Date[]> {
+  date: Date
+): Promise<RoomAvailability | undefined> {
   const db = await getDb();
-  if (!db) return [];
-  
-  // Get dates marked as unavailable by admin
-  const unavailableRecords = await db
+  if (!db) return undefined;
+
+  const result = await db
     .select()
     .from(roomAvailability)
     .where(
       and(
         eq(roomAvailability.roomTypeId, roomTypeId),
-        eq(roomAvailability.isAvailable, false),
-        gte(roomAvailability.date, startDate),
-        lte(roomAvailability.date, endDate)
+        eq(roomAvailability.date, date)
       )
-    );
-  
-  // Get dates with confirmed bookings
-  const bookedDates = await db
-    .select()
-    .from(bookings)
+    )
+    .limit(1);
+
+  return result[0];
+}
+
+export async function updateRoomAvailability(
+  roomTypeId: number,
+  date: Date,
+  data: Partial<InsertRoomAvailability>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(roomAvailability)
+    .set({ ...data, updatedAt: new Date() })
     .where(
       and(
-        eq(bookings.roomTypeId, roomTypeId),
-        eq(bookings.status, "confirmed"),
-        gte(bookings.checkInDate, startDate),
-        lte(bookings.checkInDate, endDate)
+        eq(roomAvailability.roomTypeId, roomTypeId),
+        eq(roomAvailability.date, date)
       )
     );
-  
-  // Combine both sets of dates
-  const allUnavailableDates = new Set<string>();
-  
-  unavailableRecords.forEach(record => {
-    allUnavailableDates.add(record.date.toISOString().split('T')[0]);
-  });
-  
-  bookedDates.forEach(booking => {
-    // Add all dates between check-in and check-out
-    const current = new Date(booking.checkInDate);
-    const end = new Date(booking.checkOutDate);
-    
-    while (current < end) {
-      allUnavailableDates.add(current.toISOString().split('T')[0]);
-      current.setDate(current.getDate() + 1);
-    }
-  });
-  
-  return Array.from(allUnavailableDates).map(dateStr => new Date(dateStr));
+}
+
+export async function batchUpdateRoomAvailability(
+  roomTypeId: number,
+  dates: Date[],
+  data: Partial<InsertRoomAvailability>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  for (const date of dates) {
+    await db
+      .update(roomAvailability)
+      .set({ ...data, updatedAt: new Date() })
+      .where(
+        and(
+          eq(roomAvailability.roomTypeId, roomTypeId),
+          eq(roomAvailability.date, date)
+        )
+      );
+  }
 }
 
 // Home Config queries
 export async function getHomeConfig(): Promise<HomeConfig | undefined> {
   const db = await getDb();
   if (!db) return undefined;
-  
-  const result = await db
-    .select()
-    .from(homeConfig)
-    .limit(1);
-  
+
+  const result = await db.select().from(homeConfig).limit(1);
   return result[0];
 }
 
 export async function updateHomeConfig(data: Partial<InsertHomeConfig>): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  // Get existing config
+
   const existing = await getHomeConfig();
-  
   if (existing) {
-    // Update existing
     await db.update(homeConfig).set(data).where(eq(homeConfig.id, existing.id));
   } else {
-    // Create new
     await db.insert(homeConfig).values(data as InsertHomeConfig);
   }
 }
 
-
-// Featured Services Management
+// Featured Services queries
 export async function getAllFeaturedServices(): Promise<FeaturedService[]> {
   const db = await getDb();
   if (!db) return [];
-  
-  try {
-    const result = await db
-      .select()
-      .from(featuredServices)
-      .where(eq(featuredServices.isActive, true))
-      .orderBy(featuredServices.displayOrder);
-    return result;
-  } catch (error) {
-    console.error("[Database] Failed to get featured services:", error);
-    return [];
-  }
+
+  const result = await db
+    .select()
+    .from(featuredServices)
+    .where(eq(featuredServices.isActive, true))
+    .orderBy(featuredServices.displayOrder);
+
+  return result;
 }
 
-export async function getFeaturedServiceById(id: number): Promise<FeaturedService | null> {
+export async function getFeaturedServiceById(id: number): Promise<FeaturedService | undefined> {
   const db = await getDb();
-  if (!db) return null;
-  
-  try {
-    const result = await db
-      .select()
-      .from(featuredServices)
-      .where(eq(featuredServices.id, id));
-    return result[0] || null;
-  } catch (error) {
-    console.error("[Database] Failed to get featured service:", error);
-    return null;
-  }
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(featuredServices)
+    .where(eq(featuredServices.id, id))
+    .limit(1);
+
+  return result[0];
 }
 
-export async function createFeaturedService(data: InsertFeaturedService): Promise<FeaturedService | null> {
+export async function createFeaturedService(data: InsertFeaturedService): Promise<number> {
   const db = await getDb();
-  if (!db) return null;
-  
-  try {
-    const result = await db.insert(featuredServices).values(data);
-    const id = (result as any).insertId;
-    return getFeaturedServiceById(id);
-  } catch (error) {
-    console.error("[Database] Failed to create featured service:", error);
-    return null;
-  }
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(featuredServices).values(data);
+  return Number(result[0].insertId);
 }
 
-export async function updateFeaturedService(id: number, data: Partial<InsertFeaturedService>): Promise<FeaturedService | null> {
+export async function updateFeaturedService(id: number, data: Partial<InsertFeaturedService>): Promise<void> {
   const db = await getDb();
-  if (!db) return null;
-  
-  try {
-    await db
-      .update(featuredServices)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(featuredServices.id, id));
-    return getFeaturedServiceById(id);
-  } catch (error) {
-    console.error("[Database] Failed to update featured service:", error);
-    return null;
-  }
+  if (!db) throw new Error("Database not available");
+
+  await db.update(featuredServices).set(data).where(eq(featuredServices.id, id));
 }
 
-export async function deleteFeaturedService(id: number): Promise<boolean> {
+export async function deleteFeaturedService(id: number): Promise<void> {
   const db = await getDb();
-  if (!db) return false;
-  
-  try {
-    await db
-      .delete(featuredServices)
-      .where(eq(featuredServices.id, id));
-    return true;
-  } catch (error) {
-    console.error("[Database] Failed to delete featured service:", error);
-    return false;
-  }
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(featuredServices).where(eq(featuredServices.id, id));
 }
 
 
@@ -585,139 +601,16 @@ export async function updateMaxSalesQuantity(
 ): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  // Normalize date to midnight UTC
-  const normalizedDate = new Date(date);
-  normalizedDate.setUTCHours(0, 0, 0, 0);
-  
-  // Check if record exists
-  const existing = await db
-    .select()
-    .from(roomAvailability)
+
+  await db
+    .update(roomAvailability)
+    .set({ maxSalesQuantity, updatedAt: new Date() })
     .where(
       and(
         eq(roomAvailability.roomTypeId, roomTypeId),
-        eq(roomAvailability.date, normalizedDate)
+        eq(roomAvailability.date, date)
       )
-    )
-    .limit(1);
-  
-  if (existing.length > 0) {
-    // Update existing record
-    await db
-      .update(roomAvailability)
-      .set({ maxSalesQuantity, updatedAt: new Date() })
-      .where(eq(roomAvailability.id, existing[0].id));
-  } else {
-    // Insert new record with the max sales quantity
-    await db.insert(roomAvailability).values({
-      roomTypeId,
-      date: normalizedDate,
-      maxSalesQuantity,
-      isAvailable: true,
-    });
-  }
-}
-
-export async function checkMaxSalesQuantity(
-  roomTypeId: number,
-  checkInDate: Date,
-  checkOutDate: Date
-): Promise<boolean> {
-  const db = await getDb();
-  if (!db) return false;
-  
-  // Get all dates between check-in and check-out
-  const dates: Date[] = [];
-  const current = new Date(checkInDate);
-  while (current < checkOutDate) {
-    dates.push(new Date(current));
-    current.setDate(current.getDate() + 1);
-  }
-  
-  // Check each date
-  for (const date of dates) {
-    const normalizedDate = new Date(date);
-    normalizedDate.setUTCHours(0, 0, 0, 0);
-    
-    const record = await db
-      .select()
-      .from(roomAvailability)
-      .where(
-        and(
-          eq(roomAvailability.roomTypeId, roomTypeId),
-          eq(roomAvailability.date, normalizedDate)
-        )
-      )
-      .limit(1);
-    
-    if (record.length > 0) {
-      const maxQty = record[0].maxSalesQuantity || 10;
-      const bookedQty = record[0].bookedQuantity || 0;
-      
-      // If booked quantity reaches max, cannot book
-      if (bookedQty >= maxQty) {
-        return false;
-      }
-    }
-  }
-  
-  return true;
-}
-
-export async function updateBookedQuantity(
-  roomTypeId: number,
-  checkInDate: Date,
-  checkOutDate: Date,
-  increment: number
-): Promise<void> {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  // Get all dates between check-in and check-out
-  const dates: Date[] = [];
-  const current = new Date(checkInDate);
-  while (current < checkOutDate) {
-    dates.push(new Date(current));
-    current.setDate(current.getDate() + 1);
-  }
-  
-  // Update booked quantity for each date
-  for (const date of dates) {
-    const normalizedDate = new Date(date);
-    normalizedDate.setUTCHours(0, 0, 0, 0);
-    
-    const record = await db
-      .select()
-      .from(roomAvailability)
-      .where(
-        and(
-          eq(roomAvailability.roomTypeId, roomTypeId),
-          eq(roomAvailability.date, normalizedDate)
-        )
-      )
-      .limit(1);
-    
-    if (record.length > 0) {
-      const currentBooked = record[0].bookedQuantity || 0;
-      await db
-        .update(roomAvailability)
-        .set({ 
-          bookedQuantity: currentBooked + increment,
-          updatedAt: new Date() 
-        })
-        .where(eq(roomAvailability.id, record[0].id));
-    } else {
-      // Create new record if it doesn't exist
-      await db.insert(roomAvailability).values({
-        roomTypeId,
-        date: normalizedDate,
-        bookedQuantity: increment,
-        maxSalesQuantity: 10,
-        isAvailable: true,
-      });
-    }
-  }
+    );
 }
 
 export async function updateDynamicPrice(
@@ -728,50 +621,92 @@ export async function updateDynamicPrice(
 ): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+
+  const updateData: Record<string, any> = { updatedAt: new Date() };
   
-  // Normalize date to midnight UTC
-  const normalizedDate = new Date(date);
-  normalizedDate.setUTCHours(0, 0, 0, 0);
-  
-  // Check if record exists
-  const existing = await db
+  if (weekdayPrice !== undefined) {
+    updateData.price = weekdayPrice;
+  }
+  if (weekendPrice !== undefined) {
+    updateData.weekendPrice = weekendPrice;
+  }
+
+  await db
+    .update(roomAvailability)
+    .set(updateData)
+    .where(
+      and(
+        eq(roomAvailability.roomTypeId, roomTypeId),
+        eq(roomAvailability.date, date)
+      )
+    );
+}
+
+
+export async function getUnavailableDates(roomTypeId: number): Promise<RoomAvailability[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
     .select()
     .from(roomAvailability)
     .where(
       and(
         eq(roomAvailability.roomTypeId, roomTypeId),
-        eq(roomAvailability.date, normalizedDate)
+        eq(roomAvailability.isAvailable, false)
       )
     )
-    .limit(1);
-  
-  const updateData: any = { updatedAt: new Date() };
-  if (weekdayPrice !== undefined) {
-    updateData.weekdayPrice = weekdayPrice;
-  }
-  if (weekendPrice !== undefined) {
-    updateData.weekendPrice = weekendPrice;
-  }
-  
-  if (existing.length > 0) {
-    // Update existing record
-    await db
-      .update(roomAvailability)
-      .set(updateData)
-      .where(eq(roomAvailability.id, existing[0].id));
-  } else {
-    // Insert new record with the dynamic prices
-    const insertData: any = {
-      roomTypeId,
-      date: normalizedDate,
-      isAvailable: true,
-    };
-    if (weekdayPrice !== undefined) {
-      insertData.weekdayPrice = weekdayPrice;
+    .orderBy(roomAvailability.date);
+
+  return result;
+}
+
+export async function updateBookedQuantity(
+  roomTypeId: number,
+  date: Date,
+  bookedQuantity: number
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(roomAvailability)
+    .set({ updatedAt: new Date() })
+    .where(
+      and(
+        eq(roomAvailability.roomTypeId, roomTypeId),
+        eq(roomAvailability.date, date)
+      )
+    );
+}
+
+
+export async function checkMaxSalesQuantity(
+  roomTypeId: number,
+  checkInDate: Date,
+  checkOutDate: Date
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  // Get all availability records for the date range
+  const availabilityRecords = await db
+    .select()
+    .from(roomAvailability)
+    .where(
+      and(
+        eq(roomAvailability.roomTypeId, roomTypeId),
+        gte(roomAvailability.date, checkInDate),
+        lte(roomAvailability.date, checkOutDate)
+      )
+    );
+
+  // Check if all dates have available quantity
+  for (const record of availabilityRecords) {
+    if (record.maxSalesQuantity <= 0) {
+      return false;
     }
-    if (weekendPrice !== undefined) {
-      insertData.weekendPrice = weekendPrice;
-    }
-    await db.insert(roomAvailability).values(insertData);
   }
+
+  return true;
 }

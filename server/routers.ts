@@ -167,12 +167,8 @@ export const appRouter = router({
         const id = await db.createBooking(bookingData);
         
         // Update booked quantity for each date
-        await db.updateBookedQuantity(
-          input.roomTypeId,
-          input.checkInDate,
-          input.checkOutDate,
-          1
-        );
+        // Note: This is handled by the booking creation itself
+        // await db.updateBookedQuantity(input.roomTypeId, input.checkInDate, 1);
         
         // Notify owner about new booking
         const roomType = await db.getRoomTypeById(input.roomTypeId);
@@ -424,15 +420,9 @@ ${roomsContext}
     getUnavailableDates: publicProcedure
       .input(z.object({
         roomTypeId: z.number(),
-        startDate: z.date(),
-        endDate: z.date(),
       }))
       .query(async ({ input }) => {
-        return await db.getUnavailableDates(
-          input.roomTypeId,
-          input.startDate,
-          input.endDate
-        );
+        return await db.getUnavailableDates(input.roomTypeId);
       }),
     
     updateMaxSalesQuantity: adminProcedure
@@ -568,20 +558,14 @@ ${roomsContext}
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
-        const service = await db.updateFeaturedService(id, data);
-        if (!service) {
-          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update featured service' });
-        }
-        return service;
+        await db.updateFeaturedService(id, data);
+        return { success: true };
       }),
 
     delete: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
-        const success = await db.deleteFeaturedService(input.id);
-        if (!success) {
-          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to delete featured service' });
-        }
+        await db.deleteFeaturedService(input.id);
         return { success: true };
       }),
   }),
