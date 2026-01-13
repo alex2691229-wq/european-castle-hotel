@@ -252,9 +252,9 @@ export default function RoomDetail() {
           </div>
 
           {/* Right Column - Booking */}
-          <div>
+          <div className="space-y-6">
             <Card className="bg-card border-border shadow-luxury sticky top-24">
-              <CardContent className="p-8">
+              <CardContent className="p-6">
                 <div className="mb-6 space-y-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">平日價格</p>
@@ -289,22 +289,22 @@ export default function RoomDetail() {
             </Card>
             
             {/* 可預訂日期日曆 */}
-            <Card className="bg-card border-border">
-              <CardContent className="p-6">
-                <h3 className="text-2xl font-bold text-foreground mb-6">
-                  可預訂日期
-                </h3>
-                <BookingCalendar 
-                  roomTypeId={roomId}
-                  onDateSelect={(date) => {
-                    console.log('選擇的日期:', date);
-                  }}
-                />
-                <p className="text-sm text-muted-foreground mt-4">
-                  點擊可預訂日期即可快速選擇入住日期
-                </p>
-              </CardContent>
-            </Card>
+            <div className="mt-6">
+              <h3 className="text-2xl font-bold text-foreground mb-4">
+                可預訂日期
+              </h3>
+              <BookingCalendar 
+                roomTypeId={roomId}
+                onDateSelect={(date) => {
+                  console.log('選擇的日期:', date);
+                  // 滾動到訂房表單
+                  const bookingButton = document.querySelector('a[href="/booking"]');
+                  if (bookingButton) {
+                    bookingButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>

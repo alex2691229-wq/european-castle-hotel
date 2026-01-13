@@ -101,17 +101,18 @@ export default function BookingCalendar({ roomTypeId, onDateSelect }: BookingCal
     <Card className="p-6 bg-card border-border">
       <div className="space-y-4">
         {/* 月份導航 */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <Button
             variant="outline"
             size="icon"
             onClick={previousMonth}
-            className="h-8 w-8"
+            className="h-10 w-10 border-2 border-primary/50 hover:bg-primary hover:text-primary-foreground transition-colors"
+            title="上個月"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
           </Button>
           
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-xl font-bold text-foreground">
             {year} 年 {monthNames[month]}
           </h3>
           
@@ -119,9 +120,10 @@ export default function BookingCalendar({ roomTypeId, onDateSelect }: BookingCal
             variant="outline"
             size="icon"
             onClick={nextMonth}
-            className="h-8 w-8"
+            className="h-10 w-10 border-2 border-primary/50 hover:bg-primary hover:text-primary-foreground transition-colors"
+            title="下個月"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
         
