@@ -10,6 +10,7 @@ import { Loader2, Plus, Trash2, Edit2, Upload, X } from "lucide-react";
 export default function RoomManagement() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [originalImages, setOriginalImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
@@ -126,6 +127,7 @@ export default function RoomManagement() {
         maxSalesQuantity: "10",
       });
       setUploadedImages([]);
+      setOriginalImages([]);
     } catch (error) {
       toast.error("操作失敗，請重試");
     }
@@ -144,6 +146,7 @@ export default function RoomManagement() {
     });
     const images = room.images ? JSON.parse(room.images) : [];
     setUploadedImages(images);
+    setOriginalImages(images);
   };
 
   const handleDelete = async (id: number) => {
@@ -367,6 +370,7 @@ export default function RoomManagement() {
                     maxSalesQuantity: "10",
                   });
                   setUploadedImages([]);
+                  setOriginalImages([]);
                 }}
               >
                 取消編輯
