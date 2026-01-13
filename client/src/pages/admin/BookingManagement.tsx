@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, CheckCircle, XCircle, AlertCircle, Clock, Mail, CheckSquare } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, AlertCircle, Clock, Mail, CheckSquare, Trash2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -18,6 +18,16 @@ export default function BookingManagement() {
   const utils = trpc.useUtils();
   
   // 快速操作 mutations
+  const deleteBookingMutation = trpc.bookings.deleteBooking.useMutation({
+    onSuccess: () => {
+      toast.success("訂單已删除");
+      utils.bookings.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "删除失敗");
+    },
+  });
+  
   const confirmBookingMutation = trpc.bookings.confirmBooking.useMutation({
     onSuccess: () => {
       utils.bookings.list.invalidate();
@@ -410,6 +420,24 @@ export default function BookingManagement() {
                         <Mail size={14} className="mr-1" />
                       )}
                       發送郵件
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-red-600 text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        if (confirm(`確定要删除訂單 #${booking.id} 嗎？此操作無法撤銷！`)) {
+                          deleteBookingMutation.mutate({ id: booking.id });
+                        }
+                      }}
+                      disabled={deleteBookingMutation.isPending}
+                    >
+                      {deleteBookingMutation.isPending ? (
+                        <Loader2 size={14} className="animate-spin mr-1" />
+                      ) : (
+                        <Trash2 size={14} className="mr-1" />
+                      )}
+                      删除
                     </Button>
                   </div>
                 </div>

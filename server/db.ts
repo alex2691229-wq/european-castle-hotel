@@ -306,6 +306,13 @@ export async function updateBookingStatus(id: number, status: "pending" | "confi
   await db.update(bookings).set({ status }).where(eq(bookings.id, id));
 }
 
+export async function deleteBooking(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(bookings).where(eq(bookings.id, id));
+}
+
 export async function checkRoomAvailability(roomTypeId: number, checkIn: Date, checkOut: Date): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;

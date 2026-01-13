@@ -293,6 +293,19 @@ export const appRouter = router({
         return { success: true };
       }),
     
+    // 删除訂單
+    deleteBooking: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const booking = await db.getBookingById(input.id);
+        if (!booking) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: '訂單不存在' });
+        }
+        
+        await db.deleteBooking(input.id);
+        return { success: true };
+      }),
+    
     // 快速操作：確認訂房
     confirmBooking: adminProcedure
       .input(z.object({ id: z.number() }))

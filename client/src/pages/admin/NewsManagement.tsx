@@ -320,7 +320,7 @@ export default function NewsManagement() {
                       <h3 className="font-semibold text-foreground">{item.title}</h3>
                       <p className="text-sm text-muted-foreground">
                         {getTypeLabel(item.type)} ·{" "}
-                        {new Date(item.publishedAt).toLocaleDateString("zh-TW")}
+                        {new Date(item.publishDate).toLocaleDateString("zh-TW")}
                       </p>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                         {item.content}
