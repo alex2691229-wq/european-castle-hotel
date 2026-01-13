@@ -37,19 +37,21 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         // 簡單的固定用戶名密碼驗證
-        const ADMIN_USERNAME = 'castle8888';
         const ADMIN_PASSWORD = '88888888';
         
-        if (input.username !== ADMIN_USERNAME || input.password !== ADMIN_PASSWORD) {
-          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+        // 接受 'jason' 或 'castle8888' 作為用戶名
+        const validUsernames = ['jason', 'castle8888'];
+        
+        if (!validUsernames.includes(input.username) || input.password !== ADMIN_PASSWORD) {
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼驗證' });
         }
         
-        // 創建固定的管理員用戶對象
+        // 創建固定的管理员用戶對象
         const adminUser = {
           id: 999,
           openId: 'local-admin',
-          username: ADMIN_USERNAME,
-          name: '管理員',
+          username: input.username,
+          name: input.username === 'jason' ? 'Jason' : '管理员',
           role: 'admin' as const,
         };
         
