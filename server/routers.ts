@@ -180,8 +180,20 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         // Convert string dates to Date objects if needed
-        const checkInDate = typeof input.checkInDate === 'string' ? new Date(input.checkInDate) : input.checkInDate;
-        const checkOutDate = typeof input.checkOutDate === 'string' ? new Date(input.checkOutDate) : input.checkOutDate;
+        // Parse dates in YYYY-MM-DD format to avoid timezone issues
+        const parseDate = (dateInput: string | Date): Date => {
+          if (typeof dateInput === 'string') {
+            const parts = dateInput.split('-');
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10);
+            const day = parseInt(parts[2], 10);
+            return new Date(year, month - 1, day, 0, 0, 0, 0);
+          }
+          return dateInput;
+        };
+        
+        const checkInDate = parseDate(input.checkInDate);
+        const checkOutDate = parseDate(input.checkOutDate);
         // Check room availability
         const isAvailable = await db.checkRoomAvailability(
           input.roomTypeId,
@@ -237,14 +249,28 @@ export const appRouter = router({
     checkAvailability: publicProcedure
       .input(z.object({
         roomTypeId: z.number(),
-        checkInDate: z.date(),
-        checkOutDate: z.date(),
+        checkInDate: z.union([z.date(), z.string()]),
+        checkOutDate: z.union([z.date(), z.string()]),
       }))
       .query(async ({ input }) => {
+        const parseDate = (dateInput: string | Date): Date => {
+          if (typeof dateInput === 'string') {
+            const parts = dateInput.split('-');
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10);
+            const day = parseInt(parts[2], 10);
+            return new Date(year, month - 1, day);
+          }
+          return dateInput;
+        };
+        
+        const checkInDate = parseDate(input.checkInDate);
+        const checkOutDate = parseDate(input.checkOutDate);
+        
         const isAvailable = await db.checkRoomAvailability(
           input.roomTypeId,
-          input.checkInDate,
-          input.checkOutDate
+          checkInDate,
+          checkOutDate
         );
         return { isAvailable };
       }),
