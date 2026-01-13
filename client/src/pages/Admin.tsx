@@ -10,6 +10,7 @@ import NewsManagement from "@/pages/admin/NewsManagement";
 import RoomBatchUpdate from "@/pages/admin/RoomBatchUpdate";
 import HomeManagement from "@/pages/admin/HomeManagement";
 import AvailabilityManagement from "@/pages/admin/AvailabilityManagement";
+import AccountManagement from "@/pages/admin/AccountManagement";
 
 
 export default function Admin() {
@@ -49,13 +50,14 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="rooms" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="rooms">房型管理</TabsTrigger>
             <TabsTrigger value="batch-update">批量更新</TabsTrigger>
             <TabsTrigger value="bookings">訂單管理</TabsTrigger>
             <TabsTrigger value="news">最新消息</TabsTrigger>
             <TabsTrigger value="home">首頁管理</TabsTrigger>
             <TabsTrigger value="availability">可用性管理</TabsTrigger>
+            <TabsTrigger value="accounts">帳戶管理</TabsTrigger>
           </TabsList>
 
           <TabsContent value="rooms" className="space-y-4">
@@ -80,6 +82,10 @@ export default function Admin() {
 
           <TabsContent value="availability" className="space-y-4">
             <AvailabilityManagement />
+          </TabsContent>
+
+          <TabsContent value="accounts" className="space-y-4">
+            <AccountManagement />
           </TabsContent>
         </Tabs>
       </div>

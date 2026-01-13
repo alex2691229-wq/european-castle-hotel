@@ -571,6 +571,58 @@ ${roomsContext}
   }),
 
 
+
+  accounts: router({
+    list: adminProcedure
+      .query(async () => {
+        return await db.getAllUsers();
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        username: z.string().min(3).max(64),
+        name: z.string().min(1).max(100),
+        role: z.enum(['user', 'admin']),
+      }))
+      .mutation(async ({ input }) => {
+        // Check if username already exists
+        const existing = await db.getUserByUsername(input.username);
+        if (existing) {
+          throw new TRPCError({ code: 'CONFLICT', message: 'Username already exists' });
+        }
+
+        // For now, create user without password (they can set it later)
+        await db.upsertUser({
+          username: input.username,
+          name: input.name,
+          role: input.role,
+          loginMethod: 'username',
+          lastSignedIn: new Date(),
+        });
+
+        return { success: true };
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        role: z.enum(['user', 'admin']).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await db.updateUser(id, data);
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteUser(input.id);
+        return { success: true };
+      }),
+  }),
+
 });
 
 export type AppRouter = typeof appRouter;
