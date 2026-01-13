@@ -13,13 +13,13 @@ import RoomDetail from "./pages/RoomDetail";
 import Booking from "./pages/Booking";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import BookingTracking from "./pages/BookingTracking";
-import BookingManagement from "./pages/admin/BookingManagement";
+import Contact from "./pages/Contact";
+import News from "./pages/News";
+import Login from "./pages/Login";
 import BookingDetail from "./pages/admin/BookingDetail";
 import Facilities from "./pages/Facilities";
-import News from "./pages/News";
 import NewsDetail from "./pages/NewsDetail";
 import Location from "./pages/Location";
-import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 
 function Router() {
@@ -28,14 +28,15 @@ function Router() {
       <Navbar />
       <div className="pt-20">
         <Switch>
-          <Route path={"/"} component={Home} />
-          <Route path="/rooms" component={Rooms} />
-          <Route path="/rooms/:id" component={RoomDetail} />
-          <Route path="/booking" component={Booking} />
-          <Route path="/booking/confirmation" component={BookingConfirmation} />
-          <Route path="/admin/bookings" component={BookingManagement} />
-          <Route path="/admin/bookings/:id" component={BookingDetail} />
-          <Route path="/facilities" component={Facilities} />
+          <Route path="/" component={Home} />
+      <Route path="/login" component={Login} />
+      <Route path="/rooms" component={Rooms} />
+      <Route path="/rooms/:id" component={RoomDetail} />
+      <Route path="/booking" component={Booking} />
+      <Route path="/booking/confirmation/:id" component={BookingConfirmation} />
+      <Route path="/booking/tracking" component={BookingTracking} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/news" component={News} />    <Route path="/facilities" component={Facilities} />
           <Route path="/news" component={News} />
           <Route path="/news/:id" component={NewsDetail} />
           <Route path="/location" component={Location} />

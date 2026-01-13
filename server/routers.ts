@@ -8,6 +8,8 @@ import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "./_core/notification";
 import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
+import bcrypt from "bcrypt";
+import { sign } from "./_core/jwt";
 
 
 // Admin-only procedure
@@ -28,6 +30,53 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+    login: publicProcedure
+      .input(z.object({
+        username: z.string(),
+        password: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await db.getUserByUsername(input.username);
+        
+        if (!user || !user.passwordHash) {
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+        }
+        
+        if (user.status === 'inactive') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: '帳戶已停用' });
+        }
+        
+        const isValid = await bcrypt.compare(input.password, user.passwordHash);
+        
+        if (!isValid) {
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+        }
+        
+        // 更新最後登入時間
+        await db.updateUserLastSignedIn(user.id);
+        
+        // 生成 JWT token
+        const token = sign({
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          role: user.role,
+        });
+        
+        // 設置 cookie
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+        
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            username: user.username,
+            name: user.name,
+            role: user.role,
+          },
+        };
+      }),
   }),
 
   upload: router({
@@ -795,6 +844,23 @@ ${roomsContext}
       .mutation(async ({ input }) => {
         await db.deleteUser(input.id);
         return { success: true };
+      }),
+
+    toggleStatus: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        // Get all users and find the one with matching id
+        const allUsers = await db.getAllUsers();
+        const user = allUsers.find(u => u.id === input.id);
+        
+        if (!user) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        }
+        
+        const newStatus = user.status === 'active' ? 'inactive' : 'active';
+        await db.updateUser(input.id, { status: newStatus });
+        
+        return { success: true, status: newStatus };
       }),
   }),
 

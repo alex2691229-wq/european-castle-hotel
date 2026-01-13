@@ -163,6 +163,13 @@ export async function deleteUser(id: number): Promise<void> {
   await db.delete(users).where(eq(users.id, id));
 }
 
+export async function updateUserLastSignedIn(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, userId));
+}
+
 // Room Types queries
 export async function getAllRoomTypes(): Promise<RoomType[]> {
   const db = await getDb();

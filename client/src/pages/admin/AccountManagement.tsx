@@ -74,6 +74,16 @@ export default function AccountManagement() {
     },
   });
 
+  const toggleStatusMutation = trpc.accounts.toggleStatus.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.status === "active" ? "帳號已啟用" : "帳號已停用");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "操作失敗");
+    },
+  });
+
   const handleOpenDialog = (account?: any) => {
     if (account) {
       setEditingId(account.id);
@@ -122,6 +132,10 @@ export default function AccountManagement() {
     if (confirm("確定要刪除此帳號嗎？")) {
       await deleteMutation.mutateAsync({ id });
     }
+  };
+
+  const handleToggleStatus = async (id: number, currentStatus: string) => {
+    await toggleStatusMutation.mutateAsync({ id });
   };
 
   if (isLoading) {
@@ -230,6 +244,8 @@ export default function AccountManagement() {
                 <TableHead className="text-foreground">用戶名</TableHead>
                 <TableHead className="text-foreground">名稱</TableHead>
                 <TableHead className="text-foreground">角色</TableHead>
+                <TableHead className="text-foreground">最後登入</TableHead>
+                <TableHead className="text-foreground">狀態</TableHead>
                 <TableHead className="text-foreground">操作</TableHead>
               </TableRow>
             </TableHeader>
@@ -253,8 +269,38 @@ export default function AccountManagement() {
                       {account.role === "admin" ? "管理員" : "員工"}
                     </span>
                   </TableCell>
+                  <TableCell className="text-foreground">
+                    {account.lastSignedIn
+                      ? new Date(account.lastSignedIn).toLocaleString("zh-TW", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "從未登入"}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        account.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {account.status === "active" ? "啟用" : "停用"}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant={account.status === "active" ? "outline" : "default"}
+                        onClick={() => handleToggleStatus(account.id, account.status)}
+                        disabled={toggleStatusMutation.isPending}
+                      >
+                        {account.status === "active" ? "停用" : "啟用"}
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
