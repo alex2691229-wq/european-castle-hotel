@@ -33,20 +33,20 @@ function Router() {
       <div className="pt-20">
         <Switch>
           <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
-      <Route path="/rooms" component={Rooms} />
-      <Route path="/rooms/:id" component={RoomDetail} />
-      <Route path="/booking" component={Booking} />
-      <Route path="/booking/confirmation" component={BookingConfirmation} />
-      <Route path="/booking/confirmation/:id" component={BookingConfirmation} />
-      <Route path="/booking/tracking" component={BookingTracking} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/news" component={News} />    <Route path="/facilities" component={Facilities} />
+          <Route path="/login" component={Login} />
+          <Route path="/rooms" component={Rooms} />
+          <Route path="/rooms/:id" component={RoomDetail} />
+          <Route path="/booking" component={Booking} />
+          <Route path="/booking/confirmation" component={BookingConfirmation} />
+          <Route path="/booking/confirmation/:id" component={BookingConfirmation} />
+          <Route path="/booking/tracking" component={BookingTracking} />
+          <Route path="/contact" component={Contact} />
           <Route path="/news" component={News} />
           <Route path="/news/:id" component={NewsDetail} />
+          <Route path="/facilities" component={Facilities} />
           <Route path="/location" component={Location} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/admin" component={Admin} />          <Route path="/privacy" component={Privacy} />
+          <Route path="/admin" component={Admin} />
+          <Route path="/privacy" component={Privacy} />
           <Route path="/transportation" component={Transportation} />
           <Route path="/terms" component={TermsOfService} />
           <Route path="/cancel-booking" component={CancelBooking} />
