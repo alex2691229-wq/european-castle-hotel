@@ -24,19 +24,17 @@ export default function Navbar() {
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/">
-            <a className="flex items-center space-x-3 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-xl group-hover:bg-primary/30 transition-all" />
-                <div className="relative w-12 h-12 border-2 border-primary flex items-center justify-center">
-                  <span className="text-2xl font-bold text-primary">E</span>
-                </div>
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-xl group-hover:bg-primary/30 transition-all" />
+              <div className="relative w-12 h-12 border-2 border-primary flex items-center justify-center">
+                <span className="text-2xl font-bold text-primary">E</span>
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">歐堡商務汽車旅館</h1>
-                <p className="text-xs text-muted-foreground tracking-wider">EUROPEAN CASTLE HOTEL</p>
-              </div>
-            </a>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">歐堡商務汽車旅館</h1>
+              <p className="text-xs text-muted-foreground tracking-wider">EUROPEAN CASTLE HOTEL</p>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
