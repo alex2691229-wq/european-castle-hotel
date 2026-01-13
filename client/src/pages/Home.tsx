@@ -358,20 +358,20 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            {/* QR Code */}
-            <div className="flex flex-col items-center justify-center p-6 bg-white rounded-lg">
-              <p className="text-sm text-gray-600 mb-4 font-medium">掃描 QR Code</p>
+          <div className="flex flex-col items-center justify-center">
+            {/* QR Code - Center */}
+            <div className="flex flex-col items-center justify-center p-6 bg-white rounded-lg mb-8">
+              <p className="text-sm text-gray-600 mb-4 font-medium">掃描 QR Code 添加好友</p>
               <img 
                 src="/line-qrcode.jpg" 
                 alt="LINE QR Code" 
-                className="w-48 h-48 object-contain"
+                className="w-56 h-56 object-contain"
               />
-              <p className="text-xs text-gray-500 mt-4">或搜尋帳號：@castle6359577</p>
+              <p className="text-xs text-gray-500 mt-4">或搜尋帳號：castle6359577</p>
             </div>
 
-            {/* Contact Info */}
-            <div className="flex flex-col justify-center space-y-6">
+            {/* Info and Button */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl w-full">
               <div className="bg-black/30 p-6 rounded-lg border border-green-500/30">
                 <h3 className="text-lg font-bold text-green-400 mb-4">
                   ✓ 快速回應
@@ -390,17 +390,16 @@ export default function Home() {
                   全年無休
                 </p>
               </div>
-
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText('castle6359577');
-                  alert('帳號已複製：castle6359577\n\n請在 LINE 中搜尋此帳號並添加');
-                }}
-                className="px-6 py-3 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition-colors"
-              >
-                複製帳號
-              </button>
             </div>
+
+            <a
+              href="https://line.me/R/ti/p/castle6359577"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 px-8 py-3 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition-colors inline-block"
+            >
+              加入 LINE 好友
+            </a>
           </div>
         </div>
       </section>
