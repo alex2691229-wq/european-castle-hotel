@@ -244,6 +244,28 @@ export default function AdminBookings() {
     );
   };
 
+  const isOverduePayment = (booking: BookingWithRoom): boolean => {
+    // 檢查訂單是否超過三天未完成付款
+    // 只對「待確認」、「已確認」、「已匯款」狀態的訂單檢查
+    if (["paid", "completed", "cancelled"].includes(booking.status)) {
+      return false;
+    }
+
+    const now = new Date();
+    const createdAt = new Date(booking.createdAt);
+    const daysDiff = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+    return daysDiff > 3;
+  };
+
+  const getWarningBadge = (booking: BookingWithRoom) => {
+    if (!isOverduePayment(booking)) return null;
+    return (
+      <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium flex items-center gap-1">
+        ⚠️ 超過 3 天未付款
+      </span>
+    );
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center h-screen">載入中...</div>;
   }
@@ -352,7 +374,10 @@ export default function AdminBookings() {
                           NT$ {Number(booking.totalPrice).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 text-sm">
-                          {getStatusBadge(booking.status)}
+                          <div className="flex flex-col gap-2">
+                            {getStatusBadge(booking.status)}
+                            {getWarningBadge(booking)}
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-sm">
                           {payment ? (
