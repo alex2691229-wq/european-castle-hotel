@@ -560,12 +560,13 @@ export const appRouter = router({
         }
         
         const roomType = await db.getRoomTypeById(booking.roomTypeId);
+        const roomTypeName = roomType?.name || '未知房型';
         
         // TODO: 實際發送郵件逻輯（需要整合郵件服務）
         // 目前只通知管理員
         await notifyOwner({
           title: '已發送確認郵件',
-          content: `已發送確認郵件給：${booking.guestEmail}\n房型：${roomType?.name}\n入住日期：${booking.checkInDate.toLocaleDateString()}\n訂房人：${booking.guestName}`,
+          content: `已發送確認郵件給：${booking.guestEmail}\n房型：${roomTypeName}\n房價：NT$${roomType?.price || 0}\n入住日期：${booking.checkInDate.toLocaleDateString()}\n退房日期：${booking.checkOutDate.toLocaleDateString()}\n訂房人：${booking.guestName}\n總金額：NT$${booking.totalPrice}`,
         });
         
         return { success: true, message: '郵件已發送' };

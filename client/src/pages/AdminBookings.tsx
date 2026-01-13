@@ -356,17 +356,23 @@ export default function AdminBookings() {
                             <div className="text-xs">
                               <div className="font-medium">{payment.paymentMethod === "bank_transfer" ? "🏦 銀行轉帳" : "💳 信用卡"}</div>
                               <div className="text-gray-600">{payment.paymentStatus === "received" ? "✅ 已收款" : "⏳ 待確認"}</div>
+                              {payment.lastFiveDigits && (
+                                <div className="text-gray-500">後五碼: {payment.lastFiveDigits}</div>
+                              )}
                               {payment.transferDate && (
                                 <div className="text-gray-500">{format(payment.transferDate, "MM/dd")}</div>
                               )}
                             </div>
                           ) : (
-                            <button
-                              onClick={() => handleAddPayment(booking.id)}
-                              className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition text-xs font-medium"
-                            >
-                              + 添加
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">❌ 未付款</span>
+                              <button
+                                onClick={() => handleAddPayment(booking.id)}
+                                className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition text-xs font-medium"
+                              >
+                                + 添加
+                              </button>
+                            </div>
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm">
@@ -539,9 +545,10 @@ export default function AdminBookings() {
               </button>
               <button
                 onClick={handleSavePayment}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                disabled={paymentForm.paymentMethod === "bank_transfer" && !paymentForm.lastFiveDigits}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                保存
+                {paymentForm.paymentMethod === "bank_transfer" && !paymentForm.lastFiveDigits ? "請填寫後五碼" : "保存"}
               </button>
             </div>
           </div>

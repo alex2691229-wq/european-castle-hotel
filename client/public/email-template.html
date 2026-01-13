@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0;
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #d4af37;
+      padding: 30px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .header p {
+      margin: 5px 0 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 0 0 8px 8px;
+    }
+    .greeting {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .booking-details {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-left: 4px solid #d4af37;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .detail-label {
+      font-weight: bold;
+      color: #666;
+    }
+    .detail-value {
+      color: #333;
+    }
+    .special-requests {
+      background-color: #fff9e6;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+      border-left: 4px solid #ffc107;
+    }
+    .contact-info {
+      margin: 15px 0;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+    }
+    .bank-info {
+      background-color: #e8f5e9;
+      border-left: 4px solid #4CAF50;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .bank-info strong {
+      color: #2e7d32;
+      font-size: 16px;
+    }
+    .bank-details {
+      background-color: white;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 10px 0;
+      font-family: monospace;
+    }
+    .bank-details p {
+      margin: 8px 0;
+      color: #333;
+    }
+    .footer {
+      background-color: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #d4af37;
+      color: #1a1a1a;
+      padding: 12px 30px;
+      text-decoration: none;
+      border-radius: 4px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .button-cancel {
+      background-color: #e74c3c;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏰 歐堡商務汽車旅館</h1>
+      <p>EUROPEAN CASTLE HOTEL</p>
+    </div>
+    
+    <div class="content">
+      <div class="greeting">
+        <p>親愛的 王先生 您好，</p>
+        <p>感謝您選擇歐堡商務汽車旅館！我們已收到您的訂房申請，訂房確認詳情如下：</p>
+      </div>
+      
+      <div class="booking-details">
+        <div class="detail-row">
+          <span class="detail-label">訂房編號：</span>
+          <span class="detail-value">#20260114001</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">房型：</span>
+          <span class="detail-value">豪華雙人房</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">入住日期：</span>
+          <span class="detail-value">2026-01-20</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">退房日期：</span>
+          <span class="detail-value">2026-01-22</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">住宿晚數：</span>
+          <span class="detail-value">2 晚</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">入住人數：</span>
+          <span class="detail-value">2 人</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">總金額：</span>
+          <span class="detail-value" style="color: #d4af37; font-weight: bold;">NT$ 5,600</span>
+        </div>
+      </div>
+      
+      <div class="special-requests">
+        <strong>特殊需求：</strong>
+        <p>需要無菸房，請準備額外枕頭</p>
+      </div>
+      
+      <div class="contact-info">
+        <strong>📞 聯絡資訊</strong>
+        <p>
+          電話：06-635-9577<br>
+          郵件：castle6359577@gmail.com<br>
+          地址：台南市新營區長榮路一段41號
+        </p>
+      </div>
+      
+      <div class="bank-info">
+        <strong style="font-size: 16px;">🏦 銀行轉帳資訊</strong>
+        <p style="margin: 15px 0 10px 0; color: #333;">
+          感謝您的訂房！請依照以下資訊進行銀行轉帳：
+        </p>
+        <div class="bank-details">
+          <p><strong>銀行：</strong>台灣銀行</p>
+          <p><strong>銀行代碼：</strong>004</p>
+          <p><strong>帳號：</strong>028001003295</p>
+          <p><strong>帳戶名：</strong>歐堡商務汽車旅館有限公司</p>
+        </div>
+        <p style="margin: 10px 0; color: #666; font-size: 14px;">
+          ✅ 轉帳時請在備註欄填寫你的訂房編號：<strong>#20260114001</strong>，以便我們快速對帳。
+        </p>
+        <p style="margin: 10px 0; color: #666; font-size: 14px;">
+          ✅ 轉帳後，請在訂房追蹤頁面填寫轉帳的後五碼，以便我們確認收款。
+        </p>
+      </div>
+      
+      <p style="margin: 20px 0; color: #666;">
+        我們將在 24 小時內確認您的訂房。如有任何問題，歡迎透過 LINE 或電話聯絡我們。
+      </p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <p style="margin-bottom: 15px; color: #666;">需要取消訂單嗎？</p>
+        <a href="#" class="button button-cancel">取消訂單</a>
+      </div>
+      
+      <div class="footer">
+        <p>
+          © 2026 歐堡商務汽車旅館有限公司<br>
+          此郵件由系統自動發送，請勿直接回覆。
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
