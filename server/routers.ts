@@ -6,7 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "./_core/notification";
-import { sendEmail, generateBookingConfirmationEmail, generateAdminNotificationEmail } from "./_core/email";
+import { sendEmail, generateBookingConfirmationEmail, generateAdminNotificationEmail, generateBookingConfirmedEmail, generatePaymentInstructionEmail, generatePaymentConfirmedEmail, generateBookingCompletedEmail, generateBookingCancelledEmail } from "./_core/email";
 import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
 import bcrypt from "bcrypt";
@@ -401,24 +401,102 @@ export const appRouter = router({
     updateStatus: adminProcedure
       .input(z.object({
         id: z.number(),
-        status: z.enum(["pending", "confirmed", "cancelled", "completed"]),
+        status: z.enum(["pending", "confirmed", "paid_pending", "paid", "completed", "cancelled"]),
+        bankName: z.string().optional(),
+        accountNumber: z.string().optional(),
+        accountName: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
+        const booking = await db.getBookingById(input.id);
+        if (!booking) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: '訂單不存在' });
+        }
+        
         await db.updateBookingStatus(input.id, input.status);
         
-        // Notify owner about status change
-        const booking = await db.getBookingById(input.id);
-        if (booking && input.status === "cancelled") {
-          const roomType = await db.getRoomTypeById(booking.roomTypeId);
-          await notifyOwner({
-            title: '訂房取消通知',
-            content: `訂房已取消\n房型：${roomType?.name}\n入住日期：${booking.checkInDate.toLocaleDateString()}\n訂房人：${booking.guestName}`,
-          });
+        const roomType = await db.getRoomTypeById(booking.roomTypeId);
+        const guestEmail = booking.guestEmail;
+        
+        // Send status change emails to customer
+        if (guestEmail) {
+          let emailHtml = '';
+          let emailSubject = '';
+          
+          switch (input.status) {
+            case 'confirmed':
+              emailHtml = generateBookingConfirmedEmail(
+                booking.guestName,
+                booking.id,
+                roomType?.name || '房型',
+                booking.checkInDate,
+                booking.checkOutDate,
+                booking.totalPrice.toString()
+              );
+              emailSubject = `訂房已確認 - 歐堡商務汽車旅館 (訂房編號: #${booking.id})`;
+              break;
+              
+            case 'paid_pending':
+              emailHtml = generatePaymentInstructionEmail(
+                booking.guestName,
+                booking.id,
+                booking.totalPrice.toString(),
+                input.bankName || '台灣銀行',
+                input.accountNumber || '123-456-789',
+                input.accountName || '歐堡商務汽車旅館'
+              );
+              emailSubject = `付款指示 - 歐堡商務汽車旅館 (訂房編號: #${booking.id})`;
+              break;
+              
+            case 'paid':
+              emailHtml = generatePaymentConfirmedEmail(
+                booking.guestName,
+                booking.id,
+                booking.totalPrice.toString(),
+                booking.checkInDate
+              );
+              emailSubject = `付款已確認 - 歐堡商務汽車旅館 (訂房編號: #${booking.id})`;
+              break;
+              
+            case 'completed':
+              emailHtml = generateBookingCompletedEmail(
+                booking.guestName,
+                booking.id,
+                booking.checkOutDate
+              );
+              emailSubject = `訂房已完成 - 歐堡商務汽車旅館 (訂房編號: #${booking.id})`;
+              break;
+              
+            case 'cancelled':
+              emailHtml = generateBookingCancelledEmail(
+                booking.guestName,
+                booking.id
+              );
+              emailSubject = `訂房已取消 - 歐堡商務汽車旅館 (訂房編號: #${booking.id})`;
+              break;
+          }
+          
+          if (emailHtml) {
+            await sendEmail(guestEmail, emailSubject, emailHtml);
+          }
         }
+        
+        // Notify owner about status change
+        const statusLabels: Record<string, string> = {
+          confirmed: '已確認',
+          paid_pending: '已匯款',
+          paid: '已付款',
+          completed: '已完成',
+          cancelled: '已取消',
+        };
+        
+        await notifyOwner({
+          title: `訂房狀態變更：${statusLabels[input.status] || input.status}`,
+          content: `訂房編號 #${booking.id}\n房型：${roomType?.name}\n入住日期：${booking.checkInDate.toLocaleDateString('zh-TW')}\n退房日期：${booking.checkOutDate.toLocaleDateString('zh-TW')}\n訂房人：${booking.guestName}\n新狀態：${statusLabels[input.status] || input.status}`,
+        });
         
         return { success: true };
       }),
-    
+
     // 删除訂單
     deleteBooking: adminProcedure
       .input(z.object({ id: z.number() }))

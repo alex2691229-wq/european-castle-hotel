@@ -61,7 +61,7 @@ export const bookings = mysqlTable("bookings", {
   numberOfGuests: int("numberOfGuests").notNull().default(2),
   totalPrice: decimal("totalPrice", { precision: 10, scale: 2 }).notNull(),
   specialRequests: text("specialRequests"),
-  status: mysqlEnum("status", ["pending", "confirmed", "cancelled", "completed"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "confirmed", "paid_pending", "paid", "completed", "cancelled"]).default("pending").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -182,3 +182,31 @@ export const featuredServices = mysqlTable("featured_services", {
 
 export type FeaturedService = typeof featuredServices.$inferSelect;
 export type InsertFeaturedService = typeof featuredServices.$inferInsert;
+
+/**
+ * Payment details table - stores payment information for bookings
+ */
+export const paymentDetails = mysqlTable("payment_details", {
+  id: int("id").autoincrement().primaryKey(),
+  bookingId: int("bookingId").notNull(),
+  paymentMethod: mysqlEnum("paymentMethod", ["bank_transfer", "credit_card", "ecpay"]).default("bank_transfer").notNull(),
+  paymentStatus: mysqlEnum("paymentStatus", ["pending", "received", "failed", "refunded"]).default("pending").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("TWD").notNull(),
+  // Bank transfer specific fields
+  bankName: varchar("bankName", { length: 100 }),
+  bankCode: varchar("bankCode", { length: 10 }),
+  accountNumber: varchar("accountNumber", { length: 50 }),
+  accountName: varchar("accountName", { length: 100 }),
+  transferReference: varchar("transferReference", { length: 100 }), // transfer memo/reference number
+  transferDate: timestamp("transferDate"), // when the transfer was made
+  // Payment confirmation
+  confirmedAt: timestamp("confirmedAt"), // when payment was confirmed
+  confirmedBy: int("confirmedBy"), // admin user who confirmed the payment
+  notes: text("notes"), // additional notes about the payment
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PaymentDetail = typeof paymentDetails.$inferSelect;
+export type InsertPaymentDetail = typeof paymentDetails.$inferInsert;

@@ -25,6 +25,7 @@ import Privacy from "./pages/Privacy";
 import Transportation from "./pages/Transportation";
 import TermsOfService from "./pages/TermsOfService";
 import CancelBooking from "./pages/CancelBooking";
+import AdminBookings from "./pages/AdminBookings";
 
 function Router() {
   return (
@@ -46,6 +47,7 @@ function Router() {
           <Route path="/facilities" component={Facilities} />
           <Route path="/location" component={Location} />
           <Route path="/admin" component={Admin} />
+          <Route path="/admin/bookings" component={AdminBookings} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/transportation" component={Transportation} />
           <Route path="/terms" component={TermsOfService} />

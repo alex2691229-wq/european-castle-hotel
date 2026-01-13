@@ -317,8 +317,7 @@ export async function getBookingsByRoomAndDateRange(
   
   return result;
 }
-
-export async function updateBookingStatus(id: number, status: "pending" | "confirmed" | "cancelled" | "completed"): Promise<void> {
+export async function updateBookingStatus(id: number, status: "pending" | "confirmed" | "paid_pending" | "paid" | "completed" | "cancelled"): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   

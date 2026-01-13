@@ -1,0 +1,20 @@
+CREATE TABLE `payment_details` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`bookingId` int NOT NULL,
+	`paymentMethod` enum('bank_transfer','credit_card','ecpay') NOT NULL DEFAULT 'bank_transfer',
+	`paymentStatus` enum('pending','received','failed','refunded') NOT NULL DEFAULT 'pending',
+	`amount` decimal(10,2) NOT NULL,
+	`currency` varchar(3) NOT NULL DEFAULT 'TWD',
+	`bankName` varchar(100),
+	`bankCode` varchar(10),
+	`accountNumber` varchar(50),
+	`accountName` varchar(100),
+	`transferReference` varchar(100),
+	`transferDate` timestamp,
+	`confirmedAt` timestamp,
+	`confirmedBy` int,
+	`notes` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `payment_details_id` PRIMARY KEY(`id`)
+);
