@@ -223,6 +223,21 @@ export default function RoomManagement() {
     }
   };
 
+  const handleToggleAvailability = async (id: number, currentStatus: boolean) => {
+    try {
+      await updateMutation.mutateAsync({
+        id,
+        isAvailable: !currentStatus,
+      });
+      
+      // 刷新列表
+      await utils.roomTypes.list.invalidate();
+      toast.success(currentStatus ? '房型已停用' : '房型已啟用');
+    } catch (error) {
+      toast.error('更新狀態失敗，請重試');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-card border-border">
@@ -579,12 +594,32 @@ export default function RoomManagement() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-foreground text-lg">{room.name}</h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-foreground text-lg">{room.name}</h3>
+                        {/* 狀態標籤 */}
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          room.isAvailable 
+                            ? 'bg-green-100 text-green-700 border border-green-300' 
+                            : 'bg-gray-100 text-gray-600 border border-gray-300'
+                        }`}>
+                          {room.isAvailable ? '✅ 已啟用' : '❌ 已停用'}
+                        </span>
+                      </div>
                       <p className="text-sm text-muted-foreground mt-1">
                         {room.capacity} 人 · 最多 {room.maxSalesQuantity || 10} 間
                       </p>
                     </div>
                     <div className="flex gap-2">
+                      {/* 啟用/停用開關 */}
+                      <Button
+                        size="sm"
+                        variant={room.isAvailable ? "default" : "outline"}
+                        onClick={() => handleToggleAvailability(room.id, room.isAvailable)}
+                        title={room.isAvailable ? '點擊停用' : '點擊啟用'}
+                        className={room.isAvailable ? 'bg-green-600 hover:bg-green-700' : 'border-gray-400'}
+                      >
+                        {room.isAvailable ? '啟用中' : '已停用'}
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
