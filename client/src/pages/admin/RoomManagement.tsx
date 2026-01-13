@@ -97,6 +97,7 @@ export default function RoomManagement() {
           price: formData.price,
           weekendPrice: formData.weekendPrice,
           amenities: formData.amenities,
+          maxSalesQuantity: parseInt(formData.maxSalesQuantity),
           images,
         });
         toast.success("房型已更新");

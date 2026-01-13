@@ -1,0 +1,1 @@
+ALTER TABLE `room_types` ADD `maxSalesQuantity` int DEFAULT 10 NOT NULL;

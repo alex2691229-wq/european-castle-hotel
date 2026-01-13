@@ -31,6 +31,7 @@ export const roomTypes = mysqlTable("room_types", {
   capacity: int("capacity").notNull().default(2), // number of guests
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   weekendPrice: decimal("weekendPrice", { precision: 10, scale: 2 }),
+  maxSalesQuantity: int("maxSalesQuantity").default(10).notNull(), // maximum number of rooms that can be sold per day
   images: text("images"), // JSON array of image URLs
   amenities: text("amenities"), // JSON array of amenities
   isAvailable: boolean("isAvailable").default(true).notNull(),
