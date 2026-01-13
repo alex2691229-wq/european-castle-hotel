@@ -445,6 +445,48 @@ ${roomsContext}
 
   // Room Availability Management
   roomAvailability: router({
+    // Check availability for booking
+    checkAvailability: publicProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        checkInDate: z.string(),
+        checkOutDate: z.string(),
+      }))
+      .query(async ({ input }) => {
+        const checkIn = new Date(input.checkInDate);
+        const checkOut = new Date(input.checkOutDate);
+        
+        const isAvailable = await db.checkRoomAvailability(
+          input.roomTypeId,
+          checkIn,
+          checkOut
+        );
+        
+        // 獲取房型信息
+        const roomType = await db.getRoomTypeById(input.roomTypeId);
+        const maxQuantity = roomType?.maxSalesQuantity || 10;
+        
+        // 獲取該日期範圍內的訂單數量
+        const bookings = await db.getBookingsByRoomAndDateRange(
+          input.roomTypeId,
+          checkIn,
+          checkOut
+        );
+        
+        const bookedCount = bookings.filter(
+          (b: any) => b.status !== 'cancelled'
+        ).length;
+        
+        const available = Math.max(0, maxQuantity - bookedCount);
+        
+        return { 
+          isAvailable: available > 0,
+          available,
+          maxQuantity,
+          bookedCount,
+        };
+      }),
+    
     // Get availability for a specific room type and date range
     getByRoomAndDateRange: publicProcedure
       .input(z.object({

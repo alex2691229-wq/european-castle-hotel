@@ -1,4 +1,4 @@
-import { eq, and, gte, lte, desc } from "drizzle-orm";
+import { eq, and, or, gte, lte, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, 
@@ -242,6 +242,46 @@ export async function getAllBookings(): Promise<Booking[]> {
     .select()
     .from(bookings)
     .orderBy(desc(bookings.createdAt));
+  
+  return result;
+}
+
+export async function getBookingsByRoomAndDateRange(
+  roomTypeId: number,
+  startDate: Date,
+  endDate: Date
+): Promise<Booking[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const startTime = startDate.getTime();
+  const endTime = endDate.getTime();
+  
+  const result = await db
+    .select()
+    .from(bookings)
+    .where(
+      and(
+        eq(bookings.roomTypeId, roomTypeId),
+        or(
+          // 訂單的入住日期在範圍內
+          and(
+            sql`${bookings.checkInDate} >= ${startTime}`,
+            sql`${bookings.checkInDate} <= ${endTime}`
+          ),
+          // 訂單的退房日期在範圍內
+          and(
+            sql`${bookings.checkOutDate} >= ${startTime}`,
+            sql`${bookings.checkOutDate} <= ${endTime}`
+          ),
+          // 訂單跨越整個範圍
+          and(
+            sql`${bookings.checkInDate} <= ${startTime}`,
+            sql`${bookings.checkOutDate} >= ${endTime}`
+          )
+        )
+      )
+    );
   
   return result;
 }

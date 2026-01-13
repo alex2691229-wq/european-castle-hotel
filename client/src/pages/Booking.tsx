@@ -30,6 +30,18 @@ export default function Booking() {
 
   const { data: roomTypes } = trpc.roomTypes.list.useQuery();
   const createBookingMutation = trpc.bookings.create.useMutation();
+  
+  // 查詢房間庫存
+  const { data: availability } = trpc.roomAvailability.checkAvailability.useQuery(
+    {
+      roomTypeId: parseInt(selectedRoomId),
+      checkInDate: checkInDate || new Date().toISOString().split('T')[0],
+      checkOutDate: checkOutDate || new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    },
+    {
+      enabled: !!selectedRoomId && !!checkInDate && !!checkOutDate,
+    }
+  );
 
   // Get roomId from URL query if available and set min date
   useEffect(() => {
@@ -62,8 +74,47 @@ export default function Booking() {
 
     if (nights <= 0) return 0;
 
-    // Simple calculation - use weekday price for now
-    return Number(selectedRoom.price) * nights;
+    // 計算平日和假日價格
+    let total = 0;
+    for (let i = 0; i < nights; i++) {
+      const currentDate = new Date(checkIn);
+      currentDate.setDate(currentDate.getDate() + i);
+      const dayOfWeek = currentDate.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // 週末：星期日或星期六
+      
+      const price = isWeekend && selectedRoom.weekendPrice 
+        ? Number(selectedRoom.weekendPrice) 
+        : Number(selectedRoom.price);
+      total += price;
+    }
+
+    return total;
+  };
+  
+  // 獲取庫存狀態顯示
+  const getAvailabilityBadge = () => {
+    if (!availability) return null;
+    
+    const available = availability.available;
+    if (available >= 3) {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          ✓ 有房（還有 {available} 間）
+        </span>
+      );
+    } else if (available > 0) {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          ⚠️ 僅剩 {available} 間
+        </span>
+      );
+    } else {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          ✖ 已滿房
+        </span>
+      );
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,20 +146,23 @@ export default function Booking() {
         specialRequests: specialRequests || undefined,
       });
 
-      toast.success("訂房申請已送出！我們將盡快與您聯繫確認。");
+      // 儲存訂單數據到 sessionStorage
+      const bookingConfirmationData = {
+        roomName: selectedRoom?.name,
+        checkInDate,
+        checkOutDate,
+        guestName,
+        guestEmail,
+        guestPhone,
+        numberOfGuests: parseInt(numberOfGuests),
+        totalPrice: calculateTotalPrice(),
+        nights,
+        specialRequests,
+      };
+      sessionStorage.setItem("bookingConfirmation", JSON.stringify(bookingConfirmationData));
       
-      // Reset form
-      setSelectedRoomId("");
-      setCheckInDate("");
-      setCheckOutDate("");
-      setGuestName("");
-      setGuestEmail("");
-      setGuestPhone("");
-      setNumberOfGuests("2");
-      setSpecialRequests("");
-      
-      // Navigate to home after 2 seconds
-      setTimeout(() => navigate("/"), 2000);
+      // 導航到確認頁面
+      navigate("/booking/confirmation");
     } catch (error: any) {
       toast.error(error.message || "訂房失敗，請稍後再試");
     }
@@ -341,6 +395,11 @@ export default function Booking() {
                           <p className="text-lg font-semibold text-foreground">
                             {selectedRoom.name}
                           </p>
+                          {checkInDate && checkOutDate && (
+                            <div className="mt-2">
+                              {getAvailabilityBadge()}
+                            </div>
+                          )}
                         </div>
 
                         {checkInDate && checkOutDate && nights > 0 && (
@@ -383,9 +442,17 @@ export default function Booking() {
                       type="submit"
                       size="lg"
                       className="w-full mt-8 bg-primary text-primary-foreground hover:bg-primary/90"
-                      disabled={createBookingMutation.isPending}
+                      disabled={
+                        createBookingMutation.isPending || 
+                        (availability && !availability.isAvailable)
+                      }
                     >
-                      {createBookingMutation.isPending ? "處理中..." : "確認訂房"}
+                      {createBookingMutation.isPending 
+                        ? "處理中..." 
+                        : availability && !availability.isAvailable
+                        ? "已滿房"
+                        : "確認訂房"
+                      }
                     </Button>
 
                     <p className="text-xs text-muted-foreground mt-4 text-center">
