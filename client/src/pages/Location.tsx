@@ -198,8 +198,8 @@ export default function Location() {
 
               <Card className="bg-card border-border hover:border-primary transition-all shadow-luxury">
                 <CardContent className="p-6 text-center">
-                  <h3 className="text-lg font-bold text-foreground mb-2">新營美食街</h3>
-                  <p className="text-sm text-muted-foreground mb-2">步行約 5 分鐘</p>
+                  <h3 className="text-lg font-bold text-foreground mb-2">新營太子宮</h3>
+                  <p className="text-sm text-muted-foreground mb-2">車程約15分鐘</p>
                   <p className="text-sm text-muted-foreground">
                     品嚐道地台南小吃與在地美食的最佳選擇
                   </p>
