@@ -142,6 +142,20 @@ export const appRouter = router({
           });
         }
         
+        // Check max sales quantity for each date
+        const canBook = await db.checkMaxSalesQuantity(
+          input.roomTypeId,
+          input.checkInDate,
+          input.checkOutDate
+        );
+        
+        if (!canBook) {
+          throw new TRPCError({ 
+            code: 'BAD_REQUEST', 
+            message: 'Reached maximum sales quantity for selected dates' 
+          });
+        }
+        
         const bookingData = {
           ...input,
           userId: ctx.user?.id,
@@ -149,6 +163,14 @@ export const appRouter = router({
         };
         
         const id = await db.createBooking(bookingData);
+        
+        // Update booked quantity for each date
+        await db.updateBookedQuantity(
+          input.roomTypeId,
+          input.checkInDate,
+          input.checkOutDate,
+          1
+        );
         
         // Notify owner about new booking
         const roomType = await db.getRoomTypeById(input.roomTypeId);
@@ -407,6 +429,21 @@ ${roomsContext}
           input.startDate,
           input.endDate
         );
+      }),
+    
+    updateMaxSalesQuantity: adminProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        date: z.date(),
+        maxSalesQuantity: z.number().min(1).max(100),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateMaxSalesQuantity(
+          input.roomTypeId,
+          input.date,
+          input.maxSalesQuantity
+        );
+        return { success: true };
       }),
   }),
 

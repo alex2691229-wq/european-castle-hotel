@@ -11,6 +11,8 @@ export default function AvailabilityManagement() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
   const [isSelecting, setIsSelecting] = useState(false);
+  const [maxSalesQuantity, setMaxSalesQuantity] = useState<number>(10);
+  const [editingDateForQuantity, setEditingDateForQuantity] = useState<string | null>(null);
 
   // Fetch room types
   const { data: roomTypes = [] } = trpc.roomTypes.list.useQuery();
@@ -46,6 +48,18 @@ export default function AvailabilityManagement() {
       refetchUnavailable();
       refetchRecords();
       setSelectedDates(new Set());
+    },
+    onError: (error) => {
+      toast.error(`更新失敗：${error.message}`);
+    },
+  });
+
+  // Update max sales quantity mutation
+  const updateMaxSalesQuantityMutation = trpc.roomAvailability.updateMaxSalesQuantity.useMutation({
+    onSuccess: () => {
+      toast.success("可銷售數量已更新");
+      refetchRecords();
+      setEditingDateForQuantity(null);
     },
     onError: (error) => {
       toast.error(`更新失敗：${error.message}`);

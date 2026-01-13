@@ -50,6 +50,13 @@
       "when": 1768208970613,
       "tag": "0006_vengeful_sinister_six",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1768294958860,
+      "tag": "0007_elite_rictor",
+      "breakpoints": true
     }
   ]
 }

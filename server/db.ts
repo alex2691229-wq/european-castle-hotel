@@ -578,3 +578,144 @@ export async function deleteFeaturedService(id: number): Promise<boolean> {
 }
 
 
+export async function updateMaxSalesQuantity(
+  roomTypeId: number,
+  date: Date,
+  maxSalesQuantity: number
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Normalize date to midnight UTC
+  const normalizedDate = new Date(date);
+  normalizedDate.setUTCHours(0, 0, 0, 0);
+  
+  // Check if record exists
+  const existing = await db
+    .select()
+    .from(roomAvailability)
+    .where(
+      and(
+        eq(roomAvailability.roomTypeId, roomTypeId),
+        eq(roomAvailability.date, normalizedDate)
+      )
+    )
+    .limit(1);
+  
+  if (existing.length > 0) {
+    // Update existing record
+    await db
+      .update(roomAvailability)
+      .set({ maxSalesQuantity, updatedAt: new Date() })
+      .where(eq(roomAvailability.id, existing[0].id));
+  } else {
+    // Insert new record with the max sales quantity
+    await db.insert(roomAvailability).values({
+      roomTypeId,
+      date: normalizedDate,
+      maxSalesQuantity,
+      isAvailable: true,
+    });
+  }
+}
+
+export async function checkMaxSalesQuantity(
+  roomTypeId: number,
+  checkInDate: Date,
+  checkOutDate: Date
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  
+  // Get all dates between check-in and check-out
+  const dates: Date[] = [];
+  const current = new Date(checkInDate);
+  while (current < checkOutDate) {
+    dates.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  
+  // Check each date
+  for (const date of dates) {
+    const normalizedDate = new Date(date);
+    normalizedDate.setUTCHours(0, 0, 0, 0);
+    
+    const record = await db
+      .select()
+      .from(roomAvailability)
+      .where(
+        and(
+          eq(roomAvailability.roomTypeId, roomTypeId),
+          eq(roomAvailability.date, normalizedDate)
+        )
+      )
+      .limit(1);
+    
+    if (record.length > 0) {
+      const maxQty = record[0].maxSalesQuantity || 10;
+      const bookedQty = record[0].bookedQuantity || 0;
+      
+      // If booked quantity reaches max, cannot book
+      if (bookedQty >= maxQty) {
+        return false;
+      }
+    }
+  }
+  
+  return true;
+}
+
+export async function updateBookedQuantity(
+  roomTypeId: number,
+  checkInDate: Date,
+  checkOutDate: Date,
+  increment: number
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get all dates between check-in and check-out
+  const dates: Date[] = [];
+  const current = new Date(checkInDate);
+  while (current < checkOutDate) {
+    dates.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  
+  // Update booked quantity for each date
+  for (const date of dates) {
+    const normalizedDate = new Date(date);
+    normalizedDate.setUTCHours(0, 0, 0, 0);
+    
+    const record = await db
+      .select()
+      .from(roomAvailability)
+      .where(
+        and(
+          eq(roomAvailability.roomTypeId, roomTypeId),
+          eq(roomAvailability.date, normalizedDate)
+        )
+      )
+      .limit(1);
+    
+    if (record.length > 0) {
+      const currentBooked = record[0].bookedQuantity || 0;
+      await db
+        .update(roomAvailability)
+        .set({ 
+          bookedQuantity: currentBooked + increment,
+          updatedAt: new Date() 
+        })
+        .where(eq(roomAvailability.id, record[0].id));
+    } else {
+      // Create new record if it doesn't exist
+      await db.insert(roomAvailability).values({
+        roomTypeId,
+        date: normalizedDate,
+        bookedQuantity: increment,
+        maxSalesQuantity: 10,
+        isAvailable: true,
+      });
+    }
+  }
+}

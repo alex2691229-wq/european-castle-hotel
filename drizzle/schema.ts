@@ -130,6 +130,8 @@ export const roomAvailability = mysqlTable("room_availability", {
   roomTypeId: int("roomTypeId").notNull(),
   date: timestamp("date").notNull(),
   isAvailable: boolean("isAvailable").default(true).notNull(),
+  maxSalesQuantity: int("maxSalesQuantity").default(10).notNull(), // maximum number of rooms that can be sold on this date
+  bookedQuantity: int("bookedQuantity").default(0).notNull(), // number of rooms already booked
   reason: varchar("reason", { length: 200 }), // optional reason for unavailability
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
