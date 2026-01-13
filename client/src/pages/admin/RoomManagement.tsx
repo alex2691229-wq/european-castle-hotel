@@ -178,20 +178,28 @@ export default function RoomManagement() {
     const previousRoom = rooms[index - 1];
     
     try {
+      // 使用臨時值避免衝突
+      const tempOrder = -1;
+      
       // 交換 displayOrder
       await updateMutation.mutateAsync({
         id: currentRoom.id,
-        displayOrder: previousRoom.displayOrder,
+        displayOrder: tempOrder,
       });
       await updateMutation.mutateAsync({
         id: previousRoom.id,
         displayOrder: currentRoom.displayOrder,
       });
+      await updateMutation.mutateAsync({
+        id: currentRoom.id,
+        displayOrder: previousRoom.displayOrder,
+      });
       
       // 刷新列表
-      await utils.roomTypes.list.invalidate();
+      await utils.roomTypes.listAll.invalidate();
       toast.success('房型順序已更新');
     } catch (error) {
+      console.error('Move up error:', error);
       toast.error('更新順序失敗，請重試');
     }
   };
@@ -205,20 +213,28 @@ export default function RoomManagement() {
     const nextRoom = rooms[index + 1];
     
     try {
+      // 使用臨時值避免衝突
+      const tempOrder = -1;
+      
       // 交換 displayOrder
       await updateMutation.mutateAsync({
         id: currentRoom.id,
-        displayOrder: nextRoom.displayOrder,
+        displayOrder: tempOrder,
       });
       await updateMutation.mutateAsync({
         id: nextRoom.id,
         displayOrder: currentRoom.displayOrder,
       });
+      await updateMutation.mutateAsync({
+        id: currentRoom.id,
+        displayOrder: nextRoom.displayOrder,
+      });
       
       // 刷新列表
-      await utils.roomTypes.list.invalidate();
+      await utils.roomTypes.listAll.invalidate();
       toast.success('房型順序已更新');
     } catch (error) {
+      console.error('Move down error:', error);
       toast.error('更新順序失敗，請重試');
     }
   };
@@ -231,7 +247,7 @@ export default function RoomManagement() {
       });
       
       // 刷新列表
-      await utils.roomTypes.list.invalidate();
+      await utils.roomTypes.listAll.invalidate();
       toast.success(currentStatus ? '房型已停用' : '房型已啟用');
     } catch (error) {
       toast.error('更新狀態失敗，請重試');
