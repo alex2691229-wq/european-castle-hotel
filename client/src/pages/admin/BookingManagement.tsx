@@ -100,13 +100,13 @@ export default function BookingManagement() {
   // 篩選和搜尋
   const filteredBookings = useMemo(() => {
     return processedBookings.filter((booking: any) => {
-      // 搜尋過濾
+      // 搜尋過濾 - 添加 null 檢查
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch =
-        booking.guestName.toLowerCase().includes(searchLower) ||
-        booking.guestPhone.includes(searchQuery) ||
-        booking.guestEmail.toLowerCase().includes(searchLower) ||
-        booking.id.toString().includes(searchQuery);
+        (booking.guestName?.toLowerCase()?.includes(searchLower) || false) ||
+        (booking.guestPhone?.includes(searchQuery) || false) ||
+        (booking.guestEmail?.toLowerCase()?.includes(searchLower) || false) ||
+        (booking.id?.toString()?.includes(searchQuery) || false);
 
       if (!matchesSearch) return false;
 
@@ -331,7 +331,7 @@ export default function BookingManagement() {
                   )}
 
                   {/* 訂單詳情 */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm mb-3">
                     <div>
                       <p className="text-muted-foreground text-xs">入住日期</p>
                       <p className="text-foreground font-medium">
@@ -346,6 +346,12 @@ export default function BookingManagement() {
                         {new Date(booking.checkOutDate).toLocaleDateString(
                           "zh-TW"
                         )}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-xs">入住人數</p>
+                      <p className="text-foreground font-medium">
+                        {booking.numberOfGuests || 2} 人
                       </p>
                     </div>
                     <div>

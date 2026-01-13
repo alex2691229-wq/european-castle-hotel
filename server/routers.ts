@@ -264,7 +264,12 @@ export const appRouter = router({
       }),
     
     list: adminProcedure.query(async () => {
-      return await db.getAllBookings();
+      const bookings = await db.getAllBookings();
+      // 添加 numberOfGuests 欄位以修復人數顯示
+      return bookings.map((booking: any) => ({
+        ...booking,
+        numberOfGuests: booking.numberOfGuests || 2, // 預設值 2
+      }));
     }),
     
     getByPhone: publicProcedure
@@ -807,6 +812,7 @@ ${roomsContext}
         username: z.string().min(3).max(64),
         name: z.string().min(1).max(100),
         role: z.enum(['user', 'admin']),
+        password: z.string().min(6).max(128),
       }))
       .mutation(async ({ input }) => {
         // Check if username already exists
@@ -815,11 +821,15 @@ ${roomsContext}
           throw new TRPCError({ code: 'CONFLICT', message: 'Username already exists' });
         }
 
-        // For now, create user without password (they can set it later)
+        // Hash password
+        const passwordHash = await bcrypt.hash(input.password, 10);
+
+        // Create user with password
         await db.upsertUser({
           username: input.username,
           name: input.name,
           role: input.role,
+          passwordHash,
           loginMethod: 'username',
           lastSignedIn: new Date(),
         });
@@ -832,10 +842,19 @@ ${roomsContext}
         id: z.number(),
         name: z.string().optional(),
         role: z.enum(['user', 'admin']).optional(),
+        password: z.string().min(6).max(128).optional(),
       }))
       .mutation(async ({ input }) => {
-        const { id, ...data } = input;
-        await db.updateUser(id, data);
+        const { id, password, ...data } = input;
+        
+        // If password is provided, hash it
+        if (password) {
+          const passwordHash = await bcrypt.hash(password, 10);
+          await db.updateUser(id, { ...data, passwordHash });
+        } else {
+          await db.updateUser(id, data);
+        }
+        
         return { success: true };
       }),
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -17,6 +18,14 @@ export default function Admin() {
   const { user, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
 
+  // 檢查是否已登入
+  useEffect(() => {
+    if (!isAuthenticated) {
+      // 未登入，重定向到登入頁面
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+
   // 檢查是否為管理員
   if (!isAuthenticated || user?.role !== "admin") {
     return (
@@ -29,10 +38,10 @@ export default function Admin() {
             您沒有權限存取管理後台
           </p>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             className="px-6 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
           >
-            返回首頁
+            去登入
           </button>
         </div>
       </div>

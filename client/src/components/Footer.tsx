@@ -86,13 +86,7 @@ export default function Footer() {
               >
                 <Facebook size={20} className="text-foreground" />
               </a>
-              <a
-                href="#"
-                className="w-10 h-10 border border-border flex items-center justify-center hover:border-primary hover:bg-primary/10 transition-all"
-                aria-label="Instagram"
-              >
-                <Instagram size={20} className="text-foreground" />
-              </a>
+
             </div>
           </div>
         </div>

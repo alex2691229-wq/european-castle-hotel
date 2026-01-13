@@ -74,9 +74,11 @@ export default function Navbar() {
                 </Button>
               </>
             ) : (
-              <Button variant="ghost" onClick={() => window.location.href = getLoginUrl()}>
-                登入
-              </Button>
+              <Link href="/login">
+                <Button variant="ghost">
+                  登入
+                </Button>
+              </Link>
             )}
           </div>
 
@@ -140,16 +142,15 @@ export default function Navbar() {
                   </Button>
                 </>
               ) : (
-                <Button 
-                  variant="ghost" 
-                  className="w-full"
-                  onClick={() => {
-                    window.location.href = getLoginUrl();
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  登入
-                </Button>
+                <Link href="/login">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    登入
+                  </Button>
+                </Link>
               )}
             </div>
           </div>

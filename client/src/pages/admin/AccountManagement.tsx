@@ -33,6 +33,7 @@ export default function AccountManagement() {
     username: "",
     name: "",
     role: "user" as "user" | "admin",
+    password: "",
   });
 
   // Queries
@@ -43,7 +44,7 @@ export default function AccountManagement() {
     onSuccess: () => {
       toast.success("帳號已新增");
       setIsOpen(false);
-      setFormData({ username: "", name: "", role: "user" });
+      setFormData({ username: "", name: "", role: "user", password: "" });
       refetch();
     },
     onError: (error) => {
@@ -56,7 +57,7 @@ export default function AccountManagement() {
       toast.success("帳號已更新");
       setIsOpen(false);
       setEditingId(null);
-      setFormData({ username: "", name: "", role: "user" });
+      setFormData({ username: "", name: "", role: "user", password: "" });
       refetch();
     },
     onError: (error) => {
@@ -91,10 +92,11 @@ export default function AccountManagement() {
         username: account.username || "",
         name: account.name || "",
         role: account.role as "user" | "admin",
+        password: "", // 編輯時密碼留空
       });
     } else {
       setEditingId(null);
-      setFormData({ username: "", name: "", role: "user" });
+      setFormData({ username: "", name: "", role: "user", password: "" });
     }
     setIsOpen(true);
   };
@@ -109,21 +111,31 @@ export default function AccountManagement() {
 
     if (editingId) {
       // Update
-      await updateMutation.mutateAsync({
+      const updateData: any = {
         id: editingId,
         name: formData.name,
         role: formData.role,
-      });
+      };
+      // 只有當密碼不為空時才更新密碼
+      if (formData.password) {
+        updateData.password = formData.password;
+      }
+      await updateMutation.mutateAsync(updateData);
     } else {
       // Create
       if (!formData.username) {
         toast.error("請填寫用戶名");
         return;
       }
+      if (!formData.password) {
+        toast.error("請設置密碼");
+        return;
+      }
       await createMutation.mutateAsync({
         username: formData.username,
         name: formData.name,
         role: formData.role,
+        password: formData.password,
       });
     }
   };
@@ -212,6 +224,19 @@ export default function AccountManagement() {
                     <SelectItem value="admin">管理員</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  {editingId ? "新密碼（留空不修改）" : "密碼"}
+                </label>
+                <Input
+                  type="password"
+                  value={formData.password || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  placeholder={editingId ? "留空不修改密碼" : "設置密碼"}
+                />
               </div>
               <div className="flex gap-2 justify-end">
                 <Button

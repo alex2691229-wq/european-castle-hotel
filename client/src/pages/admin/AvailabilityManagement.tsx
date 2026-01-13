@@ -117,21 +117,42 @@ export default function AvailabilityManagement() {
 
   const calendarDays = generateCalendarDays();
 
+  // 安全的日期格式化函數，防止 Invalid time value 錯誤
+  const formatDateSafe = (date: Date | string | null | undefined): string | null => {
+    try {
+      if (!date) return null;
+      const d = date instanceof Date ? date : new Date(String(date));
+      if (isNaN(d.getTime())) {
+        console.error('Invalid date:', date);
+        return null;
+      }
+      return d.toISOString().split('T')[0];
+    } catch (error) {
+      console.error('Date formatting error:', error, date);
+      return null;
+    }
+  };
+
   // Check if a date is unavailable (booked or blocked by admin)
   const isDateUnavailable = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return unavailableDates.some(d => {
-      const dDate = d instanceof Date ? d : new Date(String(d));
-      return dDate.toISOString().split('T')[0] === dateStr;
+    const dateStr = formatDateSafe(date);
+    if (!dateStr) return false;
+    
+    return unavailableDates.some(record => {
+      // unavailableDates 返回的是 RoomAvailability 對象，不是單純的日期
+      const recordDateStr = formatDateSafe(record.date);
+      return recordDateStr && recordDateStr === dateStr;
     });
   };
 
   // Check if a date is blocked by admin (not booked)
   const isDateBlockedByAdmin = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = formatDateSafe(date);
+    if (!dateStr) return false;
+    
     return availabilityRecords.some(record => {
-      const recordDate = record.date instanceof Date ? record.date : new Date(String(record.date));
-      return recordDate.toISOString().split('T')[0] === dateStr && !record.isAvailable;
+      const recordDateStr = formatDateSafe(record.date);
+      return recordDateStr && recordDateStr === dateStr && !record.isAvailable;
     });
   };
 
@@ -142,8 +163,8 @@ export default function AvailabilityManagement() {
 
   // Check if a date is selected
   const isDateSelected = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return selectedDates.has(dateStr);
+    const dateStr = formatDateSafe(date);
+    return dateStr ? selectedDates.has(dateStr) : false;
   };
 
   // Toggle date selection
@@ -154,7 +175,11 @@ export default function AvailabilityManagement() {
       return;
     }
 
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = formatDateSafe(date);
+    if (!dateStr) {
+      toast.error("無效的日期");
+      return;
+    }
     const newSelected = new Set(selectedDates);
     
     if (newSelected.has(dateStr)) {
@@ -385,8 +410,12 @@ export default function AvailabilityManagement() {
                     borderColor = "border-gold ring-2 ring-gold";
                   }
 
-                  const dateStr = date.toISOString().split('T')[0];
-                  const record = availabilityRecords.find(r => new Date(r.date).toISOString().split('T')[0] === dateStr);
+                  const dateStr = formatDateSafe(date);
+                  if (!dateStr) {
+                    // 跳過無效日期
+                    return null;
+                  }
+                  const record = availabilityRecords.find(r => formatDateSafe(r.date) === dateStr);
                   const maxQty = record?.maxSalesQuantity || 10;
                   const bookedQty = record?.bookedQuantity || 0;
                   
