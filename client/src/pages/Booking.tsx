@@ -170,6 +170,13 @@ export default function Booking() {
       const checkInStr = checkInDate.includes('-') ? checkInDate : new Date(checkInDate).toISOString().split('T')[0];
       const checkOutStr = checkOutDate.includes('-') ? checkOutDate : new Date(checkOutDate).toISOString().split('T')[0];
 
+      // 計算住宿晚數
+      const checkIn = new Date(checkInStr);
+      const checkOut = new Date(checkOutStr);
+      const nights = Math.ceil(
+        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       await createBookingMutation.mutateAsync({
         roomTypeId: parseInt(selectedRoomId),
         guestName,
