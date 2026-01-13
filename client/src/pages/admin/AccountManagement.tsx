@@ -74,7 +74,7 @@ export default function AccountManagement() {
     },
   });
 
-  const handleOpenDialog = (account?: (typeof accounts)[0]) => {
+  const handleOpenDialog = (account?: any) => {
     if (account) {
       setEditingId(account.id);
       setFormData({

@@ -30,8 +30,6 @@ export default function AvailabilityManagement() {
   const { data: unavailableDates = [], refetch: refetchUnavailable } = trpc.roomAvailability.getUnavailableDates.useQuery(
     {
       roomTypeId: selectedRoomTypeId!,
-      startDate: startOfMonth,
-      endDate: endOfMonth,
     },
     { enabled: selectedRoomTypeId !== null }
   );
@@ -122,15 +120,19 @@ export default function AvailabilityManagement() {
   // Check if a date is unavailable (booked or blocked by admin)
   const isDateUnavailable = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return unavailableDates.some(d => new Date(d).toISOString().split('T')[0] === dateStr);
+    return unavailableDates.some(d => {
+      const dDate = d instanceof Date ? d : new Date(String(d));
+      return dDate.toISOString().split('T')[0] === dateStr;
+    });
   };
 
   // Check if a date is blocked by admin (not booked)
   const isDateBlockedByAdmin = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return availabilityRecords.some(
-      record => new Date(record.date).toISOString().split('T')[0] === dateStr && !record.isAvailable
-    );
+    return availabilityRecords.some(record => {
+      const recordDate = record.date instanceof Date ? record.date : new Date(String(record.date));
+      return recordDate.toISOString().split('T')[0] === dateStr && !record.isAvailable;
+    });
   };
 
   // Check if a date is booked
@@ -173,7 +175,10 @@ export default function AvailabilityManagement() {
 
     if (!selectedRoomTypeId) return;
 
-    const dates = Array.from(selectedDates).map(dateStr => new Date(dateStr));
+    const dates = Array.from(selectedDates).map(dateStr => {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    });
     
     // For each selected date, set maxSalesQuantity to 0
     dates.forEach(date => {
@@ -194,7 +199,10 @@ export default function AvailabilityManagement() {
 
     if (!selectedRoomTypeId) return;
 
-    const dates = Array.from(selectedDates).map(dateStr => new Date(dateStr));
+    const dates = Array.from(selectedDates).map(dateStr => {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    });
     
     setAvailabilityMutation.mutate({
       roomTypeId: selectedRoomTypeId,
