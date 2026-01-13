@@ -15,6 +15,8 @@ export default function AvailabilityManagement() {
   const [isSelecting, setIsSelecting] = useState(false);
   const [maxSalesQuantity, setMaxSalesQuantity] = useState<number>(10);
   const [editingDateForQuantity, setEditingDateForQuantity] = useState<string | null>(null);
+  const [weekdayPrice, setWeekdayPrice] = useState<number | undefined>(undefined);
+  const [weekendPrice, setWeekendPrice] = useState<number | undefined>(undefined);
 
   // Fetch room types
   const { data: roomTypes = [] } = trpc.roomTypes.list.useQuery();
@@ -62,6 +64,19 @@ export default function AvailabilityManagement() {
       toast.success("可銷售數量已更新");
       refetchRecords();
       setEditingDateForQuantity(null);
+    },
+    onError: (error) => {
+      toast.error(`更新失敗：${error.message}`);
+    },
+  });
+
+  // Update dynamic price mutation
+  const updateDynamicPriceMutation = trpc.roomAvailability.updateDynamicPrice.useMutation({
+    onSuccess: () => {
+      toast.success("房價已更新");
+      refetchRecords();
+      setWeekdayPrice(undefined);
+      setWeekendPrice(undefined);
     },
     onError: (error) => {
       toast.error(`更新失敗：${error.message}`);
@@ -287,28 +302,23 @@ export default function AvailabilityManagement() {
 
                   return (
                     <div key={index} className="relative">
-                      <button
-                        onClick={() => !isPast && toggleDateSelection(date)}
-                        disabled={isPast}
-                        className={`w-full aspect-square rounded-lg border ${borderColor} ${bgColor} ${textColor} 
-                          flex flex-col items-center justify-center text-sm transition-all
-                          ${!isPast && !isBooked ? "cursor-pointer" : "cursor-not-allowed"}
-                          ${isSelected ? "scale-95" : ""}`}
-                      >
-                        <span className="font-semibold">{date.getDate()}</span>
-                        <span className="text-xs text-gray-400 mt-0.5">{bookedQty}/{maxQty}</span>
-                        {isBooked && (
-                          <span className="text-xs text-red-400 mt-1">已訂</span>
-                        )}
-                        {isBlocked && !isBooked && (
-                          <span className="text-xs text-orange-400 mt-1">關閉</span>
-                        )}
-                      </button>
                       {!isPast && (
                         <Dialog>
                           <DialogTrigger asChild>
-                            <button className="absolute top-0 right-0 p-1 bg-gold/80 hover:bg-gold rounded text-black transition-all">
-                              <Settings className="h-3 w-3" />
+                            <button
+                              className={`w-full aspect-square rounded-lg border ${borderColor} ${bgColor} ${textColor} 
+                                flex flex-col items-center justify-center text-sm transition-all
+                                cursor-pointer hover:ring-2 hover:ring-gold/50
+                                ${isSelected ? "scale-95" : ""}`}
+                            >
+                              <span className="font-semibold">{date.getDate()}</span>
+                              <span className="text-xs text-gray-400 mt-0.5">{bookedQty}/{maxQty}</span>
+                              {isBooked && (
+                                <span className="text-xs text-red-400 mt-1">已訂</span>
+                              )}
+                              {isBlocked && !isBooked && (
+                                <span className="text-xs text-orange-400 mt-1">關閉</span>
+                              )}
                             </button>
                           </DialogTrigger>
                           <DialogContent className="bg-black/80 border-gold/30">
@@ -338,19 +348,72 @@ export default function AvailabilityManagement() {
                                 <p>已訂房間數：{bookedQty}</p>
                                 <p>剩餘可銷售：{Math.max(0, maxQty - bookedQty)}</p>
                               </div>
-                              <Button
-                                onClick={() => {
-                                  updateMaxSalesQuantityMutation.mutate({
-                                    roomTypeId: selectedRoomTypeId!,
-                                    date: date,
-                                    maxSalesQuantity: maxSalesQuantity,
-                                  });
-                                }}
-                                disabled={updateMaxSalesQuantityMutation.isPending}
-                                className="w-full bg-gold text-black hover:bg-gold/90"
-                              >
-                                {updateMaxSalesQuantityMutation.isPending ? "更新中..." : "確認更新"}
-                              </Button>
+
+                              <div className="border-t border-gold/20 pt-4 mt-4">
+                                <h4 className="text-sm font-medium text-gold mb-3">動態房價設定</h4>
+                                <div className="space-y-3">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-300 mb-1">
+                                      平日價格 (NT$)
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      step="100"
+                                      placeholder="不設定則使用房型基礎價格"
+                                      onChange={(e) => setWeekdayPrice(e.target.value ? parseInt(e.target.value) : undefined)}
+                                      className="bg-black/60 border-gold/30 text-white text-sm"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-300 mb-1">
+                                      假日價格 (NT$)
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      step="100"
+                                      placeholder="不設定則使用房型基礎價格"
+                                      onChange={(e) => setWeekendPrice(e.target.value ? parseInt(e.target.value) : undefined)}
+                                      className="bg-black/60 border-gold/30 text-white text-sm"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={() => {
+                                    updateMaxSalesQuantityMutation.mutate({
+                                      roomTypeId: selectedRoomTypeId!,
+                                      date: date,
+                                      maxSalesQuantity: maxSalesQuantity,
+                                    });
+                                  }}
+                                  disabled={updateMaxSalesQuantityMutation.isPending}
+                                  className="flex-1 bg-gold text-black hover:bg-gold/90"
+                                >
+                                  {updateMaxSalesQuantityMutation.isPending ? "更新中..." : "更新數量"}
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    if (weekdayPrice !== undefined || weekendPrice !== undefined) {
+                                      updateDynamicPriceMutation.mutate({
+                                        roomTypeId: selectedRoomTypeId!,
+                                        date: date,
+                                        weekdayPrice,
+                                        weekendPrice,
+                                      });
+                                    } else {
+                                      toast.error("請輸入至少一個價格");
+                                    }
+                                  }}
+                                  disabled={updateDynamicPriceMutation.isPending}
+                                  className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+                                >
+                                  {updateDynamicPriceMutation.isPending ? "更新中..." : "更新價格"}
+                                </Button>
+                              </div>
                             </div>
                           </DialogContent>
                         </Dialog>
