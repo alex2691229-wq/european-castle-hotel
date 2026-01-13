@@ -49,6 +49,10 @@ export default function BookingManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
+  const [roomTypeFilter, setRoomTypeFilter] = useState("all");
+  
+  // 獲取房型列表用於篩選
+  const { data: roomTypes } = trpc.roomTypes.list.useQuery();
 
   // 計算倒計時和驗證數據
   const processedBookings = useMemo(() => {
@@ -102,10 +106,13 @@ export default function BookingManagement() {
       if (dateFilter === "urgent" && !booking.isUrgent) return false;
       if (dateFilter === "week" && booking.daysUntilCheckIn > 7) return false;
       if (dateFilter === "month" && booking.daysUntilCheckIn > 30) return false;
+      
+      // 房型過濾
+      if (roomTypeFilter !== "all" && booking.roomTypeId !== parseInt(roomTypeFilter)) return false;
 
       return true;
     });
-  }, [processedBookings, searchQuery, statusFilter, dateFilter]);
+  }, [processedBookings, searchQuery, statusFilter, dateFilter, roomTypeFilter]);
 
   // 統計數據
   const stats = useMemo(() => {
@@ -196,7 +203,7 @@ export default function BookingManagement() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-background border-border text-foreground"
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="bg-background border-border text-foreground">
                 <SelectValue placeholder="按狀態篩選" />
@@ -217,6 +224,19 @@ export default function BookingManagement() {
                 <SelectItem value="urgent">緊急（3天內入住）</SelectItem>
                 <SelectItem value="week">本週入住</SelectItem>
                 <SelectItem value="month">本月入住</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={roomTypeFilter} onValueChange={setRoomTypeFilter}>
+              <SelectTrigger className="bg-background border-border text-foreground">
+                <SelectValue placeholder="按房型篩選" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">所有房型</SelectItem>
+                {roomTypes && roomTypes.map((room: any) => (
+                  <SelectItem key={room.id} value={String(room.id)}>
+                    {room.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

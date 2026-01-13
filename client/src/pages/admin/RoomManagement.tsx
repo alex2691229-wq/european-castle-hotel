@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Edit2, Upload, X } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, Upload, X, AlertCircle } from "lucide-react";
 
 export default function RoomManagement() {
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -22,17 +22,29 @@ export default function RoomManagement() {
     amenities: "",
     maxSalesQuantity: "10",
   });
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const utils = trpc.useUtils();
   const { data: rooms, isLoading } = trpc.roomTypes.list.useQuery();
   const createMutation = trpc.roomTypes.create.useMutation({
     onSuccess: () => {
       utils.roomTypes.list.invalidate();
+      setHasUnsavedChanges(false);
+      toast.success('房型已成功創建 ✓');
+    },
+    onError: (error) => {
+      toast.error(`創建失敗：${error.message}`);
     },
   });
   const updateMutation = trpc.roomTypes.update.useMutation({
     onSuccess: () => {
       utils.roomTypes.list.invalidate();
+      setHasUnsavedChanges(false);
+      toast.success('房型已成功更新 ✓');
+    },
+    onError: (error) => {
+      toast.error(`更新失敗：${error.message}`);
     },
   });
   const deleteMutation = trpc.roomTypes.delete.useMutation({
@@ -161,6 +173,12 @@ export default function RoomManagement() {
         <h2 className="text-xl font-bold text-foreground mb-4">
           {editingId ? "編輯房型" : "新增房型"}
         </h2>
+        {hasUnsavedChanges && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2 text-sm text-yellow-800">
+            <AlertCircle size={16} className="flex-shrink-0" />
+            <span>⚠️ 您有未保存的變更</span>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -170,11 +188,36 @@ export default function RoomManagement() {
               type="text"
               placeholder="例：豪華雙人房"
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="bg-background border-border text-foreground"
+              onChange={(e) => {
+                const newName = e.target.value;
+                setFormData({ ...formData, name: newName });
+                setHasUnsavedChanges(true);
+                
+                // 實時驗證：檢查重複房型名稱
+                if (newName && rooms) {
+                  const duplicate = rooms.find(
+                    (room: any) => room.name === newName && room.id !== editingId
+                  );
+                  if (duplicate) {
+                    setValidationErrors(prev => ({
+                      ...prev,
+                      name: '⚠️ 該房型名稱已存在'
+                    }));
+                  } else {
+                    setValidationErrors(prev => {
+                      const { name, ...rest } = prev;
+                      return rest;
+                    });
+                  }
+                }
+              }}
+              className={`bg-background border-border text-foreground ${
+                validationErrors.name ? 'border-red-500' : ''
+              }`}
             />
+            {validationErrors.name && (
+              <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>
+            )}
           </div>
 
           <div>
@@ -184,12 +227,18 @@ export default function RoomManagement() {
             <Textarea
               placeholder="房型詳細描述"
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, description: e.target.value });
+                setHasUnsavedChanges(true);
+              }}
               className="bg-background border-border text-foreground"
               rows={4}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              {formData.description.length} 字元
+              {formData.description.length < 50 && ' （建議至少 50 字元）'}
+              {formData.description.length > 200 && ' （建議不超過 200 字元）'}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -219,11 +268,31 @@ export default function RoomManagement() {
                 type="text"
                 placeholder="例：2500"
                 value={formData.price}
-                onChange={(e) =>
-                  setFormData({ ...formData, price: e.target.value })
-                }
-                className="bg-background border-border text-foreground"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({ ...formData, price: value });
+                  setHasUnsavedChanges(true);
+                  
+                  // 實時驗證：價格必須是正數
+                  if (value && (isNaN(Number(value)) || Number(value) < 0)) {
+                    setValidationErrors(prev => ({
+                      ...prev,
+                      price: '請輸入有效的正數'
+                    }));
+                  } else {
+                    setValidationErrors(prev => {
+                      const { price, ...rest } = prev;
+                      return rest;
+                    });
+                  }
+                }}
+                className={`bg-background border-border text-foreground ${
+                  validationErrors.price ? 'border-red-500' : ''
+                }`}
               />
+              {validationErrors.price && (
+                <p className="text-xs text-red-500 mt-1">{validationErrors.price}</p>
+              )}
             </div>
 
             <div>
@@ -234,11 +303,31 @@ export default function RoomManagement() {
                 type="text"
                 placeholder="例：3500"
                 value={formData.weekendPrice}
-                onChange={(e) =>
-                  setFormData({ ...formData, weekendPrice: e.target.value })
-                }
-                className="bg-background border-border text-foreground"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({ ...formData, weekendPrice: value });
+                  setHasUnsavedChanges(true);
+                  
+                  // 實時驗證：價格必須是正數
+                  if (value && (isNaN(Number(value)) || Number(value) < 0)) {
+                    setValidationErrors(prev => ({
+                      ...prev,
+                      weekendPrice: '請輸入有效的正數'
+                    }));
+                  } else {
+                    setValidationErrors(prev => {
+                      const { weekendPrice, ...rest } = prev;
+                      return rest;
+                    });
+                  }
+                }}
+                className={`bg-background border-border text-foreground ${
+                  validationErrors.weekendPrice ? 'border-red-500' : ''
+                }`}
               />
+              {validationErrors.weekendPrice && (
+                <p className="text-xs text-red-500 mt-1">{validationErrors.weekendPrice}</p>
+              )}
             </div>
 
             <div>
@@ -363,7 +452,12 @@ export default function RoomManagement() {
                 type="button"
                 variant="outline"
                 onClick={() => {
+                  if (hasUnsavedChanges && !confirm('您有未保存的變更，確定要放棄嗎？')) {
+                    return;
+                  }
                   setEditingId(null);
+                  setHasUnsavedChanges(false);
+                  setValidationErrors({});
                   setFormData({
                     name: "",
                     description: "",
@@ -392,35 +486,64 @@ export default function RoomManagement() {
           </div>
         ) : rooms && rooms.length > 0 ? (
           <div className="space-y-3">
-            {rooms.map((room: any) => (
-              <div
-                key={room.id}
-                className="flex items-center justify-between p-4 bg-background border border-border rounded-lg"
-              >
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">{room.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {room.capacity} 人 · 平日 NT${room.price}/晚 · 假日 NT${room.weekendPrice}/晚 · 最多 {room.maxSalesQuantity || 10} 間
-                  </p>
+            {rooms.map((room: any) => {
+              const images = room.images ? JSON.parse(room.images) : [];
+              const imageCount = images.length;
+              const lastUpdated = room.updatedAt ? new Date(room.updatedAt).toLocaleDateString('zh-TW') : '未知';
+              
+              return (
+                <div
+                  key={room.id}
+                  className="p-4 bg-background border border-border rounded-lg"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground text-lg">{room.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {room.capacity} 人 · 最多 {room.maxSalesQuantity || 10} 間
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(room)}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(room.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* 價格信息 */}
+                  <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-600 mb-1">平日價格</p>
+                      <p className="text-lg font-bold text-blue-800">NT${room.price}</p>
+                      <p className="text-xs text-blue-600">/晚</p>
+                    </div>
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-xs text-green-600 mb-1">假日價格</p>
+                      <p className="text-lg font-bold text-green-800">NT${room.weekendPrice || room.price}</p>
+                      <p className="text-xs text-green-600">/晚</p>
+                    </div>
+                  </div>
+                  
+                  {/* 附加信息 */}
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span>📷 {imageCount} 張照片</span>
+                    <span>·</span>
+                    <span>📅 最後編輯：{lastUpdated}</span>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEdit(room)}
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDelete(room.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="text-center text-muted-foreground py-8">
