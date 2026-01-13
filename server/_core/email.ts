@@ -267,8 +267,29 @@ export function generateBookingConfirmationEmail(
             </p>
           </div>
           
+          <div style="background-color: #e8f5e9; border-left: 4px solid #4CAF50; padding: 20px; margin: 20px 0; border-radius: 4px;">
+            <strong style="color: #2e7d32; font-size: 16px;">🏦 銀行轉帳資訊</strong>
+            <p style="margin: 15px 0 10px 0; color: #333;">
+              感謝您的訂房！請依照以下資訊進行銀行轉帳：
+            </p>
+            <div style="background-color: white; padding: 15px; border-radius: 4px; margin: 10px 0;">
+              <p style="margin: 8px 0; color: #333;">
+                <strong>銀行：</strong>台灣銀行<br>
+                <strong>銀行代碼：</strong>004<br>
+                <strong>帳號：</strong>028001003295<br>
+                <strong>帳戶名：</strong>歐堡商務汽車旅館有限公司
+              </p>
+            </div>
+            <p style="margin: 10px 0; color: #666; font-size: 14px;">
+              ✅ 轉帳時請在備註欄填寫你的訂房編號：<strong>#${bookingId}</strong>，以便我們快速對帳。
+            </p>
+            <p style="margin: 10px 0; color: #666; font-size: 14px;">
+              ✅ 轉帳後，請在訂房追蹤頁面填寫轉帳的後五碼，以便我們確認收款。
+            </p>
+          </div>
+          
           <p style="margin: 20px 0; color: #666;">
-            我們將在 24 小時內確認您的訂房。如有任何問題，歡迎隨時聯絡我們。
+            我們將在 24 小時內確認您的訂房。如有任何問題，歡迎透過 LINE 或電話聯絡我們。
           </p>
           
           <div style="text-align: center; margin: 30px 0;">

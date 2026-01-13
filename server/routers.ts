@@ -570,6 +570,57 @@ export const appRouter = router({
         
         return { success: true, message: '郵件已發送' };
       }),
+    reconciliationReport: publicProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        const start = input.startDate ? new Date(input.startDate) : new Date(new Date().setDate(new Date().getDate() - 30));
+        const end = input.endDate ? new Date(input.endDate) : new Date();
+
+        // 獲取所有訂房
+        const bookings = await db.getAllBookings();
+        
+        // 篩選日期範圍內的訂房
+        const filteredBookings = bookings.filter(b => {
+          const checkInDate = new Date(b.checkInDate);
+          return checkInDate >= start && checkInDate <= end;
+        });
+
+        // 按狀態分組
+        const byStatus = {
+          pending: filteredBookings.filter(b => b.status === 'pending'),
+          confirmed: filteredBookings.filter(b => b.status === 'confirmed'),
+          paid_pending: filteredBookings.filter(b => b.status === 'paid_pending'),
+          paid: filteredBookings.filter(b => b.status === 'paid'),
+          completed: filteredBookings.filter(b => b.status === 'completed'),
+          cancelled: filteredBookings.filter(b => b.status === 'cancelled'),
+        };
+
+        // 計算統計數據
+        const stats = {
+          total: filteredBookings.length,
+          totalAmount: filteredBookings.reduce((sum, b) => sum + parseFloat(b.totalPrice || '0'), 0),
+          pending: byStatus.pending.length,
+          confirmed: byStatus.confirmed.length,
+          paid_pending: byStatus.paid_pending.length,
+          paid: byStatus.paid.length,
+          completed: byStatus.completed.length,
+          cancelled: byStatus.cancelled.length,
+          paidAmount: byStatus.paid.reduce((sum, b) => sum + parseFloat(b.totalPrice || '0'), 0),
+          unpaidAmount: [...byStatus.pending, ...byStatus.confirmed, ...byStatus.paid_pending]
+            .reduce((sum, b) => sum + parseFloat(b.totalPrice || '0'), 0),
+        };
+
+        return {
+          startDate: start.toISOString(),
+          endDate: end.toISOString(),
+          stats,
+          bookings: filteredBookings,
+          byStatus,
+        };
+      }),
   }),
 
   // News
