@@ -117,14 +117,46 @@ export default function Booking() {
     }
   };
 
+  // 計算住宿夜數
+  const calculateNights = () => {
+    if (!checkInDate || !checkOutDate) return 0;
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+    return Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+  };
+
+  const nights = calculateNights();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedRoomId || !checkInDate || !checkOutDate || !guestName || !guestPhone) {
-      toast.error("請填寫所有必填欄位");
+    // 驗證所有必填欄位
+    if (!selectedRoomId) {
+      toast.error("請選擇房型");
       return;
     }
 
+    if (!checkInDate) {
+      toast.error("請填寫入住日期");
+      return;
+    }
+
+    if (!checkOutDate) {
+      toast.error("請填寫退房日期");
+      return;
+    }
+
+    if (!guestName) {
+      toast.error("請填寫姓名");
+      return;
+    }
+
+    if (!guestPhone) {
+      toast.error("請填寫電話號碼");
+      return;
+    }
+
+    // 驗證日期邏輯
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
 
@@ -134,13 +166,17 @@ export default function Booking() {
     }
 
     try {
+      // 確保日期格式正確（YYYY-MM-DD）
+      const checkInStr = checkInDate.includes('-') ? checkInDate : new Date(checkInDate).toISOString().split('T')[0];
+      const checkOutStr = checkOutDate.includes('-') ? checkOutDate : new Date(checkOutDate).toISOString().split('T')[0];
+
       await createBookingMutation.mutateAsync({
         roomTypeId: parseInt(selectedRoomId),
         guestName,
         guestEmail: guestEmail || undefined,
         guestPhone,
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
+        checkInDate: checkInStr,
+        checkOutDate: checkOutStr,
         numberOfGuests: parseInt(numberOfGuests),
         totalPrice: calculateTotalPrice().toString(),
         specialRequests: specialRequests || undefined,
@@ -149,8 +185,8 @@ export default function Booking() {
       // 儲存訂單數據到 sessionStorage
       const bookingConfirmationData = {
         roomName: selectedRoom?.name,
-        checkInDate,
-        checkOutDate,
+        checkInDate: checkInStr,
+        checkOutDate: checkOutStr,
         guestName,
         guestEmail,
         guestPhone,
@@ -168,36 +204,16 @@ export default function Booking() {
     }
   };
 
-  const totalPrice = calculateTotalPrice();
-  const nights =
-    checkInDate && checkOutDate
-      ? Math.ceil(
-          (new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) /
-            (1000 * 60 * 60 * 24)
-        )
-      : 0;
-
   return (
-    <div className="min-h-screen bg-background pt-20">
+    <>
       {/* Hero Section */}
-      <section className="relative h-64 flex items-center justify-center">
-        <div className="absolute inset-0">
-          <img
-            src="/pFBLqdisXmBi.jpg"
-            alt="Booking"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/70" />
+      <section className="relative h-96 bg-gradient-to-br from-amber-900 to-amber-950 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23fff%22 width=%221%22 height=%221%22/></svg>')] bg-repeat"></div>
         </div>
-        <div className="relative z-10 text-center">
-          <div className="corner-frame">
-            <h1 className="text-5xl font-bold text-foreground mb-4 text-gold-gradient">
-              線上訂房
-            </h1>
-            <p className="text-xl text-muted-foreground tracking-wider">
-              ONLINE BOOKING
-            </p>
-          </div>
+        <div className="relative text-center text-white">
+          <h1 className="text-5xl font-bold mb-4 art-deco-border pb-4">立即訂房</h1>
+          <p className="text-xl text-amber-100">選擇您喜愛的房型，享受舒適的住宿體驗</p>
         </div>
       </section>
 
@@ -246,7 +262,17 @@ export default function Booking() {
                             id="checkIn"
                             type="date"
                             value={checkInDate}
-                            onChange={(e) => setCheckInDate(e.target.value)}
+                            onChange={(e) => {
+                              const newValue = e.target.value;
+                              setCheckInDate(newValue);
+                              // 如果退房日期早於入住日期，自動更新退房日期
+                              if (checkOutDate && new Date(newValue) >= new Date(checkOutDate)) {
+                                const nextDay = new Date(newValue);
+                                nextDay.setDate(nextDay.getDate() + 1);
+                                const nextDayStr = nextDay.toISOString().split('T')[0];
+                                setCheckOutDate(nextDayStr);
+                              }
+                            }}
                             min={minDate}
                             className="bg-background border-border text-foreground"
                             required
@@ -283,55 +309,39 @@ export default function Booking() {
                       </div>
                     </div>
 
-                    {/* Number of Guests */}
+                    {/* Guest Information */}
                     <div className="mb-6">
-                      <Label htmlFor="guests" className="text-foreground mb-2 block">
-                        入住人數 <span className="text-destructive">*</span>
+                      <Label htmlFor="name" className="text-foreground mb-2 block">
+                        姓名 <span className="text-destructive">*</span>
                       </Label>
-                      <Select value={numberOfGuests} onValueChange={setNumberOfGuests}>
-                        <SelectTrigger className="bg-background border-border">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">1 人</SelectItem>
-                          <SelectItem value="2">2 人</SelectItem>
-                          <SelectItem value="3">3 人</SelectItem>
-                          <SelectItem value="4">4 人</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        placeholder="請輸入您的姓名"
+                        className="bg-background border-border text-foreground"
+                        required
+                      />
                     </div>
 
-                    <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent my-8" />
-
-                    <h2 className="text-2xl font-bold text-foreground mb-6">
-                      聯絡資訊
-                    </h2>
-
-                    {/* Guest Info */}
-                    <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       <div>
-                        <Label htmlFor="name" className="text-foreground mb-2 block">
-                          姓名 <span className="text-destructive">*</span>
+                        <Label htmlFor="email" className="text-foreground mb-2 block">
+                          電子郵件
                         </Label>
                         <Input
-                          id="name"
-                          type="text"
-                          value={guestName}
-                          onChange={(e) => setGuestName(e.target.value)}
-                          placeholder="請輸入您的姓名"
+                          id="email"
+                          type="email"
+                          value={guestEmail}
+                          onChange={(e) => setGuestEmail(e.target.value)}
+                          placeholder="請輸入您的電子郵件"
                           className="bg-background border-border text-foreground"
-                          required
-                          aria-label="姓名"
-                          aria-required="true"
                         />
-                        {guestName && guestName.length < 2 && (
-                          <p className="text-xs text-red-500 mt-1">姓名至少需要 2 個字元</p>
-                        )}
                       </div>
-
                       <div>
                         <Label htmlFor="phone" className="text-foreground mb-2 block">
-                          電話 <span className="text-destructive">*</span>
+                          電話號碼 <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="phone"
@@ -341,123 +351,113 @@ export default function Booking() {
                           placeholder="請輸入您的電話號碼"
                           className="bg-background border-border text-foreground"
                           required
-                          aria-label="電話"
-                          aria-required="true"
-                        />
-                        {guestPhone && guestPhone.length < 9 && (
-                          <p className="text-xs text-red-500 mt-1">請輸入有效的電話號碼（至少 9 位）</p>
-                        )}
-                      </div>
-
-                      <div>
-                        <Label htmlFor="email" className="text-foreground mb-2 block">
-                          Email
-                        </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={guestEmail}
-                          onChange={(e) => setGuestEmail(e.target.value)}
-                          placeholder="請輸入您的 Email"
-                          className="bg-background border-border"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="requests" className="text-foreground mb-2 block">
-                          特殊需求
-                        </Label>
-                        <Textarea
-                          id="requests"
-                          value={specialRequests}
-                          onChange={(e) => setSpecialRequests(e.target.value)}
-                          placeholder="如有特殊需求，請在此說明"
-                          className="bg-background border-border min-h-[120px]"
                         />
                       </div>
                     </div>
+
+                    <div className="mb-6">
+                      <Label htmlFor="guests" className="text-foreground mb-2 block">
+                        入住人數
+                      </Label>
+                      <Select value={numberOfGuests} onValueChange={setNumberOfGuests}>
+                        <SelectTrigger className="bg-background border-border">
+                          <SelectValue>{numberOfGuests} 人</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6].map((num) => (
+                            <SelectItem key={num} value={num.toString()}>
+                              {num} 人
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="mb-6">
+                      <Label htmlFor="requests" className="text-foreground mb-2 block">
+                        特殊需求
+                      </Label>
+                      <Textarea
+                        id="requests"
+                        value={specialRequests}
+                        onChange={(e) => setSpecialRequests(e.target.value)}
+                        placeholder="請告訴我們您的特殊需求（可選）"
+                        className="bg-background border-border text-foreground min-h-24"
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                      disabled={createBookingMutation.isPending}
+                    >
+                      {createBookingMutation.isPending ? "處理中..." : "確認訂房"}
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Right Column - Summary */}
-              <div className="lg:col-span-1">
-                <Card className="bg-card border-border shadow-luxury sticky top-24">
-                  <CardContent className="p-8">
-                    <h3 className="text-xl font-bold text-foreground mb-6">
+              <div>
+                <Card className="bg-card border-border shadow-luxury sticky top-20">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold text-foreground mb-4 art-deco-border pb-4">
                       訂單摘要
                     </h3>
 
                     {selectedRoom ? (
-                      <div className="space-y-4">
-                        <div className="pb-4 border-b border-border">
-                          <p className="text-sm text-muted-foreground mb-1">房型</p>
-                          <p className="text-lg font-semibold text-foreground">
-                            {selectedRoom.name}
-                          </p>
-                          {checkInDate && checkOutDate && (
-                            <div className="mt-2">
-                              {getAvailabilityBadge()}
+                      <>
+                        <div className="space-y-3 mb-6 pb-6 border-b border-border">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">房型：</span>
+                            <span className="font-medium">{selectedRoom.name}</span>
+                          </div>
+                          {checkInDate && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">入住：</span>
+                              <span className="font-medium">{new Date(checkInDate).toLocaleDateString('zh-TW')}</span>
                             </div>
                           )}
+                          {checkOutDate && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">退房：</span>
+                              <span className="font-medium">{new Date(checkOutDate).toLocaleDateString('zh-TW')}</span>
+                            </div>
+                          )}
+                          {nights > 0 && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">住宿夜數：</span>
+                              <span className="font-medium">{nights} 晚</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">房價：</span>
+                            <span className="font-medium">NT$ {Math.floor(Number(selectedRoom.price)).toLocaleString()}/晚</span>
+                          </div>
                         </div>
 
-                        {checkInDate && checkOutDate && nights > 0 && (
-                          <>
-                            <div className="pb-4 border-b border-border">
-                              <p className="text-sm text-muted-foreground mb-1">入住日期</p>
-                              <p className="text-foreground">
-                                {new Date(checkInDate).toLocaleDateString("zh-TW")}
-                              </p>
-                            </div>
-
-                            <div className="pb-4 border-b border-border">
-                              <p className="text-sm text-muted-foreground mb-1">退房日期</p>
-                              <p className="text-foreground">
-                                {new Date(checkOutDate).toLocaleDateString("zh-TW")}
-                              </p>
-                            </div>
-
-                            <div className="pb-4 border-b border-border">
-                              <p className="text-sm text-muted-foreground mb-1">住宿天數</p>
-                              <p className="text-foreground">{nights} 晚</p>
-                            </div>
-
-                            <div className="pt-4">
-                              <p className="text-sm text-muted-foreground mb-2">總金額</p>
-                              <p className="text-3xl font-bold text-primary">
-                                NT$ {totalPrice.toLocaleString()}
-                              </p>
-                            </div>
-                          </>
+                        {availability && (
+                          <div className="mb-6">
+                            {getAvailabilityBadge()}
+                          </div>
                         )}
-                      </div>
+
+                        {nights > 0 && (
+                          <div className="space-y-2">
+                            <div className="flex justify-between font-semibold text-lg">
+                              <span>總價：</span>
+                              <span className="text-amber-600">NT$ {Math.floor(calculateTotalPrice()).toLocaleString()}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              包含 {nights} 晚住宿費用
+                            </p>
+                          </div>
+                        )}
+                      </>
                     ) : (
-                      <p className="text-muted-foreground text-center py-8">
-                        請選擇房型以查看價格
-                      </p>
+                      <p className="text-muted-foreground text-sm">請選擇房型以查看價格</p>
                     )}
-
-                    <Button
-                      type="submit"
-                      size="lg"
-                      className="w-full mt-8 bg-primary text-primary-foreground hover:bg-primary/90"
-                      disabled={
-                        createBookingMutation.isPending || 
-                        (availability && !availability.isAvailable)
-                      }
-                    >
-                      {createBookingMutation.isPending 
-                        ? "處理中..." 
-                        : availability && !availability.isAvailable
-                        ? "已滿房"
-                        : "確認訂房"
-                      }
-                    </Button>
-
-                    <p className="text-xs text-muted-foreground mt-4 text-center">
-                      送出訂單後，我們將盡快與您聯繫確認訂房詳情
-                    </p>
                   </CardContent>
                 </Card>
               </div>
@@ -465,6 +465,6 @@ export default function Booking() {
           </form>
         </div>
       </section>
-    </div>
+    </>
   );
 }
