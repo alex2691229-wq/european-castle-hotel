@@ -17,6 +17,7 @@ export default function AvailabilityManagement() {
   const [editingDateForQuantity, setEditingDateForQuantity] = useState<string | null>(null);
   const [weekdayPrice, setWeekdayPrice] = useState<number | undefined>(undefined);
   const [weekendPrice, setWeekendPrice] = useState<number | undefined>(undefined);
+  const [batchCloseQuantity, setBatchCloseQuantity] = useState<number>(0);
 
   // Fetch room types
   const { data: roomTypes = [] } = trpc.roomTypes.list.useQuery();
@@ -80,6 +81,19 @@ export default function AvailabilityManagement() {
     },
     onError: (error) => {
       toast.error(`更新失敗：${error.message}`);
+    },
+  });
+
+  // Batch close sales mutation
+  const batchCloseSalesMutation = trpc.roomAvailability.updateMaxSalesQuantity.useMutation({
+    onSuccess: () => {
+      toast.success(`已批量關閉 ${selectedDates.size} 個日期的銷售`);
+      refetchRecords();
+      setSelectedDates(new Set());
+      setBatchCloseQuantity(0);
+    },
+    onError: (error) => {
+      toast.error(`批量操作失敗：${error.message}`);
     },
   });
 
@@ -148,6 +162,27 @@ export default function AvailabilityManagement() {
     }
     
     setSelectedDates(newSelected);
+  };
+
+  // Handle batch close sales
+  const handleBatchCloseSales = () => {
+    if (selectedDates.size === 0) {
+      toast.error("請先選擇要關閉的日期");
+      return;
+    }
+
+    if (!selectedRoomTypeId) return;
+
+    const dates = Array.from(selectedDates).map(dateStr => new Date(dateStr));
+    
+    // For each selected date, set maxSalesQuantity to 0
+    dates.forEach(date => {
+      batchCloseSalesMutation.mutate({
+        roomTypeId: selectedRoomTypeId,
+        date,
+        maxSalesQuantity: 0,
+      });
+    });
   };
 
   // Handle batch availability update
@@ -286,8 +321,15 @@ export default function AvailabilityManagement() {
                   </Button>
                 </div>
               </div>
-              <CardDescription className="text-gray-400">
-                點擊日期選擇，然後使用下方按鈕批量設定可用性
+              <CardDescription className="text-gray-400 flex items-center justify-between">
+                <span>點擊日期選擇，然後使用下方按鈐批量設定可用性</span>
+                <Button
+                  size="sm"
+                  onClick={() => setIsSelecting(!isSelecting)}
+                  className={isSelecting ? "bg-gold text-black hover:bg-yellow-400" : "bg-black/60 border border-gold/30 text-gold hover:bg-gold/20"}
+                >
+                  {isSelecting ? "退出選擇模式" : "進入批量選擇"}
+                </Button>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -355,6 +397,12 @@ export default function AvailabilityManagement() {
                     displayPrice = typeof record.weekdayPrice === 'string' ? parseInt(record.weekdayPrice) : record.weekdayPrice;
                   } else if (record?.weekendPrice && isWeekend) {
                     displayPrice = typeof record.weekendPrice === 'string' ? parseInt(record.weekendPrice) : record.weekendPrice;
+                  } else if (record?.weekdayPrice && isWeekend && !record?.weekendPrice) {
+                    // 如果只有平日價格但今天是假日，使用平日價格作為備選
+                    displayPrice = typeof record.weekdayPrice === 'string' ? parseInt(record.weekdayPrice) : record.weekdayPrice;
+                  } else if (record?.weekendPrice && !isWeekend && !record?.weekdayPrice) {
+                    // 如果只有假日價格但今天是平日，使用假日價格作為備選
+                    displayPrice = typeof record.weekendPrice === 'string' ? parseInt(record.weekendPrice) : record.weekendPrice;
                   }
 
                   return (
@@ -369,10 +417,16 @@ export default function AvailabilityManagement() {
                         }}>
                           <DialogTrigger asChild>
                             <button
+                              onClick={(e) => {
+                                if (isSelecting) {
+                                  e.preventDefault();
+                                  toggleDateSelection(date);
+                                }
+                              }}
                               className={`w-full aspect-square rounded-lg border ${borderColor} ${bgColor} ${textColor} 
                                 flex flex-col items-center justify-center text-sm transition-all
                                 cursor-pointer hover:ring-2 hover:ring-gold/50
-                                ${isSelected ? "scale-95" : ""}`}
+                                ${isSelected ? "ring-2 ring-gold scale-95" : ""}`}
                             >
                               <span className="font-semibold">{date.getDate()}</span>
                               {displayPrice && <span className="text-xs text-gold mt-0.5">NT${typeof displayPrice === 'number' ? displayPrice.toLocaleString() : displayPrice}</span>}
@@ -505,28 +559,40 @@ export default function AvailabilityManagement() {
 
               {/* Action buttons */}
               {selectedDates.size > 0 && (
-                <div className="mt-6 flex gap-4">
-                  <Button
-                    onClick={() => handleSetAvailability(false)}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
-                    disabled={setAvailabilityMutation.isPending}
-                  >
-                    關閉預訂 ({selectedDates.size} 個日期)
-                  </Button>
-                  <Button
-                    onClick={() => handleSetAvailability(true)}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    disabled={setAvailabilityMutation.isPending}
-                  >
-                    開放預訂 ({selectedDates.size} 個日期)
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setSelectedDates(new Set())}
-                    className="bg-black/60 border-gold/30 text-gold hover:bg-gold/20"
-                  >
-                    清除選擇
-                  </Button>
+                <div className="mt-6 flex flex-col gap-4">
+                  <div className="flex gap-4">
+                    <Button
+                      onClick={handleBatchCloseSales}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                      disabled={batchCloseSalesMutation.isPending}
+                    >
+                      {batchCloseSalesMutation.isPending ? "處理中..." : `批量關閉銷售 (${selectedDates.size} 個日期)`}
+                    </Button>
+                    <Button
+                      onClick={() => handleSetAvailability(false)}
+                      className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
+                      disabled={setAvailabilityMutation.isPending}
+                    >
+                      關閉預訂 ({selectedDates.size} 個日期)
+                    </Button>
+                    <Button
+                      onClick={() => handleSetAvailability(true)}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                      disabled={setAvailabilityMutation.isPending}
+                    >
+                      開放預訂 ({selectedDates.size} 個日期)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setSelectedDates(new Set())}
+                      className="bg-black/60 border-gold/30 text-gold hover:bg-gold/20"
+                    >
+                      清除選擇
+                    </Button>
+                  </div>
+                  <div className="text-sm text-gray-400 bg-black/40 p-3 rounded">
+                    <p>💡 提示：「批量關閉銷售」會將選中日期的最大可銷售數量設為 0，完全停止銷售。</p>
+                  </div>
                 </div>
               )}
             </CardContent>
