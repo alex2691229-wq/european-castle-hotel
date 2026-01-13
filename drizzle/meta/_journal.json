@@ -57,6 +57,13 @@
       "when": 1768294958860,
       "tag": "0007_elite_rictor",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1768296473536,
+      "tag": "0008_nostalgic_jazinda",
+      "breakpoints": true
     }
   ]
 }

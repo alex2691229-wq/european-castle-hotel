@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Settings } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function AvailabilityManagement() {
   const [selectedRoomTypeId, setSelectedRoomTypeId] = useState<number | null>(null);
@@ -278,24 +280,82 @@ export default function AvailabilityManagement() {
                     borderColor = "border-gold ring-2 ring-gold";
                   }
 
+                  const dateStr = date.toISOString().split('T')[0];
+                  const record = availabilityRecords.find(r => new Date(r.date).toISOString().split('T')[0] === dateStr);
+                  const maxQty = record?.maxSalesQuantity || 10;
+                  const bookedQty = record?.bookedQuantity || 0;
+
                   return (
-                    <button
-                      key={index}
-                      onClick={() => !isPast && toggleDateSelection(date)}
-                      disabled={isPast}
-                      className={`aspect-square rounded-lg border ${borderColor} ${bgColor} ${textColor} 
-                        flex flex-col items-center justify-center text-sm transition-all
-                        ${!isPast && !isBooked ? "cursor-pointer" : "cursor-not-allowed"}
-                        ${isSelected ? "scale-95" : ""}`}
-                    >
-                      <span className="font-semibold">{date.getDate()}</span>
-                      {isBooked && (
-                        <span className="text-xs text-red-400 mt-1">已訂</span>
+                    <div key={index} className="relative">
+                      <button
+                        onClick={() => !isPast && toggleDateSelection(date)}
+                        disabled={isPast}
+                        className={`w-full aspect-square rounded-lg border ${borderColor} ${bgColor} ${textColor} 
+                          flex flex-col items-center justify-center text-sm transition-all
+                          ${!isPast && !isBooked ? "cursor-pointer" : "cursor-not-allowed"}
+                          ${isSelected ? "scale-95" : ""}`}
+                      >
+                        <span className="font-semibold">{date.getDate()}</span>
+                        <span className="text-xs text-gray-400 mt-0.5">{bookedQty}/{maxQty}</span>
+                        {isBooked && (
+                          <span className="text-xs text-red-400 mt-1">已訂</span>
+                        )}
+                        {isBlocked && !isBooked && (
+                          <span className="text-xs text-orange-400 mt-1">關閉</span>
+                        )}
+                      </button>
+                      {!isPast && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button className="absolute top-0 right-0 p-1 bg-gold/80 hover:bg-gold rounded text-black transition-all">
+                              <Settings className="h-3 w-3" />
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="bg-black/80 border-gold/30">
+                            <DialogHeader>
+                              <DialogTitle className="text-gold">
+                                {date.toLocaleDateString('zh-TW')} - 可銷售數量設定
+                              </DialogTitle>
+                              <DialogDescription className="text-gray-400">
+                                調整此日期的最大可銷售房間數量
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gold mb-2">
+                                  最大可銷售數量
+                                </label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="20"
+                                  defaultValue={maxQty}
+                                  onChange={(e) => setMaxSalesQuantity(parseInt(e.target.value) || 10)}
+                                  className="bg-black/60 border-gold/30 text-white"
+                                />
+                              </div>
+                              <div className="text-sm text-gray-400">
+                                <p>已訂房間數：{bookedQty}</p>
+                                <p>剩餘可銷售：{Math.max(0, maxQty - bookedQty)}</p>
+                              </div>
+                              <Button
+                                onClick={() => {
+                                  updateMaxSalesQuantityMutation.mutate({
+                                    roomTypeId: selectedRoomTypeId!,
+                                    date: date,
+                                    maxSalesQuantity: maxSalesQuantity,
+                                  });
+                                }}
+                                disabled={updateMaxSalesQuantityMutation.isPending}
+                                className="w-full bg-gold text-black hover:bg-gold/90"
+                              >
+                                {updateMaxSalesQuantityMutation.isPending ? "更新中..." : "確認更新"}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       )}
-                      {isBlocked && !isBooked && (
-                        <span className="text-xs text-orange-400 mt-1">關閉</span>
-                      )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>

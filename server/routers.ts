@@ -449,6 +449,23 @@ ${roomsContext}
         );
         return { success: true };
       }),
+    
+    updateDynamicPrice: adminProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        date: z.date(),
+        weekdayPrice: z.number().positive().optional(),
+        weekendPrice: z.number().positive().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateDynamicPrice(
+          input.roomTypeId,
+          input.date,
+          input.weekdayPrice,
+          input.weekendPrice
+        );
+        return { success: true };
+      }),
   }),
 
   // Home Config

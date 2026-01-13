@@ -719,3 +719,59 @@ export async function updateBookedQuantity(
     }
   }
 }
+
+export async function updateDynamicPrice(
+  roomTypeId: number,
+  date: Date,
+  weekdayPrice?: number,
+  weekendPrice?: number
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Normalize date to midnight UTC
+  const normalizedDate = new Date(date);
+  normalizedDate.setUTCHours(0, 0, 0, 0);
+  
+  // Check if record exists
+  const existing = await db
+    .select()
+    .from(roomAvailability)
+    .where(
+      and(
+        eq(roomAvailability.roomTypeId, roomTypeId),
+        eq(roomAvailability.date, normalizedDate)
+      )
+    )
+    .limit(1);
+  
+  const updateData: any = { updatedAt: new Date() };
+  if (weekdayPrice !== undefined) {
+    updateData.weekdayPrice = weekdayPrice;
+  }
+  if (weekendPrice !== undefined) {
+    updateData.weekendPrice = weekendPrice;
+  }
+  
+  if (existing.length > 0) {
+    // Update existing record
+    await db
+      .update(roomAvailability)
+      .set(updateData)
+      .where(eq(roomAvailability.id, existing[0].id));
+  } else {
+    // Insert new record with the dynamic prices
+    const insertData: any = {
+      roomTypeId,
+      date: normalizedDate,
+      isAvailable: true,
+    };
+    if (weekdayPrice !== undefined) {
+      insertData.weekdayPrice = weekdayPrice;
+    }
+    if (weekendPrice !== undefined) {
+      insertData.weekendPrice = weekendPrice;
+    }
+    await db.insert(roomAvailability).values(insertData);
+  }
+}
