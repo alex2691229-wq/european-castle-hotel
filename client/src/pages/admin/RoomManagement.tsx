@@ -19,6 +19,7 @@ export default function RoomManagement() {
     price: "",
     weekendPrice: "",
     amenities: "",
+    maxSalesQuantity: "10",
   });
 
   const utils = trpc.useUtils();
@@ -108,6 +109,7 @@ export default function RoomManagement() {
           price: formData.price,
           weekendPrice: formData.weekendPrice,
           amenities: formData.amenities,
+          maxSalesQuantity: parseInt(formData.maxSalesQuantity),
           images,
         });
         toast.success("房型已新增");
@@ -120,6 +122,7 @@ export default function RoomManagement() {
         price: "",
         weekendPrice: "",
         amenities: "",
+        maxSalesQuantity: "10",
       });
       setUploadedImages([]);
     } catch (error) {
@@ -136,6 +139,7 @@ export default function RoomManagement() {
       price: room.price,
       weekendPrice: room.weekendPrice || "",
       amenities: room.amenities || "",
+      maxSalesQuantity: String(room.maxSalesQuantity || 10),
     });
     const images = room.images ? JSON.parse(room.images) : [];
     setUploadedImages(images);
@@ -228,6 +232,22 @@ export default function RoomManagement() {
                 value={formData.weekendPrice}
                 onChange={(e) =>
                   setFormData({ ...formData, weekendPrice: e.target.value })
+                }
+                className="bg-background border-border text-foreground"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                最大可銷售數量
+              </label>
+              <Input
+                type="number"
+                min="1"
+                placeholder="例：10"
+                value={formData.maxSalesQuantity}
+                onChange={(e) =>
+                  setFormData({ ...formData, maxSalesQuantity: e.target.value })
                 }
                 className="bg-background border-border text-foreground"
               />
@@ -343,6 +363,7 @@ export default function RoomManagement() {
                     price: "",
                     weekendPrice: "",
                     amenities: "",
+                    maxSalesQuantity: "10",
                   });
                   setUploadedImages([]);
                 }}
@@ -370,7 +391,7 @@ export default function RoomManagement() {
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground">{room.name}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {room.capacity} 人 · 平日 NT${room.price}/晚 · 假日 NT${room.weekendPrice}/晚
+                    {room.capacity} 人 · 平日 NT${room.price}/晚 · 假日 NT${room.weekendPrice}/晚 · 最多 {room.maxSalesQuantity || 10} 間
                   </p>
                 </div>
                 <div className="flex gap-2">

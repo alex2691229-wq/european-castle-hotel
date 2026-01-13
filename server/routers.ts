@@ -77,6 +77,7 @@ export const appRouter = router({
         images: z.string().optional(),
         amenities: z.string().optional(),
         displayOrder: z.number().default(0),
+        maxSalesQuantity: z.number().default(10),
       }))
       .mutation(async ({ input }) => {
         const id = await db.createRoomType(input);
@@ -98,6 +99,7 @@ export const appRouter = router({
         amenities: z.string().optional(),
         isAvailable: z.boolean().optional(),
         displayOrder: z.number().optional(),
+        maxSalesQuantity: z.number().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;

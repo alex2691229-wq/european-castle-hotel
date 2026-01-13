@@ -11,7 +11,7 @@ import ImageGallery from "@/pages/admin/ImageGallery";
 import RoomBatchUpdate from "@/pages/admin/RoomBatchUpdate";
 import HomeManagement from "@/pages/admin/HomeManagement";
 import AvailabilityManagement from "@/pages/admin/AvailabilityManagement";
-import FeaturedServicesManagement from "@/pages/admin/FeaturedServicesManagement";
+
 
 export default function Admin() {
   const { user, isAuthenticated } = useAuth();
@@ -50,7 +50,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="rooms" className="w-full">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="rooms">房型管理</TabsTrigger>
             <TabsTrigger value="batch-update">批量更新</TabsTrigger>
             <TabsTrigger value="bookings">訂單管理</TabsTrigger>
@@ -58,7 +58,6 @@ export default function Admin() {
             <TabsTrigger value="gallery">圖片庫</TabsTrigger>
             <TabsTrigger value="images">圖片上傳</TabsTrigger>
             <TabsTrigger value="home">首頁管理</TabsTrigger>
-            <TabsTrigger value="featured">尊享服務</TabsTrigger>
             <TabsTrigger value="availability">可用性管理</TabsTrigger>
           </TabsList>
 
@@ -88,10 +87,6 @@ export default function Admin() {
 
           <TabsContent value="home" className="space-y-4">
             <HomeManagement />
-          </TabsContent>
-
-          <TabsContent value="featured" className="space-y-4">
-            <FeaturedServicesManagement />
           </TabsContent>
 
           <TabsContent value="availability" className="space-y-4">
