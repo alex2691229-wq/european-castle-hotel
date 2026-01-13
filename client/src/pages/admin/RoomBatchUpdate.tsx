@@ -42,6 +42,10 @@ export default function RoomBatchUpdate() {
       }));
       setRooms(formattedRooms);
       setIsLoading(false);
+      // 提示數據已同步
+      if (rooms.length > 0 && rooms.length !== formattedRooms.length) {
+        toast.info('房型數據已同步更新');
+      }
     }
   }, [dbRooms]);
 
@@ -57,9 +61,9 @@ export default function RoomBatchUpdate() {
         amenities: room.amenities,
         maxSalesQuantity: room.maxSalesQuantity || 10,
       });
-      toast.success(`${room.name} 已更新`);
       // 刷新房型列表
-      utils.roomTypes.list.invalidate();
+      await utils.roomTypes.list.invalidate();
+      toast.success(`${room.name} 已更新，數據已同步`);
     } catch (error) {
       toast.error(`更新失敗: ${room.name}`);
       console.error(error);
@@ -80,9 +84,9 @@ export default function RoomBatchUpdate() {
           maxSalesQuantity: room.maxSalesQuantity || 10,
         });
       }
-      toast.success("所有房型已批量更新！");
       // 刷新房型列表
-      utils.roomTypes.list.invalidate();
+      await utils.roomTypes.list.invalidate();
+      toast.success("所有房型已批量更新，數據已同步！");
     } catch (error) {
       toast.error("批量更新失敗");
       console.error(error);

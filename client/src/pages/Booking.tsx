@@ -194,11 +194,16 @@ export default function Booking() {
                             value={checkInDate}
                             onChange={(e) => setCheckInDate(e.target.value)}
                             min={minDate}
-                            className="bg-background border-border"
+                            className="bg-background border-border text-foreground"
                             required
+                            aria-label="入住日期"
+                            aria-required="true"
                           />
                           <Calendar className="absolute right-3 top-3 text-muted-foreground pointer-events-none" size={18} />
                         </div>
+                        {checkInDate && new Date(checkInDate) < new Date(minDate) && (
+                          <p className="text-xs text-red-500 mt-1">入住日期不能早於今天</p>
+                        )}
                       </div>
                       <div>
                         <Label htmlFor="checkOut" className="text-foreground mb-2 block">
@@ -211,11 +216,16 @@ export default function Booking() {
                             value={checkOutDate}
                             onChange={(e) => setCheckOutDate(e.target.value)}
                             min={checkInDate || minDate}
-                            className="bg-background border-border"
+                            className="bg-background border-border text-foreground"
                             required
+                            aria-label="退房日期"
+                            aria-required="true"
                           />
                           <Calendar className="absolute right-3 top-3 text-muted-foreground pointer-events-none" size={18} />
                         </div>
+                        {checkOutDate && checkInDate && new Date(checkOutDate) <= new Date(checkInDate) && (
+                          <p className="text-xs text-red-500 mt-1">退房日期必須晚於入住日期</p>
+                        )}
                       </div>
                     </div>
 
@@ -255,9 +265,14 @@ export default function Booking() {
                           value={guestName}
                           onChange={(e) => setGuestName(e.target.value)}
                           placeholder="請輸入您的姓名"
-                          className="bg-background border-border"
+                          className="bg-background border-border text-foreground"
                           required
+                          aria-label="姓名"
+                          aria-required="true"
                         />
+                        {guestName && guestName.length < 2 && (
+                          <p className="text-xs text-red-500 mt-1">姓名至少需要 2 個字元</p>
+                        )}
                       </div>
 
                       <div>
@@ -270,9 +285,14 @@ export default function Booking() {
                           value={guestPhone}
                           onChange={(e) => setGuestPhone(e.target.value)}
                           placeholder="請輸入您的電話號碼"
-                          className="bg-background border-border"
+                          className="bg-background border-border text-foreground"
                           required
+                          aria-label="電話"
+                          aria-required="true"
                         />
+                        {guestPhone && guestPhone.length < 9 && (
+                          <p className="text-xs text-red-500 mt-1">請輸入有效的電話號碼（至少 9 位）</p>
+                        )}
                       </div>
 
                       <div>

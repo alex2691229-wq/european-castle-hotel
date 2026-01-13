@@ -65,9 +65,13 @@ describe("Room Availability Management", () => {
     expect(unavailableDates.length).toBeGreaterThan(0);
     
     // Check that blocked dates are in the result
-    const unavailableDateStrings = unavailableDates.map(d => 
-      d.toISOString().split('T')[0]
-    );
+    const unavailableDateStrings = unavailableDates.map(d => {
+      if (d.date instanceof Date) {
+        return d.date.toISOString().split('T')[0];
+      }
+      const dateObj = new Date(String(d.date));
+      return dateObj.toISOString().split('T')[0];
+    });
     expect(unavailableDateStrings).toContain("2026-03-01");
     expect(unavailableDateStrings).toContain("2026-03-02");
   });
@@ -154,9 +158,13 @@ describe("Room Availability Management", () => {
     );
 
     // Check that booking dates are included
-    const unavailableDateStrings = unavailableDates.map(d => 
-      d.toISOString().split('T')[0]
-    );
+    const unavailableDateStrings = unavailableDates.map(d => {
+      if (d.date instanceof Date) {
+        return d.date.toISOString().split('T')[0];
+      }
+      const dateObj = new Date(String(d.date));
+      return dateObj.toISOString().split('T')[0];
+    });
     
     expect(unavailableDateStrings).toContain("2026-06-15");
     expect(unavailableDateStrings).toContain("2026-06-16");
