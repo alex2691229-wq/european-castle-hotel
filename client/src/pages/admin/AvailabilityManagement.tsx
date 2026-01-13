@@ -326,9 +326,9 @@ export default function AvailabilityManagement() {
                 <Button
                   size="sm"
                   onClick={() => setIsSelecting(!isSelecting)}
-                  className={isSelecting ? "bg-gold text-black hover:bg-yellow-400" : "bg-black/60 border border-gold/30 text-gold hover:bg-gold/20"}
+                  className={isSelecting ? "bg-yellow-500 text-black hover:bg-yellow-600 font-semibold" : "bg-black/60 border border-gold/30 text-gold hover:bg-gold/20"}
                 >
-                  {isSelecting ? "退出選擇模式" : "進入批量選擇"}
+                  {isSelecting ? "✕ 退出選擇模式" : "進入批量選擇"}
                 </Button>
               </CardDescription>
             </CardHeader>
