@@ -165,6 +165,39 @@ export default function BookingConfirmation() {
                   </div>
                 </div>
 
+                {/* Payment Instructions */}
+                <div className="p-6 bg-amber-50 rounded-lg border border-amber-200">
+                  <h3 className="text-lg font-semibold text-amber-900 mb-3">
+                    💳 銀行轉帳付款指示
+                  </h3>
+                  <div className="space-y-3 text-sm text-amber-800">
+                    <p className="font-medium">請於確認後 3 天內進行銀行轉帳：</p>
+                    <div className="bg-white p-3 rounded border border-amber-300 space-y-2">
+                      <div>
+                        <p className="text-xs text-amber-600">銀行名稱</p>
+                        <p className="font-mono font-bold text-amber-900">台灣銀行</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-amber-600">帳號</p>
+                        <p className="font-mono font-bold text-amber-900">028001003295</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-amber-600">帳戶名</p>
+                        <p className="font-mono font-bold text-amber-900">歐堡商務汽車旅館</p>
+                      </div>
+                    </div>
+                    <div className="bg-white p-3 rounded border border-amber-300">
+                      <p className="text-xs text-amber-600 mb-1">轉帳金額</p>
+                      <p className="font-mono font-bold text-amber-900">NT$ {bookingData.totalPrice.toLocaleString()}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded border border-amber-300">
+                      <p className="text-xs text-amber-600 mb-1">備註欄請填寫訂房編號</p>
+                      <p className="font-mono font-bold text-amber-900">訂房編號：#XXXXXX</p>
+                    </div>
+                    <p className="text-xs italic">轉帳完成後，請在訂房追蹤頁面填寫轉帳後五碼，以便我們快速確認收款。</p>
+                  </div>
+                </div>
+
                 {/* Next Steps */}
                 <div className="p-6 bg-blue-50 rounded-lg border border-blue-200">
                   <h3 className="text-lg font-semibold text-blue-900 mb-3">

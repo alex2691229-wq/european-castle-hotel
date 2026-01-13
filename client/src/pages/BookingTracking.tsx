@@ -20,6 +20,9 @@ import { Calendar, User, Phone, Mail, Home, Clock, CheckCircle2, XCircle, AlertC
 export default function BookingTracking() {
   const [searchPhone, setSearchPhone] = useState("");
   const [cancelBookingId, setCancelBookingId] = useState<number | null>(null);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
+  const [lastFiveDigits, setLastFiveDigits] = useState("");
   
   const { data: bookings, refetch, isLoading } = trpc.bookings.getByPhone.useQuery(
     { phone: searchPhone },
@@ -60,34 +63,62 @@ export default function BookingTracking() {
     }
   };
 
+  const handleSubmitTransfer = () => {
+    if (!lastFiveDigits || lastFiveDigits.length !== 5) {
+      toast.error("請輸入有效的轉帳後五碼（5 個數字）");
+      return;
+    }
+    
+    if (selectedBookingId) {
+      toast.success(`✅ 已記錄轉帳後五碼：${lastFiveDigits}\n\n我們將在 1-2 小時內確認收款並更新訂房狀態`);
+      setShowTransferModal(false);
+      setLastFiveDigits("");
+      setSelectedBookingId(null);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "confirmed":
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
             <CheckCircle2 className="w-3 h-3" />
-            已確認
+            ✓ 已確認
           </span>
         );
       case "pending":
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
             <Clock className="w-3 h-3" />
-            待確認
+            ⏳ 待確認
+          </span>
+        );
+      case "paid_pending":
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+            <Clock className="w-3 h-3" />
+            💳 已匯款
+          </span>
+        );
+      case "paid":
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            <CheckCircle2 className="w-3 h-3" />
+            ✅ 已付款
           </span>
         );
       case "cancelled":
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
             <XCircle className="w-3 h-3" />
-            已取消
+            ✕ 已取消
           </span>
         );
       case "completed":
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
             <CheckCircle2 className="w-3 h-3" />
-            已完成
+            🎉 已完成
           </span>
         );
       default:
@@ -167,6 +198,31 @@ export default function BookingTracking() {
               </p>
             </CardContent>
           </Card>
+
+          {/* LINE Customer Service Tip */}
+          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6 mb-8">
+            <h3 className="text-lg font-bold text-green-400 mb-3">
+              💬 需要協助？
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              如果您對訂房狀態或付款有任何問題，歡迎透過 LINE 與我們聯繫。
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">帳號：</span>
+                <span className="font-mono font-bold text-foreground">@castle6359577</span>
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('castle6359577');
+                  alert('帳號已複製：castle6359577\n\n請在 LINE 中搜尋此帳號並添加');
+                }}
+                className="px-3 py-1 bg-green-600 text-white text-sm font-bold rounded hover:bg-green-700 transition-colors"
+              >
+                複製帳號
+              </button>
+            </div>
+          </div>
 
           {/* Booking Results */}
           {bookings && bookings.length > 0 ? (
@@ -261,24 +317,40 @@ export default function BookingTracking() {
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-border flex justify-between items-center">
-                      <div>
-                        <p className="text-sm text-muted-foreground">總金額</p>
-                        <p className="text-2xl font-bold text-primary">
-                          NT$ {Number(booking.totalPrice).toLocaleString()}
-                        </p>
+                    <div className="mt-6 pt-6 border-t border-border">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-sm text-muted-foreground">總金額</p>
+                          <p className="text-2xl font-bold text-primary">
+                            NT$ {Number(booking.totalPrice).toLocaleString()}
+                          </p>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          {booking.status === 'paid_pending' && (
+                            <Button
+                              className="bg-amber-600 text-white hover:bg-amber-700"
+                              onClick={() => {
+                                setSelectedBookingId(booking.id);
+                                setShowTransferModal(true);
+                              }}
+                            >
+                              💳 填寫轉帳後五碼
+                            </Button>
+                          )}
+                          
+                          {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                            <Button
+                              variant="outline"
+                              className="text-red-600 border-red-600 hover:bg-red-50"
+                              onClick={() => handleCancelBooking(booking.id)}
+                              disabled={cancelMutation.isPending}
+                            >
+                              {cancelMutation.isPending ? "取消中..." : "取消訂單"}
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      
-                      {(booking.status === 'pending' || booking.status === 'confirmed') && (
-                        <Button
-                          variant="outline"
-                          className="text-red-600 border-red-600 hover:bg-red-50"
-                          onClick={() => handleCancelBooking(booking.id)}
-                          disabled={cancelMutation.isPending}
-                        >
-                          {cancelMutation.isPending ? "取消中..." : "取消訂單"}
-                        </Button>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -307,6 +379,69 @@ export default function BookingTracking() {
         </div>
       </section>
       
+      {/* Transfer Modal */}
+      {showTransferModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="bg-card border-border shadow-luxury w-full max-w-md mx-4">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold text-foreground mb-4">
+                💳 填寫轉帳後五碼
+              </h2>
+              
+              <p className="text-sm text-muted-foreground mb-6">
+                請填寫您轉帳時銀行帳號的最後五碼，以便我們快速確認收款。
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="lastFiveDigits" className="text-foreground mb-2 block">
+                    轉帳後五碼
+                  </Label>
+                  <Input
+                    id="lastFiveDigits"
+                    type="text"
+                    value={lastFiveDigits}
+                    onChange={(e) => setLastFiveDigits(e.target.value.replace(/[^0-9]/g, '').slice(0, 5))}
+                    placeholder="例如：03295"
+                    maxLength={5}
+                    className="bg-background border-border text-foreground text-center text-2xl font-mono tracking-widest"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    請輸入 5 個數字
+                  </p>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-900">
+                    <strong>提示：</strong>轉帳後五碼是您銀行帳號 028001003295 的最後五位數字。
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      setShowTransferModal(false);
+                      setLastFiveDigits("");
+                      setSelectedBookingId(null);
+                    }}
+                  >
+                    取消
+                  </Button>
+                  <Button
+                    className="flex-1 bg-amber-600 text-white hover:bg-amber-700"
+                    onClick={handleSubmitTransfer}
+                  >
+                    提交
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Cancel Confirmation Dialog */}
       <AlertDialog open={cancelBookingId !== null} onOpenChange={(open) => !open && setCancelBookingId(null)}>
         <AlertDialogContent>

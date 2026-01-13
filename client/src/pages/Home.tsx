@@ -346,6 +346,65 @@ export default function Home() {
         </section>
       )}
 
+      {/* LINE Customer Service Section */}
+      <section className="py-20 bg-gradient-to-r from-green-900/20 to-green-800/20 border-y border-green-500/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+              💬 LINE 客服
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              有任何問題？立即透過 LINE 與我們聯繫
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            {/* QR Code */}
+            <div className="flex flex-col items-center justify-center p-6 bg-white rounded-lg">
+              <p className="text-sm text-gray-600 mb-4 font-medium">掃描 QR Code</p>
+              <img 
+                src="/line-qrcode.jpg" 
+                alt="LINE QR Code" 
+                className="w-48 h-48 object-contain"
+              />
+              <p className="text-xs text-gray-500 mt-4">或搜尋帳號：@castle6359577</p>
+            </div>
+
+            {/* Contact Info */}
+            <div className="flex flex-col justify-center space-y-6">
+              <div className="bg-black/30 p-6 rounded-lg border border-green-500/30">
+                <h3 className="text-lg font-bold text-green-400 mb-4">
+                  ✓ 快速回應
+                </h3>
+                <p className="text-gray-300 text-sm">
+                  我們的客服團隊會在 1 小時內回覆您的訊息
+                </p>
+              </div>
+
+              <div className="bg-black/30 p-6 rounded-lg border border-green-500/30">
+                <h3 className="text-lg font-bold text-green-400 mb-4">
+                  📞 服務時間
+                </h3>
+                <p className="text-gray-300 text-sm">
+                  每天 09:00 - 22:00<br/>
+                  全年無休
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('castle6359577');
+                  alert('帳號已複製：castle6359577\n\n請在 LINE 中搜尋此帳號並添加');
+                }}
+                className="px-6 py-3 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition-colors"
+              >
+                複製帳號
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4 text-center">
