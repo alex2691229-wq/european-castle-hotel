@@ -2,14 +2,17 @@ import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { Users, Maximize2, ArrowLeft, Check } from "lucide-react";
-import { useState } from "react";
+import { Users, Maximize2, ArrowLeft, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useRef } from "react";
 import BookingCalendar from "@/components/BookingCalendar";
 
 export default function RoomDetail() {
   const [, params] = useRoute("/rooms/:id");
   const roomId = params?.id ? parseInt(params.id) : 0;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const { data: room, isLoading } = trpc.roomTypes.getById.useQuery(
     { id: roomId },
@@ -57,6 +60,40 @@ export default function RoomDetail() {
   const images = safeJsonParse(room.images);
   const amenities = safeJsonParse(room.amenities);
 
+  // 處理觸摸滑動
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    setTouchEnd(e.changedTouches[0].clientX);
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    if (!images || images.length === 0) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    } else if (isRightSwipe) {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (!images || images.length === 0) return;
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNextImage = () => {
+    if (!images || images.length === 0) return;
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
   return (
     <div className="min-h-screen bg-background pt-20">
       {/* Back Button */}
@@ -72,14 +109,46 @@ export default function RoomDetail() {
       {/* Image Gallery */}
       <section className="container mx-auto mb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Main Image */}
-          <div className="relative h-96 lg:h-[600px] overflow-hidden shadow-luxury">
+          {/* Main Image with Carousel */}
+          <div
+            ref={carouselRef}
+            className="relative h-96 lg:h-[600px] overflow-hidden shadow-luxury group"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             <img
               src={images[currentImageIndex] || "/placeholder-room.jpg"}
               alt={`${room.name} ${currentImageIndex + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-opacity duration-300"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+
+            {/* Image Counter */}
+            {images.length > 1 && (
+              <div className="absolute bottom-4 right-4 bg-black/60 px-3 py-1 rounded text-white text-sm">
+                {currentImageIndex + 1} / {images.length}
+              </div>
+            )}
+
+            {/* Navigation Arrows */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button
+                  onClick={handleNextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                  aria-label="Next image"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </>
+            )}
           </div>
 
           {/* Thumbnail Grid */}

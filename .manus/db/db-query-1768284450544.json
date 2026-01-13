@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, name, capacity, price, weekendPrice FROM room_types WHERE id <= 7 ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, name, capacity, price, weekendPrice FROM room_types WHERE id <= 7 ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "二人房 一大床",
+      "capacity": "2",
+      "price": "1680.00",
+      "weekendPrice": "2480.00"
+    },
+    {
+      "id": "2",
+      "name": "二人房 二床",
+      "capacity": "2",
+      "price": "1780.00",
+      "weekendPrice": "2580.00"
+    },
+    {
+      "id": "3",
+      "name": "三人房 一大一小床",
+      "capacity": "2",
+      "price": "2180.00",
+      "weekendPrice": "3180.00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcapacity\tprice\tweekendPrice\n1\t二人房 一大床\t2\t1680.00\t2480.00\n2\t二人房 二床\t2\t1780.00\t2580.00\n3\t三人房 一大一小床\t2\t2180.00\t3180.00\n",
+  "stderr": "",
+  "execution_time_ms": 1558
+}

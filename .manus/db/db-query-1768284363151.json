@@ -1,0 +1,100 @@
+{
+  "query": "SELECT id, name, nameEn, capacity, price, weekendPrice, description FROM room_types LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, name, nameEn, capacity, price, weekendPrice, description FROM room_types LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "豪華雙人房(車庫房)",
+      "nameEn": "Deluxe Double Room",
+      "capacity": "2",
+      "price": "1880.00",
+      "weekendPrice": "2180.00",
+      "description": "寬敞舒適的豪華雙人房，配備獨立車庫停車位，提供最高級的住宿體驗"
+    },
+    {
+      "id": "2",
+      "name": "標準雙床房(車庫房)",
+      "nameEn": "Executive Suite",
+      "capacity": "2",
+      "price": "1980.00",
+      "weekendPrice": "2280.00",
+      "description": "配備兩張單人床的標準房型，附設獨立車庫，適合商務旅客或小家庭"
+    },
+    {
+      "id": "3",
+      "name": "標準雙床房(高樓層)",
+      "nameEn": "Business Quad Room",
+      "capacity": "2",
+      "price": "1980.00",
+      "weekendPrice": "2280.00",
+      "description": "位於高樓層的標準雙床房，享受城市美景，提供寧靜舒適的住宿環境"
+    },
+    {
+      "id": "30001",
+      "name": "豪華雙人房(車庫房)",
+      "nameEn": "NULL",
+      "capacity": "2",
+      "price": "1880.00",
+      "weekendPrice": "NULL",
+      "description": "寬敞舒適的豪華房型"
+    },
+    {
+      "id": "30002",
+      "name": "標準雙床房 (車庫房)",
+      "nameEn": "NULL",
+      "capacity": "2",
+      "price": "1880.00",
+      "weekendPrice": "NULL",
+      "description": "標準房型"
+    },
+    {
+      "id": "30003",
+      "name": "臨時房型",
+      "nameEn": "NULL",
+      "capacity": "1",
+      "price": "1500.00",
+      "weekendPrice": "NULL",
+      "description": "用於測試的臨時房型"
+    },
+    {
+      "id": "30005",
+      "name": "標準雙床房 - 更新",
+      "nameEn": "NULL",
+      "capacity": "2",
+      "price": "2200.00",
+      "weekendPrice": "NULL",
+      "description": "標準房型"
+    },
+    {
+      "id": "30006",
+      "name": "臨時房型",
+      "nameEn": "NULL",
+      "capacity": "1",
+      "price": "1500.00",
+      "weekendPrice": "NULL",
+      "description": "用於測試的臨時房型"
+    },
+    {
+      "id": "30007",
+      "name": "標準雙床房(車庫房)",
+      "nameEn": "NULL",
+      "capacity": "2",
+      "price": "1980.00",
+      "weekendPrice": "NULL",
+      "description": "寬敞舒適的豪華房型"
+    },
+    {
+      "id": "30008",
+      "name": "標準雙床房 (高樓層)",
+      "nameEn": "NULL",
+      "capacity": "2",
+      "price": "1980.00",
+      "weekendPrice": "NULL",
+      "description": "標準房型"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tnameEn\tcapacity\tprice\tweekendPrice\tdescription\n1\t豪華雙人房(車庫房)\tDeluxe Double Room\t2\t1880.00\t2180.00\t寬敞舒適的豪華雙人房，配備獨立車庫停車位，提供最高級的住宿體驗\n2\t標準雙床房(車庫房)\tExecutive Suite\t2\t1980.00\t2280.00\t配備兩張單人床的標準房型，附設獨立車庫，適合商務旅客或小家庭\n3\t標準雙床房(高樓層)\tBusiness Quad Room\t2\t1980.00\t2280.00\t位於高樓層的標準雙床房，享受城市美景，提供寧靜舒適的住宿環境\n30001\t豪華雙人房(車庫房)\tNULL\t2\t1880.00\tNULL\t寬敞舒適的豪華房型\n30002\t標準雙床房 (車庫房)\tNULL\t2\t1880.00\tNULL\t標準房型\n30003\t臨時房型\tNULL\t1\t1500.00\tNULL\t用於測試的臨時房型\n30005\t標準雙床房 - 更新\tNULL\t2\t2200.00\tNULL\t標準房型\n30006\t臨時房型\tNULL\t1\t1500.00\tNULL\t用於測試的臨時房型\n30007\t標準雙床房(車庫房)\tNULL\t2\t1980.00\tNULL\t寬敞舒適的豪華房型\n30008\t標準雙床房 (高樓層)\tNULL\t2\t1980.00\tNULL\t標準房型\n",
+  "stderr": "",
+  "execution_time_ms": 1554
+}

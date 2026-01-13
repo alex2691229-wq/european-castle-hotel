@@ -1,0 +1,150 @@
+{
+  "query": "SELECT id, name, capacity, price, weekendPrice FROM room_types ORDER BY id LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, name, capacity, price, weekendPrice FROM room_types ORDER BY id LIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "二人房 一大床",
+      "capacity": "2",
+      "price": "1680.00",
+      "weekendPrice": "2480.00"
+    },
+    {
+      "id": "2",
+      "name": "二人房 二床",
+      "capacity": "2",
+      "price": "1780.00",
+      "weekendPrice": "2580.00"
+    },
+    {
+      "id": "3",
+      "name": "三人房 一大一小床",
+      "capacity": "2",
+      "price": "2180.00",
+      "weekendPrice": "3180.00"
+    },
+    {
+      "id": "30001",
+      "name": "豪華雙人房(車庫房)",
+      "capacity": "2",
+      "price": "1880.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30002",
+      "name": "標準雙床房 (車庫房)",
+      "capacity": "2",
+      "price": "1880.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30003",
+      "name": "臨時房型",
+      "capacity": "1",
+      "price": "1500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30005",
+      "name": "標準雙床房 - 更新",
+      "capacity": "2",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30006",
+      "name": "臨時房型",
+      "capacity": "1",
+      "price": "1500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30007",
+      "name": "標準雙床房(車庫房)",
+      "capacity": "2",
+      "price": "1980.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30008",
+      "name": "標準雙床房 (高樓層)",
+      "capacity": "2",
+      "price": "1980.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30009",
+      "name": "臨時房型",
+      "capacity": "1",
+      "price": "1500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30010",
+      "name": "豪華雙人房",
+      "capacity": "2",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30011",
+      "name": "標準雙床房 - 更新",
+      "capacity": "2",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30012",
+      "name": "臨時房型",
+      "capacity": "1",
+      "price": "1500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30013",
+      "name": "豪華雙人房",
+      "capacity": "2",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30014",
+      "name": "標準雙床房 - 更新",
+      "capacity": "2",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30015",
+      "name": "臨時房型",
+      "capacity": "1",
+      "price": "1500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30016",
+      "name": "舒適三人房  ",
+      "capacity": "3",
+      "price": "2380.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30017",
+      "name": "標準雙床房 - 更新",
+      "capacity": "2",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "30018",
+      "name": "臨時房型",
+      "capacity": "1",
+      "price": "1500.00",
+      "weekendPrice": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcapacity\tprice\tweekendPrice\n1\t二人房 一大床\t2\t1680.00\t2480.00\n2\t二人房 二床\t2\t1780.00\t2580.00\n3\t三人房 一大一小床\t2\t2180.00\t3180.00\n30001\t豪華雙人房(車庫房)\t2\t1880.00\tNULL\n30002\t標準雙床房 (車庫房)\t2\t1880.00\tNULL\n30003\t臨時房型\t1\t1500.00\tNULL\n30005\t標準雙床房 - 更新\t2\t2200.00\tNULL\n30006\t臨時房型\t1\t1500.00\tNULL\n30007\t標準雙床房(車庫房)\t2\t1980.00\tNULL\n30008\t標準雙床房 (高樓層)\t2\t1980.00\tNULL\n30009\t臨時房型\t1\t1500.00\tNULL\n30010\t豪華雙人房\t2\t3500.00\tNULL\n30011\t標準雙床房 - 更新\t2\t2200.00\tNULL\n30012\t臨時房型\t1\t1500.00\tNULL\n30013\t豪華雙人房\t2\t3500.00\tNULL\n30014\t標準雙床房 - 更新\t2\t2200.00\tNULL\n30015\t臨時房型\t1\t1500.00\tNULL\n30016\t舒適三人房  \t3\t2380.00\tNULL\n30017\t標準雙床房 - 更新\t2\t2200.00\tNULL\n30018\t臨時房型\t1\t1500.00\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1522
+}

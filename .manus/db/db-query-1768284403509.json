@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE room_types SET name = '二人房 一大床', price = 1680, weekendPrice = 2480 WHERE id = 1;\nUPDATE room_types SET name = '二人房 二床', price = 1780, weekendPrice = 2580 WHERE id = 2;\nUPDATE room_types SET name = '三人房 一大一小床', price = 2180, weekendPrice = 3180 WHERE id = 3;\nUPDATE room_types SET name = '三人房 三床', price = 2280, weekendPrice = 3280 WHERE id = 4;\nUPDATE room_types SET name = '四人房 二大', price = 2680, weekendPrice = 3680 WHERE id = 5;\nUPDATE room_types SET name = '四人房 四床', price = 2780, weekendPrice = 3780 WHERE id = 6;\nUPDATE room_types SET name = '六人房', price = 3980, weekendPrice = 4580 WHERE id = 7;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute UPDATE room_types SET name = '二人房 一大床', price = 1680, weekendPrice = 2480 WHERE id = 1;\nUPDATE room_types SET name = '二人房 二床', price = 1780, weekendPrice = 2580 WHERE id = 2;\nUPDATE room_types SET name = '三人房 一大一小床', price = 2180, weekendPrice = 3180 WHERE id = 3;\nUPDATE room_types SET name = '三人房 三床', price = 2280, weekendPrice = 3280 WHERE id = 4;\nUPDATE room_types SET name = '四人房 二大', price = 2680, weekendPrice = 3680 WHERE id = 5;\nUPDATE room_types SET name = '四人房 四床', price = 2780, weekendPrice = 3780 WHERE id = 6;\nUPDATE room_types SET name = '六人房', price = 3980, weekendPrice = 4580 WHERE id = 7;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2852
+}

@@ -17,6 +17,7 @@ export default function RoomManagement() {
     description: "",
     capacity: "2",
     price: "",
+    weekendPrice: "",
     amenities: "",
   });
 
@@ -78,7 +79,7 @@ export default function RoomManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.description || !formData.price) {
+    if (!formData.name || !formData.description || !formData.price || !formData.weekendPrice) {
       toast.error("請填寫所有必填欄位");
       return;
     }
@@ -93,6 +94,7 @@ export default function RoomManagement() {
           description: formData.description,
           capacity: parseInt(formData.capacity),
           price: formData.price,
+          weekendPrice: formData.weekendPrice,
           amenities: formData.amenities,
           images,
         });
@@ -104,6 +106,7 @@ export default function RoomManagement() {
           description: formData.description,
           capacity: parseInt(formData.capacity),
           price: formData.price,
+          weekendPrice: formData.weekendPrice,
           amenities: formData.amenities,
           images,
         });
@@ -115,6 +118,7 @@ export default function RoomManagement() {
         description: "",
         capacity: "2",
         price: "",
+        weekendPrice: "",
         amenities: "",
       });
       setUploadedImages([]);
@@ -130,6 +134,7 @@ export default function RoomManagement() {
       description: room.description,
       capacity: String(room.capacity),
       price: room.price,
+      weekendPrice: room.weekendPrice || "",
       amenities: room.amenities || "",
     });
     const images = room.images ? JSON.parse(room.images) : [];
@@ -200,7 +205,7 @@ export default function RoomManagement() {
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                價格（元/晚）*
+                平日價格（元/晚）*
               </label>
               <Input
                 type="text"
@@ -208,6 +213,21 @@ export default function RoomManagement() {
                 value={formData.price}
                 onChange={(e) =>
                   setFormData({ ...formData, price: e.target.value })
+                }
+                className="bg-background border-border text-foreground"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                假日價格（元/晚）*
+              </label>
+              <Input
+                type="text"
+                placeholder="例：3500"
+                value={formData.weekendPrice}
+                onChange={(e) =>
+                  setFormData({ ...formData, weekendPrice: e.target.value })
                 }
                 className="bg-background border-border text-foreground"
               />
@@ -321,6 +341,7 @@ export default function RoomManagement() {
                     description: "",
                     capacity: "2",
                     price: "",
+                    weekendPrice: "",
                     amenities: "",
                   });
                   setUploadedImages([]);
@@ -349,7 +370,7 @@ export default function RoomManagement() {
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground">{room.name}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {room.capacity} 人 · NT${room.price}/晚
+                    {room.capacity} 人 · 平日 NT${room.price}/晚 · 假日 NT${room.weekendPrice}/晚
                   </p>
                 </div>
                 <div className="flex gap-2">
