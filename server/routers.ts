@@ -439,7 +439,7 @@ ${roomsContext}
       .input(z.object({
         roomTypeId: z.number(),
         date: z.date(),
-        maxSalesQuantity: z.number().min(1).max(100),
+        maxSalesQuantity: z.number().min(0).max(100),
       }))
       .mutation(async ({ input }) => {
         await db.updateMaxSalesQuantity(

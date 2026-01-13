@@ -180,6 +180,28 @@ export default function AvailabilityManagement() {
     setSelectedDates(new Set());
   };
 
+  // Generate month and year options
+  const generateMonthYearOptions = () => {
+    const options = [];
+    const today = new Date();
+    // Generate options for the next 24 months
+    for (let i = 0; i < 24; i++) {
+      const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
+      options.push(date);
+    }
+    return options;
+  };
+
+  const monthYearOptions = generateMonthYearOptions();
+
+  const handleMonthYearChange = (value: string) => {
+    const [year, month] = value.split('-').map(Number);
+    setCurrentMonth(new Date(year, month, 1));
+    setSelectedDates(new Set());
+  };
+
+  const currentMonthYearValue = `${currentMonth.getFullYear()}-${currentMonth.getMonth()}`;
+
   const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
 
   return (
@@ -223,10 +245,28 @@ export default function AvailabilityManagement() {
           <Card className="bg-black/40 border-gold/20">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-gold flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  {currentMonth.getFullYear()}年 {currentMonth.getMonth() + 1}月
-                </CardTitle>
+                <div className="flex items-center gap-4">
+                  <CardTitle className="text-gold flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5" />
+                    日曆
+                  </CardTitle>
+                  <Select value={currentMonthYearValue} onValueChange={handleMonthYearChange}>
+                    <SelectTrigger className="w-48 bg-black/60 border-gold/30 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black border-gold/30 max-h-64">
+                      {monthYearOptions.map((date) => {
+                        const value = `${date.getFullYear()}-${date.getMonth()}`;
+                        const label = `${date.getFullYear()}年 ${date.getMonth() + 1}月`;
+                        return (
+                          <SelectItem key={value} value={value} className="text-white">
+                            {label}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -320,7 +360,13 @@ export default function AvailabilityManagement() {
                   return (
                     <div key={index} className="relative">
                       {!isPast && (
-                        <Dialog>
+                        <Dialog onOpenChange={(open) => {
+                          if (open) {
+                            setMaxSalesQuantity(maxQty);
+                            setWeekdayPrice(undefined);
+                            setWeekendPrice(undefined);
+                          }
+                        }}>
                           <DialogTrigger asChild>
                             <button
                               className={`w-full aspect-square rounded-lg border ${borderColor} ${bgColor} ${textColor} 
@@ -339,102 +385,94 @@ export default function AvailabilityManagement() {
                               )}
                             </button>
                           </DialogTrigger>
-                          <DialogContent className="bg-black/80 border-gold/30">
+                          <DialogContent className="bg-black/80 border-gold/30 max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
                               <DialogTitle className="text-gold">
                                 {date.toLocaleDateString('zh-TW')} - 可銷售數量設定
                               </DialogTitle>
-                              <DialogDescription className="text-gray-400">
-                                調整此日期的最大可銷售房間數量
-                              </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gold mb-2">
+                              <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gold">
                                   最大可銷售數量
                                 </label>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  max="20"
-                                  value={maxSalesQuantity}
-                                  onChange={(e) => setMaxSalesQuantity(parseInt(e.target.value) || 0)}
-                                  className="bg-black/60 border-gold/30 text-white"
-                                />
+                                <div className="flex gap-2">
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="20"
+                                    value={maxSalesQuantity}
+                                    onChange={(e) => setMaxSalesQuantity(parseInt(e.target.value) || 0)}
+                                    className="bg-black/60 border-gold/30 text-white flex-1"
+                                  />
+
+                                </div>
                               </div>
                               <div className="text-sm text-gray-400">
                                 <p>已訂房間數：{bookedQty}</p>
                                 <p>剩餘可銷售：{Math.max(0, maxQty - bookedQty)}</p>
                               </div>
 
-                              {maxSalesQuantity > 0 && (
-                                <div className="border-t border-gold/20 pt-4 mt-4">
-                                  <h4 className="text-sm font-medium text-gold mb-3">動態房價設定</h4>
-                                  <div className="space-y-3">
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-300 mb-1">
-                                        平日價格 (NT$)
-                                      </label>
-                                      <Input
-                                        type="number"
-                                        min="0"
-                                        step="100"
-                                        placeholder="不設定則使用房型基礎價格"
-                                        onChange={(e) => setWeekdayPrice(e.target.value ? parseInt(e.target.value) : undefined)}
-                                        className="bg-black/60 border-gold/30 text-white text-sm"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-300 mb-1">
-                                        假日價格 (NT$)
-                                      </label>
-                                      <Input
-                                        type="number"
-                                        min="0"
-                                        step="100"
-                                        placeholder="不設定則使用房型基礎價格"
-                                        onChange={(e) => setWeekendPrice(e.target.value ? parseInt(e.target.value) : undefined)}
-                                        className="bg-black/60 border-gold/30 text-white text-sm"
-                                      />
-                                    </div>
+                              <div className="border-t border-gold/20 pt-4 mt-4">
+                                <h4 className="text-sm font-medium text-gold mb-3">動態房價設定</h4>
+                                <div className="space-y-3">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-300 mb-1">
+                                      平日價格 (NT$)
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      step="100"
+                                      placeholder="不設定則使用房型基礎價格"
+                                      onChange={(e) => setWeekdayPrice(e.target.value ? parseInt(e.target.value) : undefined)}
+                                      className="bg-black/60 border-gold/30 text-white text-sm"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-300 mb-1">
+                                      假日價格 (NT$)
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      step="100"
+                                      placeholder="不設定則使用房型基礎價格"
+                                      onChange={(e) => setWeekendPrice(e.target.value ? parseInt(e.target.value) : undefined)}
+                                      className="bg-black/60 border-gold/30 text-white text-sm"
+                                    />
                                   </div>
                                 </div>
-                              )}
+                              </div>
 
-                              <div className="flex gap-2">
+                              <div className="flex gap-2 pt-4 border-t border-gold/20">
                                 <Button
                                   onClick={() => {
-                                    updateMaxSalesQuantityMutation.mutate({
-                                      roomTypeId: selectedRoomTypeId!,
-                                      date: date,
-                                      maxSalesQuantity: maxSalesQuantity,
-                                    });
+                                    if (weekdayPrice !== undefined || weekendPrice !== undefined) {
+                                      updateMaxSalesQuantityMutation.mutate({
+                                        roomTypeId: selectedRoomTypeId!,
+                                        date: date,
+                                        maxSalesQuantity: maxSalesQuantity,
+                                      });
+                                      updateDynamicPriceMutation.mutate({
+                                        roomTypeId: selectedRoomTypeId!,
+                                        date: date,
+                                        weekdayPrice,
+                                        weekendPrice,
+                                      });
+                                    } else {
+                                      updateMaxSalesQuantityMutation.mutate({
+                                        roomTypeId: selectedRoomTypeId!,
+                                        date: date,
+                                        maxSalesQuantity: maxSalesQuantity,
+                                      });
+                                    }
                                   }}
-                                  disabled={updateMaxSalesQuantityMutation.isPending}
-                                  className="flex-1 bg-gold text-black hover:bg-gold/90"
+                                  disabled={updateMaxSalesQuantityMutation.isPending || updateDynamicPriceMutation.isPending}
+                                  className="flex-1 bg-yellow-400 text-black hover:bg-yellow-500"
                                 >
-                                  {updateMaxSalesQuantityMutation.isPending ? "更新中..." : "更新數量"}
+                                  {updateMaxSalesQuantityMutation.isPending || updateDynamicPriceMutation.isPending ? "保存中..." : "保存設定"}
                                 </Button>
-                                {maxSalesQuantity > 0 && (
-                                  <Button
-                                    onClick={() => {
-                                      if (weekdayPrice !== undefined || weekendPrice !== undefined) {
-                                        updateDynamicPriceMutation.mutate({
-                                          roomTypeId: selectedRoomTypeId!,
-                                          date: date,
-                                          weekdayPrice,
-                                          weekendPrice,
-                                        });
-                                      } else {
-                                        toast.error("請輸入至少一個價格");
-                                      }
-                                    }}
-                                    disabled={updateDynamicPriceMutation.isPending}
-                                    className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-                                  >
-                                    {updateDynamicPriceMutation.isPending ? "更新中..." : "更新價格"}
-                                  </Button>
-                                )}
                               </div>
                             </div>
                           </DialogContent>

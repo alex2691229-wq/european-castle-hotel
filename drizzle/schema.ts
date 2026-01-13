@@ -134,6 +134,7 @@ export const roomAvailability = mysqlTable("room_availability", {
   bookedQuantity: int("bookedQuantity").default(0).notNull(), // number of rooms already booked
   weekdayPrice: decimal("weekdayPrice", { precision: 10, scale: 2 }), // override price for this date (weekday)
   weekendPrice: decimal("weekendPrice", { precision: 10, scale: 2 }), // override price for this date (weekend)
+  isHolidayOverride: boolean("isHolidayOverride"), // null = auto-detect, true = force holiday, false = force weekday
   reason: varchar("reason", { length: 200 }), // optional reason for unavailability
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
