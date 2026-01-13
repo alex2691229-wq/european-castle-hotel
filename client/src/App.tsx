@@ -22,6 +22,8 @@ import NewsDetail from "./pages/NewsDetail";
 import Location from "./pages/Location";
 import Admin from "./pages/Admin";
 import Privacy from "./pages/Privacy";
+import Transportation from "./pages/Transportation";
+import TermsOfService from "./pages/TermsOfService";
 
 function Router() {
   return (
@@ -42,9 +44,10 @@ function Router() {
           <Route path="/news/:id" component={NewsDetail} />
           <Route path="/location" component={Location} />
           <Route path="/contact" component={Contact} />
-          <Route path="/admin" component={Admin} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path={"/404"} component={NotFound} />
+          <Route path="/admin" component={Admin} />          <Route path="/privacy" component={Privacy} />
+          <Route path="/transportation" component={Transportation} />
+          <Route path="/terms" component={TermsOfService} />
+          <Route path="/404" component={NotFound} />
           {/* Final fallback route */}
           <Route component={NotFound} />
         </Switch>

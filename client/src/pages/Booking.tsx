@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Calendar } from "lucide-react";
+import { DateRangePicker } from "@/components/DateRangePicker";
 
 export default function Booking() {
   const [, navigate] = useLocation();
@@ -252,62 +252,13 @@ export default function Booking() {
                     </div>
 
                     {/* Dates */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <div>
-                        <Label htmlFor="checkIn" className="text-foreground mb-2 block">
-                          入住日期 <span className="text-destructive">*</span>
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="checkIn"
-                            type="date"
-                            value={checkInDate}
-                            onChange={(e) => {
-                              const newValue = e.target.value;
-                              setCheckInDate(newValue);
-                              // 如果退房日期早於入住日期，自動更新退房日期
-                              if (checkOutDate && new Date(newValue) >= new Date(checkOutDate)) {
-                                const nextDay = new Date(newValue);
-                                nextDay.setDate(nextDay.getDate() + 1);
-                                const nextDayStr = nextDay.toISOString().split('T')[0];
-                                setCheckOutDate(nextDayStr);
-                              }
-                            }}
-                            min={minDate}
-                            className="bg-background border-border text-foreground"
-                            required
-                            aria-label="入住日期"
-                            aria-required="true"
-                          />
-                          <Calendar className="absolute right-3 top-3 text-muted-foreground pointer-events-none" size={18} />
-                        </div>
-                        {checkInDate && new Date(checkInDate) < new Date(minDate) && (
-                          <p className="text-xs text-red-500 mt-1">入住日期不能早於今天</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="checkOut" className="text-foreground mb-2 block">
-                          退房日期 <span className="text-destructive">*</span>
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="checkOut"
-                            type="date"
-                            value={checkOutDate}
-                            onChange={(e) => setCheckOutDate(e.target.value)}
-                            min={checkInDate || minDate}
-                            className="bg-background border-border text-foreground"
-                            required
-                            aria-label="退房日期"
-                            aria-required="true"
-                          />
-                          <Calendar className="absolute right-3 top-3 text-muted-foreground pointer-events-none" size={18} />
-                        </div>
-                        {checkOutDate && checkInDate && new Date(checkOutDate) <= new Date(checkInDate) && (
-                          <p className="text-xs text-red-500 mt-1">退房日期必須晚於入住日期</p>
-                        )}
-                      </div>
-                    </div>
+                    <DateRangePicker
+                      checkInDate={checkInDate}
+                      checkOutDate={checkOutDate}
+                      onCheckInChange={setCheckInDate}
+                      onCheckOutChange={setCheckOutDate}
+                      minDate={minDate}
+                    />
 
                     {/* Guest Information */}
                     <div className="mb-6">
