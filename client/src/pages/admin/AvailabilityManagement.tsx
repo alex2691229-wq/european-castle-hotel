@@ -357,8 +357,8 @@ export default function AvailabilityManagement() {
                                   type="number"
                                   min="0"
                                   max="20"
-                                  defaultValue={maxQty}
-                                  onChange={(e) => setMaxSalesQuantity(parseInt(e.target.value) || 10)}
+                                  value={maxSalesQuantity}
+                                  onChange={(e) => setMaxSalesQuantity(parseInt(e.target.value) || 0)}
                                   className="bg-black/60 border-gold/30 text-white"
                                 />
                               </div>
@@ -367,37 +367,39 @@ export default function AvailabilityManagement() {
                                 <p>剩餘可銷售：{Math.max(0, maxQty - bookedQty)}</p>
                               </div>
 
-                              <div className="border-t border-gold/20 pt-4 mt-4">
-                                <h4 className="text-sm font-medium text-gold mb-3">動態房價設定</h4>
-                                <div className="space-y-3">
-                                  <div>
-                                    <label className="block text-xs font-medium text-gray-300 mb-1">
-                                      平日價格 (NT$)
-                                    </label>
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      step="100"
-                                      placeholder="不設定則使用房型基礎價格"
-                                      onChange={(e) => setWeekdayPrice(e.target.value ? parseInt(e.target.value) : undefined)}
-                                      className="bg-black/60 border-gold/30 text-white text-sm"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs font-medium text-gray-300 mb-1">
-                                      假日價格 (NT$)
-                                    </label>
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      step="100"
-                                      placeholder="不設定則使用房型基礎價格"
-                                      onChange={(e) => setWeekendPrice(e.target.value ? parseInt(e.target.value) : undefined)}
-                                      className="bg-black/60 border-gold/30 text-white text-sm"
-                                    />
+                              {maxSalesQuantity > 0 && (
+                                <div className="border-t border-gold/20 pt-4 mt-4">
+                                  <h4 className="text-sm font-medium text-gold mb-3">動態房價設定</h4>
+                                  <div className="space-y-3">
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-300 mb-1">
+                                        平日價格 (NT$)
+                                      </label>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        step="100"
+                                        placeholder="不設定則使用房型基礎價格"
+                                        onChange={(e) => setWeekdayPrice(e.target.value ? parseInt(e.target.value) : undefined)}
+                                        className="bg-black/60 border-gold/30 text-white text-sm"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-300 mb-1">
+                                        假日價格 (NT$)
+                                      </label>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        step="100"
+                                        placeholder="不設定則使用房型基礎價格"
+                                        onChange={(e) => setWeekendPrice(e.target.value ? parseInt(e.target.value) : undefined)}
+                                        className="bg-black/60 border-gold/30 text-white text-sm"
+                                      />
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
+                              )}
 
                               <div className="flex gap-2">
                                 <Button
@@ -413,24 +415,26 @@ export default function AvailabilityManagement() {
                                 >
                                   {updateMaxSalesQuantityMutation.isPending ? "更新中..." : "更新數量"}
                                 </Button>
-                                <Button
-                                  onClick={() => {
-                                    if (weekdayPrice !== undefined || weekendPrice !== undefined) {
-                                      updateDynamicPriceMutation.mutate({
-                                        roomTypeId: selectedRoomTypeId!,
-                                        date: date,
-                                        weekdayPrice,
-                                        weekendPrice,
-                                      });
-                                    } else {
-                                      toast.error("請輸入至少一個價格");
-                                    }
-                                  }}
-                                  disabled={updateDynamicPriceMutation.isPending}
-                                  className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-                                >
-                                  {updateDynamicPriceMutation.isPending ? "更新中..." : "更新價格"}
-                                </Button>
+                                {maxSalesQuantity > 0 && (
+                                  <Button
+                                    onClick={() => {
+                                      if (weekdayPrice !== undefined || weekendPrice !== undefined) {
+                                        updateDynamicPriceMutation.mutate({
+                                          roomTypeId: selectedRoomTypeId!,
+                                          date: date,
+                                          weekdayPrice,
+                                          weekendPrice,
+                                        });
+                                      } else {
+                                        toast.error("請輸入至少一個價格");
+                                      }
+                                    }}
+                                    disabled={updateDynamicPriceMutation.isPending}
+                                    className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+                                  >
+                                    {updateDynamicPriceMutation.isPending ? "更新中..." : "更新價格"}
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           </DialogContent>
