@@ -60,10 +60,25 @@ export default function Navbar() {
               </Button>
             </Link>
             
-            {isAuthenticated && (
-              <Button variant="ghost" onClick={() => logout()}>
-                登出
-              </Button>
+            {isAuthenticated ? (
+              <>
+                {user?.role === 'admin' && (
+                  <Link href="/admin">
+                    <Button variant="outline">
+                      後台管理
+                    </Button>
+                  </Link>
+                )}
+                <Button variant="ghost" onClick={() => logout()}>
+                  登出
+                </Button>
+              </>
+            ) : (
+              <Link href="/login">
+                <Button variant="ghost">
+                  登入
+                </Button>
+              </Link>
             )}
           </div>
 
