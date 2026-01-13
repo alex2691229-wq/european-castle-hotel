@@ -43,6 +43,7 @@ export default function AdminBookings() {
   const [selectedBooking, setSelectedBooking] = useState<number | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState<Partial<PaymentInfo>>({});
+  const [dateFilter, setDateFilter] = useState<"all" | "today" | "tomorrow" | "week">("all");
 
   useEffect(() => {
     if (!user) {
