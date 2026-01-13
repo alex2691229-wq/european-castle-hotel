@@ -10,6 +10,8 @@ import { Loader2, Plus, Trash2, Edit2, Upload, X, AlertCircle } from "lucide-rea
 export default function RoomManagement() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [originalImages, setOriginalImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -403,15 +405,37 @@ export default function RoomManagement() {
                 <p className="text-sm text-muted-foreground mb-2">已上傳的照片：</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {uploadedImages.map((img, idx) => (
-                    <div key={idx} className="relative group">
+                    <div
+                      key={idx}
+                      draggable
+                      onDragStart={() => setDraggedIndex(idx)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={() => {
+                        if (draggedIndex !== null && draggedIndex !== idx) {
+                          const newImages = [...uploadedImages];
+                          const [removed] = newImages.splice(draggedIndex, 1);
+                          newImages.splice(idx, 0, removed);
+                          setUploadedImages(newImages);
+                          setDraggedIndex(null);
+                          toast.success('照片順序已更新');
+                        }
+                      }}
+                      onDragEnd={() => setDraggedIndex(null)}
+                      className="relative group cursor-move"
+                    >
                       <img
                         src={img}
                         alt={`房型照片 ${idx + 1}`}
-                        className="w-full h-20 object-cover rounded border border-border"
+                        className="w-full h-20 object-cover rounded border border-border hover:border-gold transition-colors"
+                        onClick={() => setPreviewImage(img)}
                       />
+                      <div className="absolute top-1 left-1 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                        {idx + 1}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (confirm('確定要删除這張照片嗎？')) {
                             setUploadedImages(uploadedImages.filter((_, i) => i !== idx));
                             toast.success('照片已删除');
@@ -425,6 +449,9 @@ export default function RoomManagement() {
                     </div>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  提示：拖拽照片可調整順序，點擊照片可放大預覽
+                </p>
               </div>
             )}
           </div>
@@ -551,6 +578,30 @@ export default function RoomManagement() {
           </p>
         )}
       </Card>
+
+      {/* 照片預覽對話框 */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] p-4">
+            <img
+              src={previewImage}
+              alt="照片預覽"
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-2 right-2 bg-white text-black rounded-full p-2 hover:bg-gray-200 transition-colors"
+              title="關閉"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

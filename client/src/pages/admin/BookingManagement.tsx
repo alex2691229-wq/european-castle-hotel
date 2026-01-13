@@ -12,10 +12,12 @@ import {
 import { Loader2, CheckCircle, XCircle, AlertCircle, Clock, Mail, CheckSquare, Trash2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 export default function BookingManagement() {
   const { data: bookings, isLoading } = trpc.bookings.list.useQuery();
   const utils = trpc.useUtils();
+  const [, setLocation] = useLocation();
   
   // 快速操作 mutations
   const deleteBookingMutation = trpc.bookings.deleteBooking.useMutation({
@@ -274,11 +276,12 @@ export default function BookingManagement() {
               return (
                 <div
                   key={booking.id}
-                  className={`p-4 rounded-lg border ${
+                  className={`p-6 rounded-lg border-2 cursor-pointer hover:shadow-lg transition-shadow ${
                     booking.isUrgent
-                      ? "bg-red-50 border-red-200"
-                      : "bg-background border-border"
+                      ? "border-red-500 bg-red-50"
+                      : "border-border bg-card"
                   }`}
+                  onClick={() => setLocation(`/admin/bookings/${booking.id}`)}
                 >
                   {/* 頂部：狀態和訂單號 */}
                   <div className="flex items-start justify-between mb-3">
@@ -360,8 +363,7 @@ export default function BookingManagement() {
                   </div>
 
                   {/* 快速操作按鈕 */}
-                  <div className="flex flex-wrap gap-2">
-                    {booking.status === "pending" && (
+                  <div className="flex flex-wrap gap-2 mt-4" onClick={(e) => e.stopPropagation()}>                {booking.status === "pending" && (
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"

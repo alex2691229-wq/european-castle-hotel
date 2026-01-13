@@ -196,6 +196,24 @@ export const appRouter = router({
         return { isAvailable };
       }),
     
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const booking = await db.getBookingById(input.id);
+        if (!booking) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: '訂單不存在' });
+        }
+        
+        // 獲取房型名稱
+        const roomType = await db.getRoomTypeById(booking.roomTypeId);
+        
+        return {
+          ...booking,
+          roomTypeName: roomType?.name || '未知房型',
+          guests: booking.numberOfGuests,
+        };
+      }),
+    
     list: adminProcedure.query(async () => {
       return await db.getAllBookings();
     }),
@@ -254,22 +272,6 @@ export const appRouter = router({
         });
         
         return { success: true };
-      }),
-    
-    getById: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ input, ctx }) => {
-        const booking = await db.getBookingById(input.id);
-        if (!booking) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
-        }
-        
-        // Only admin or booking owner can view
-        if (ctx.user.role !== 'admin' && booking.userId !== ctx.user.id) {
-          throw new TRPCError({ code: 'FORBIDDEN' });
-        }
-        
-        return booking;
       }),
     
     updateStatus: adminProcedure

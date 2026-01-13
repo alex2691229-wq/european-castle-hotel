@@ -13,6 +13,8 @@ import RoomDetail from "./pages/RoomDetail";
 import Booking from "./pages/Booking";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import BookingTracking from "./pages/BookingTracking";
+import BookingManagement from "./pages/admin/BookingManagement";
+import BookingDetail from "./pages/admin/BookingDetail";
 import Facilities from "./pages/Facilities";
 import News from "./pages/News";
 import NewsDetail from "./pages/NewsDetail";
@@ -31,7 +33,8 @@ function Router() {
           <Route path="/rooms/:id" component={RoomDetail} />
           <Route path="/booking" component={Booking} />
           <Route path="/booking/confirmation" component={BookingConfirmation} />
-          <Route path="/booking/tracking" component={BookingTracking} />
+          <Route path="/admin/bookings" component={BookingManagement} />
+          <Route path="/admin/bookings/:id" component={BookingDetail} />
           <Route path="/facilities" component={Facilities} />
           <Route path="/news" component={News} />
           <Route path="/news/:id" component={NewsDetail} />
