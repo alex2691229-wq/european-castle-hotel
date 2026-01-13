@@ -6,8 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RoomManagement from "@/pages/admin/RoomManagement";
 import BookingManagement from "@/pages/admin/BookingManagement";
 import NewsManagement from "@/pages/admin/NewsManagement";
-import GalleryManagement from "@/pages/admin/GalleryManagement";
-import ImageGallery from "@/pages/admin/ImageGallery";
+
 import RoomBatchUpdate from "@/pages/admin/RoomBatchUpdate";
 import HomeManagement from "@/pages/admin/HomeManagement";
 import AvailabilityManagement from "@/pages/admin/AvailabilityManagement";
@@ -50,13 +49,11 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="rooms" className="w-full">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="rooms">房型管理</TabsTrigger>
             <TabsTrigger value="batch-update">批量更新</TabsTrigger>
             <TabsTrigger value="bookings">訂單管理</TabsTrigger>
             <TabsTrigger value="news">最新消息</TabsTrigger>
-            <TabsTrigger value="gallery">圖片庫</TabsTrigger>
-            <TabsTrigger value="images">圖片上傳</TabsTrigger>
             <TabsTrigger value="home">首頁管理</TabsTrigger>
             <TabsTrigger value="availability">可用性管理</TabsTrigger>
           </TabsList>
@@ -75,14 +72,6 @@ export default function Admin() {
 
           <TabsContent value="news" className="space-y-4">
             <NewsManagement />
-          </TabsContent>
-
-          <TabsContent value="gallery" className="space-y-4">
-            <GalleryManagement />
-          </TabsContent>
-
-          <TabsContent value="images" className="space-y-4">
-            <ImageGallery />
           </TabsContent>
 
           <TabsContent value="home" className="space-y-4">

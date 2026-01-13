@@ -265,6 +265,7 @@ export const appRouter = router({
         contentEn: z.string().optional(),
         type: z.enum(["announcement", "promotion", "event"]).default("announcement"),
         coverImage: z.string().optional(),
+        image: z.string().optional(),
         isPublished: z.boolean().default(true),
       }))
       .mutation(async ({ input }) => {
@@ -278,6 +279,7 @@ export const appRouter = router({
         title: z.string().optional(),
         titleEn: z.string().optional(),
         content: z.string().optional(),
+        image: z.string().optional(),
         contentEn: z.string().optional(),
         type: z.enum(["announcement", "promotion", "event"]).optional(),
         coverImage: z.string().optional(),

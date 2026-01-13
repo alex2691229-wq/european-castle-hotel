@@ -255,7 +255,7 @@ export default function Contact() {
                       <div>
                         <h3 className="text-lg font-bold text-foreground mb-2">服務時間</h3>
                         <div className="space-y-1 text-muted-foreground">
-                          <p>入住時間：下午 3:00 後</p>
+                          <p>入住時間：下午 5:00 後</p>
                           <p>退房時間：中午 12:00 前</p>
                           <p className="text-sm mt-2">24小時櫃檯服務</p>
                         </div>

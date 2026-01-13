@@ -1,24 +1,29 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Edit2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, Upload, X } from "lucide-react";
 
 type NewsType = "announcement" | "promotion" | "event";
 
 export default function NewsManagement() {
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     type: "announcement" as NewsType,
+    image: "",
   });
 
   const utils = trpc.useUtils();
   const { data: news, isLoading } = trpc.news.list.useQuery();
+  const uploadMutation = trpc.upload.image.useMutation();
   const createMutation = trpc.news.create.useMutation({
     onSuccess: () => {
       utils.news.list.invalidate();
@@ -35,6 +40,36 @@ export default function NewsManagement() {
     },
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("請選擇圖片檔案");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = (event.target?.result as string).split(",")[1];
+        const result = await uploadMutation.mutateAsync({
+          filename: file.name,
+          data: base64,
+        });
+        setUploadedImage(result.url);
+        setFormData({ ...formData, image: result.url });
+        toast.success("圖片上傳成功");
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast.error("圖片上傳失敗，請重試");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -50,6 +85,7 @@ export default function NewsManagement() {
           title: formData.title,
           content: formData.content,
           type: formData.type,
+          image: formData.image,
         });
         toast.success("消息已更新");
         setEditingId(null);
@@ -58,6 +94,7 @@ export default function NewsManagement() {
           title: formData.title,
           content: formData.content,
           type: formData.type,
+          image: formData.image,
         });
         toast.success("消息已新增");
       }
@@ -66,7 +103,9 @@ export default function NewsManagement() {
         title: "",
         content: "",
         type: "announcement",
+        image: "",
       });
+      setUploadedImage("");
     } catch (error) {
       toast.error("操作失敗，請重試");
     }
@@ -78,7 +117,9 @@ export default function NewsManagement() {
       title: item.title,
       content: item.content,
       type: item.type,
+      image: item.image || "",
     });
+    setUploadedImage(item.image || "");
   };
 
   const handleDelete = async (id: number) => {
@@ -162,6 +203,57 @@ export default function NewsManagement() {
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              圖片
+            </label>
+            {uploadedImage && (
+              <div className="relative mb-4 w-32 h-32">
+                <img
+                  src={uploadedImage}
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUploadedImage("");
+                    setFormData({ ...formData, image: "" });
+                  }}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="w-full"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  上傳中...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-2" />
+                  選擇圖片
+                </>
+              )}
+            </Button>
+          </div>
+
           <div className="flex gap-2">
             <Button
               type="submit"
@@ -190,7 +282,9 @@ export default function NewsManagement() {
                     title: "",
                     content: "",
                     type: "announcement",
+                    image: "",
                   });
+                  setUploadedImage("");
                 }}
               >
                 取消編輯
@@ -214,11 +308,25 @@ export default function NewsManagement() {
                 className="flex items-center justify-between p-4 bg-background border border-border rounded-lg"
               >
                 <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {getTypeLabel(item.type)} ·{" "}
-                    {new Date(item.publishedAt).toLocaleDateString("zh-TW")}
-                  </p>
+                  <div className="flex gap-4">
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {getTypeLabel(item.type)} ·{" "}
+                        {new Date(item.publishedAt).toLocaleDateString("zh-TW")}
+                      </p>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                        {item.content}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button
