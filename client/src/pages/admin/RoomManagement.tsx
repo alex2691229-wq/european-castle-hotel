@@ -177,15 +177,23 @@ export default function RoomManagement() {
     const currentRoom = rooms[index];
     const previousRoom = rooms[index - 1];
     
-    // 交換 displayOrder
-    await updateMutation.mutateAsync({
-      id: currentRoom.id,
-      displayOrder: previousRoom.displayOrder,
-    });
-    await updateMutation.mutateAsync({
-      id: previousRoom.id,
-      displayOrder: currentRoom.displayOrder,
-    });
+    try {
+      // 交換 displayOrder
+      await updateMutation.mutateAsync({
+        id: currentRoom.id,
+        displayOrder: previousRoom.displayOrder,
+      });
+      await updateMutation.mutateAsync({
+        id: previousRoom.id,
+        displayOrder: currentRoom.displayOrder,
+      });
+      
+      // 刷新列表
+      await utils.roomTypes.list.invalidate();
+      toast.success('房型順序已更新');
+    } catch (error) {
+      toast.error('更新順序失敗，請重試');
+    }
   };
 
   const handleMoveDown = async (id: number) => {
@@ -196,15 +204,23 @@ export default function RoomManagement() {
     const currentRoom = rooms[index];
     const nextRoom = rooms[index + 1];
     
-    // 交換 displayOrder
-    await updateMutation.mutateAsync({
-      id: currentRoom.id,
-      displayOrder: nextRoom.displayOrder,
-    });
-    await updateMutation.mutateAsync({
-      id: nextRoom.id,
-      displayOrder: currentRoom.displayOrder,
-    });
+    try {
+      // 交換 displayOrder
+      await updateMutation.mutateAsync({
+        id: currentRoom.id,
+        displayOrder: nextRoom.displayOrder,
+      });
+      await updateMutation.mutateAsync({
+        id: nextRoom.id,
+        displayOrder: currentRoom.displayOrder,
+      });
+      
+      // 刷新列表
+      await utils.roomTypes.list.invalidate();
+      toast.success('房型順序已更新');
+    } catch (error) {
+      toast.error('更新順序失敗，請重試');
+    }
   };
 
   return (

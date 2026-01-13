@@ -210,22 +210,27 @@ class SDKServer {
       const { payload } = await jwtVerify(cookieValue, secretKey, {
         algorithms: ["HS256"],
       });
-      const { openId, appId, name } = payload as Record<string, unknown>;
+      const { openId, appId, name, id, username } = payload as Record<string, unknown>;
 
-      if (
-        !isNonEmptyString(openId) ||
-        !isNonEmptyString(appId) ||
-        !isNonEmptyString(name)
-      ) {
+      // Support both OAuth login (openId, appId) and local login (id, username)
+      if (isNonEmptyString(openId) && isNonEmptyString(appId) && isNonEmptyString(name)) {
+        // OAuth login
+        return {
+          openId,
+          appId,
+          name,
+        };
+      } else if (isNonEmptyString(id) && isNonEmptyString(username) && isNonEmptyString(name)) {
+        // Local login - use id as openId and username as appId
+        return {
+          openId: String(id),
+          appId: username,
+          name,
+        };
+      } else {
         console.warn("[Auth] Session payload missing required fields");
         return null;
       }
-
-      return {
-        openId,
-        appId,
-        name,
-      };
     } catch (error) {
       console.warn("[Auth] Session verification failed", String(error));
       return null;

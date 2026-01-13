@@ -36,31 +36,29 @@ export const appRouter = router({
         password: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const user = await db.getUserByUsername(input.username);
+        // 簡單的固定用戶名密碼驗證
+        const ADMIN_USERNAME = 'castle8888';
+        const ADMIN_PASSWORD = '88888888';
         
-        if (!user || !user.passwordHash) {
+        if (input.username !== ADMIN_USERNAME || input.password !== ADMIN_PASSWORD) {
           throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
         }
         
-        if (user.status === 'inactive') {
-          throw new TRPCError({ code: 'FORBIDDEN', message: '帳戶已停用' });
-        }
-        
-        const isValid = await bcrypt.compare(input.password, user.passwordHash);
-        
-        if (!isValid) {
-          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
-        }
-        
-        // 更新最後登入時間
-        await db.updateUserLastSignedIn(user.id);
+        // 創建固定的管理員用戶對象
+        const adminUser = {
+          id: 999,
+          openId: 'local-admin',
+          username: ADMIN_USERNAME,
+          name: '管理員',
+          role: 'admin' as const,
+        };
         
         // 生成 JWT token
         const token = sign({
-          id: user.id,
-          username: user.username,
-          name: user.name,
-          role: user.role,
+          id: adminUser.id,
+          username: adminUser.username,
+          name: adminUser.name,
+          role: adminUser.role,
         });
         
         // 設置 cookie
@@ -69,12 +67,7 @@ export const appRouter = router({
         
         return {
           success: true,
-          user: {
-            id: user.id,
-            username: user.username,
-            name: user.name,
-            role: user.role,
-          },
+          user: adminUser,
         };
       }),
   }),
@@ -173,18 +166,21 @@ export const appRouter = router({
         guestName: z.string(),
         guestEmail: z.string().email().optional(),
         guestPhone: z.string(),
-        checkInDate: z.date(),
-        checkOutDate: z.date(),
+        checkInDate: z.union([z.date(), z.string()]),
+        checkOutDate: z.union([z.date(), z.string()]),
         numberOfGuests: z.number().default(2),
         totalPrice: z.string(),
         specialRequests: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        // Convert string dates to Date objects if needed
+        const checkInDate = typeof input.checkInDate === 'string' ? new Date(input.checkInDate) : input.checkInDate;
+        const checkOutDate = typeof input.checkOutDate === 'string' ? new Date(input.checkOutDate) : input.checkOutDate;
         // Check room availability
         const isAvailable = await db.checkRoomAvailability(
           input.roomTypeId,
-          input.checkInDate,
-          input.checkOutDate
+          checkInDate,
+          checkOutDate
         );
         
         if (!isAvailable) {
@@ -197,8 +193,8 @@ export const appRouter = router({
         // Check max sales quantity for each date
         const canBook = await db.checkMaxSalesQuantity(
           input.roomTypeId,
-          input.checkInDate,
-          input.checkOutDate
+          checkInDate,
+          checkOutDate
         );
         
         if (!canBook) {
@@ -210,6 +206,8 @@ export const appRouter = router({
         
         const bookingData = {
           ...input,
+          checkInDate,
+          checkOutDate,
           userId: ctx.user?.id,
           status: "pending" as const,
         };
@@ -218,13 +216,13 @@ export const appRouter = router({
         
         // Update booked quantity for each date
         // Note: This is handled by the booking creation itself
-        // await db.updateBookedQuantity(input.roomTypeId, input.checkInDate, 1);
+        // await db.updateBookedQuantity(input.roomTypeId, checkInDate, 1);
         
         // Notify owner about new booking
         const roomType = await db.getRoomTypeById(input.roomTypeId);
         await notifyOwner({
           title: '新訂房通知',
-          content: `收到新的訂房申請\n房型：${roomType?.name}\n入住日期：${input.checkInDate.toLocaleDateString()}\n退房日期：${input.checkOutDate.toLocaleDateString()}\n訂房人：${input.guestName}\n聯絡電話：${input.guestPhone}`,
+          content: `收到新的訂房申請\n房型：${roomType?.name}\n入住日期：${checkInDate.toLocaleDateString()}\n退房日期：${checkOutDate.toLocaleDateString()}\n訂房人：${input.guestName}\n聯絡電話：${input.guestPhone}`,
         });
         
         return { id, success: true };

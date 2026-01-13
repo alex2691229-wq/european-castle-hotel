@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, email, name, role, status FROM users WHERE email = 'castle6359577@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, email, name, role, status FROM users WHERE email = 'castle6359577@gmail.com';",
+  "rows": [
+    {
+      "id": "211496",
+      "email": "castle6359577@gmail.com",
+      "name": "汽車旅館 歐堡",
+      "role": "admin",
+      "status": "active"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\tstatus\n211496\tcastle6359577@gmail.com\t汽車旅館 歐堡\tadmin\tactive\n",
+  "stderr": "",
+  "execution_time_ms": 1553
+}

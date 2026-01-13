@@ -1,0 +1,24 @@
+{
+  "query": "SELECT * FROM users WHERE email = 'castle6359577@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT * FROM users WHERE email = 'castle6359577@gmail.com';",
+  "rows": [
+    {
+      "id": "211496",
+      "openId": "BHhoCz8rqbNZJRAzyFFN95",
+      "name": "汽車旅館 歐堡",
+      "email": "castle6359577@gmail.com",
+      "loginMethod": "google",
+      "role": "user",
+      "createdAt": "2026-01-13 15:35:08",
+      "updatedAt": "2026-01-13 15:35:22",
+      "lastSignedIn": "2026-01-13 15:35:22",
+      "username": "NULL",
+      "passwordHash": "NULL",
+      "status": "active"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\tloginMethod\trole\tcreatedAt\tupdatedAt\tlastSignedIn\tusername\tpasswordHash\tstatus\n211496\tBHhoCz8rqbNZJRAzyFFN95\t汽車旅館 歐堡\tcastle6359577@gmail.com\tgoogle\tuser\t2026-01-13 15:35:08\t2026-01-13 15:35:22\t2026-01-13 15:35:22\tNULL\tNULL\tactive\n",
+  "stderr": "",
+  "execution_time_ms": 1584
+}

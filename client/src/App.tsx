@@ -21,6 +21,7 @@ import Facilities from "./pages/Facilities";
 import NewsDetail from "./pages/NewsDetail";
 import Location from "./pages/Location";
 import Admin from "./pages/Admin";
+import Privacy from "./pages/Privacy";
 
 function Router() {
   return (
@@ -42,6 +43,7 @@ function Router() {
           <Route path="/location" component={Location} />
           <Route path="/contact" component={Contact} />
           <Route path="/admin" component={Admin} />
+          <Route path="/privacy" component={Privacy} />
           <Route path={"/404"} component={NotFound} />
           {/* Final fallback route */}
           <Route component={NotFound} />
