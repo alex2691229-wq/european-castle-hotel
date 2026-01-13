@@ -3,14 +3,40 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Calendar, User, Phone, Mail, Home, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 
 export default function BookingTracking() {
   const [searchPhone, setSearchPhone] = useState("");
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [cancelBookingId, setCancelBookingId] = useState<number | null>(null);
+  
+  const { data: bookings, refetch, isLoading } = trpc.bookings.getByPhone.useQuery(
+    { phone: searchPhone },
+    { enabled: false }
+  );
+  
+  const cancelMutation = trpc.bookings.cancel.useMutation({
+    onSuccess: () => {
+      toast.success("訂單已成功取消");
+      refetch();
+      setCancelBookingId(null);
+    },
+    onError: (error) => {
+      toast.error(error.message || "取消失敗，請稍後再試");
+      setCancelBookingId(null);
+    },
+  });
 
   const handleSearch = async () => {
     if (!searchPhone || searchPhone.length < 9) {
@@ -18,25 +44,19 @@ export default function BookingTracking() {
       return;
     }
 
-    setIsSearching(true);
-    try {
-      // 這裡需要添加一個新的 tRPC 查詢來根據電話號碼搜尋訂單
-      // 暫時使用模擬數據
-      toast.info("正在查詢您的訂單...");
-      
-      // TODO: 實現真實的 API 調用
-      // const result = await trpc.bookings.getByPhone.query({ phone: searchPhone });
-      // setBookings(result);
-      
-      // 模擬延遲
-      setTimeout(() => {
-        setBookings([]);
-        toast.info("未找到相關訂單，請確認電話號碼是否正確");
-        setIsSearching(false);
-      }, 1000);
-    } catch (error) {
-      toast.error("查詢失敗，請稍後再試");
-      setIsSearching(false);
+    refetch();
+  };
+  
+  const handleCancelBooking = (bookingId: number) => {
+    setCancelBookingId(bookingId);
+  };
+  
+  const confirmCancelBooking = () => {
+    if (cancelBookingId) {
+      cancelMutation.mutate({
+        id: cancelBookingId,
+        phone: searchPhone,
+      });
     }
   };
 
@@ -136,9 +156,9 @@ export default function BookingTracking() {
                   size="lg"
                   className="mt-8 bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={handleSearch}
-                  disabled={isSearching}
+                  disabled={isLoading}
                 >
-                  {isSearching ? "查詢中..." : "查詢訂單"}
+                  {isLoading ? "查詢中..." : "查詢訂單"}
                 </Button>
               </div>
 
@@ -149,7 +169,7 @@ export default function BookingTracking() {
           </Card>
 
           {/* Booking Results */}
-          {bookings.length > 0 ? (
+          {bookings && bookings.length > 0 ? (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-foreground">
                 您的訂單（{bookings.length}）
@@ -249,12 +269,14 @@ export default function BookingTracking() {
                         </p>
                       </div>
                       
-                      {booking.status === "pending" && (
+                      {(booking.status === 'pending' || booking.status === 'confirmed') && (
                         <Button
                           variant="outline"
                           className="text-red-600 border-red-600 hover:bg-red-50"
+                          onClick={() => handleCancelBooking(booking.id)}
+                          disabled={cancelMutation.isPending}
                         >
-                          取消訂單
+                          {cancelMutation.isPending ? "取消中..." : "取消訂單"}
                         </Button>
                       )}
                     </div>
@@ -284,6 +306,30 @@ export default function BookingTracking() {
           )}
         </div>
       </section>
+      
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={cancelBookingId !== null} onOpenChange={(open) => !open && setCancelBookingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>確認取消訂單</AlertDialogTitle>
+            <AlertDialogDescription>
+              您確定要取消這個訂單嗎？此操作無法撤銷。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelMutation.isPending}>
+              不，保留訂單
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmCancelBooking}
+              disabled={cancelMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {cancelMutation.isPending ? "取消中..." : "是，取消訂單"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

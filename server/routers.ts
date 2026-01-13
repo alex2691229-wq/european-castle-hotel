@@ -200,6 +200,62 @@ export const appRouter = router({
       return await db.getAllBookings();
     }),
     
+    getByPhone: publicProcedure
+      .input(z.object({ phone: z.string() }))
+      .query(async ({ input }) => {
+        const bookings = await db.getBookingsByPhone(input.phone);
+        
+        // 獲取房型信息
+        const bookingsWithRoomName = await Promise.all(
+          bookings.map(async (booking: any) => {
+            const roomType = await db.getRoomTypeById(booking.roomTypeId);
+            return {
+              ...booking,
+              roomName: roomType?.name || '未知房型',
+            };
+          })
+        );
+        
+        return bookingsWithRoomName;
+      }),
+    
+    cancel: publicProcedure
+      .input(z.object({ 
+        id: z.number(),
+        phone: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // 驗證訂單存在且電話號碼匹配
+        const booking = await db.getBookingById(input.id);
+        if (!booking) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: '訂單不存在' });
+        }
+        
+        if (booking.guestPhone !== input.phone) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: '電話號碼不匹配' });
+        }
+        
+        // 只能取消待確認或已確認的訂單
+        if (booking.status !== 'pending' && booking.status !== 'confirmed') {
+          throw new TRPCError({ 
+            code: 'BAD_REQUEST', 
+            message: '只能取消待確認或已確認的訂單' 
+          });
+        }
+        
+        // 更新狀態為已取消
+        await db.updateBookingStatus(input.id, 'cancelled');
+        
+        // 通知管理員
+        const roomType = await db.getRoomTypeById(booking.roomTypeId);
+        await notifyOwner({
+          title: '訂單已取消',
+          content: `客人 ${booking.guestName} 已取消訂單\n房型：${roomType?.name}\n入住日期：${new Date(booking.checkInDate).toLocaleDateString('zh-TW')}`,
+        });
+        
+        return { success: true };
+      }),
+    
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input, ctx }) => {

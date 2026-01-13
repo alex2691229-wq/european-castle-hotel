@@ -246,6 +246,19 @@ export async function getAllBookings(): Promise<Booking[]> {
   return result;
 }
 
+export async function getBookingsByPhone(phone: string): Promise<Booking[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.guestPhone, phone))
+    .orderBy(desc(bookings.createdAt));
+  
+  return result;
+}
+
 export async function getBookingsByRoomAndDateRange(
   roomTypeId: number,
   startDate: Date,
