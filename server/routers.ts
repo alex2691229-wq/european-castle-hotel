@@ -528,18 +528,103 @@ export const appRouter = router({
         return { success: true };
       }),
     
+    // 選擇支付方式
+    selectPaymentMethod: adminProcedure
+      .input(z.object({ 
+        id: z.number(),
+        method: z.enum(['bank_transfer', 'cash_on_site'])
+      }))
+      .mutation(async ({ input }) => {
+        const booking = await db.getBookingById(input.id);
+        if (!booking) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: '訂單不存在' });
+        }
+        
+        if (booking.status !== 'confirmed') {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: '只有已確認的訂單才能選擇支付方式' });
+        }
+        
+        // 根據支付方式進入相應狀態
+        if (input.method === 'cash_on_site') {
+          // 現場支付直接進入「現場付款」狀態
+          await db.updateBookingStatus(input.id, 'cash_on_site');
+        } else {
+          // 銀行轉帳進入「待付款」狀態
+          await db.updateBookingStatus(input.id, 'pending_payment');
+        }
+        
+        const updatedBooking = await db.getBookingById(input.id);
+        if (updatedBooking) {
+          const roomType = await db.getRoomTypeById(updatedBooking.roomTypeId);
+          if (input.method === 'cash_on_site') {
+            await notifyOwner({
+              title: '訂房已確認 - 現場支付',
+              content: `訂房已確認，客人將於現場支付\n房型：${roomType?.name}\n入住日期：${updatedBooking.checkInDate.toLocaleDateString()}\n訂房人：${updatedBooking.guestName}`,
+            });
+          } else {
+            await notifyOwner({
+              title: '訂房已確認 - 待銀行轉帳',
+              content: `訂房已確認，等待客人銀行轉帳\n房型：${roomType?.name}\n入住日期：${updatedBooking.checkInDate.toLocaleDateString()}\n訂房人：${updatedBooking.guestName}\n金額：NT${updatedBooking.totalPrice}`,
+            });
+          }
+        }
+        
+        return { success: true };
+      }),
+    
+    // 確認銀行轉帳後五碼
+    confirmBankTransfer: adminProcedure
+      .input(z.object({ 
+        id: z.number(),
+        lastFiveDigits: z.string().regex(/^\d{5}$/)
+      }))
+      .mutation(async ({ input }) => {
+        const booking = await db.getBookingById(input.id);
+        if (!booking) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: '訂單不存在' });
+        }
+        
+        if (booking.status !== 'pending_payment') {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: '只有待付款的訂單才能確認銀行轉帳' });
+        }
+        
+        // 更新為已付款狀態
+        await db.updateBookingStatus(input.id, 'paid');
+        
+        const updatedBooking = await db.getBookingById(input.id);
+        if (updatedBooking) {
+          const roomType = await db.getRoomTypeById(updatedBooking.roomTypeId);
+          await notifyOwner({
+            title: '訂房已付款',
+            content: `訂房已收到銀行轉帳\n房型：${roomType?.name}\n入住日期：${updatedBooking.checkInDate.toLocaleDateString()}\n訂房人：${updatedBooking.guestName}\n金額：NT${updatedBooking.totalPrice}\n後五碼：${input.lastFiveDigits}`,
+          });
+        }
+        
+        return { success: true };
+      }),
+    
     // 快速操作：標記入住
     markCheckedIn: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
+        const booking = await db.getBookingById(input.id);
+        if (!booking) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: '訂單不存在' });
+        }
+        
+        // 只有已確認或已付款的訂單才能標記入住
+        if (booking.status !== 'confirmed' && booking.status !== 'paid' && booking.status !== 'cash_on_site') {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: '只有已確認或已付款的訂單才能標記入住' });
+        }
+        
         await db.updateBookingStatus(input.id, "completed");
         
-        const booking = await db.getBookingById(input.id);
-        if (booking) {
-          const roomType = await db.getRoomTypeById(booking.roomTypeId);
+        const updatedBooking = await db.getBookingById(input.id);
+        if (updatedBooking) {
+          const roomType = await db.getRoomTypeById(updatedBooking.roomTypeId);
           await notifyOwner({
             title: '客人已入住',
-            content: `客人已辦理入住\n房型：${roomType?.name}\n入住日期：${booking.checkInDate.toLocaleDateString()}\n訂房人：${booking.guestName}`,
+            content: `客人已辦理入住\n房型：${roomType?.name}\n入住日期：${updatedBooking.checkInDate.toLocaleDateString()}\n訂房人：${updatedBooking.guestName}`,
           });
         }
         

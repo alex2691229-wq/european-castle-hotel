@@ -61,6 +61,30 @@ export default function BookingManagement() {
       toast.error(`發送失敗：${error.message}`);
     },
   });
+  
+  const selectPaymentMethodMutation = trpc.bookings.selectPaymentMethod.useMutation({
+    onSuccess: () => {
+      utils.bookings.list.invalidate();
+      toast.success('支付方式已選擇');
+    },
+    onError: (error) => {
+      toast.error(`選擇失敗：${error.message}`);
+    },
+  });
+  
+  const confirmBankTransferMutation = trpc.bookings.confirmBankTransfer.useMutation({
+    onSuccess: () => {
+      utils.bookings.list.invalidate();
+      toast.success('銀行轉帳已確認');
+    },
+    onError: (error) => {
+      toast.error(`確認失敗：${error.message}`);
+    },
+  });
+  
+  const [bankTransferDialogOpen, setBankTransferDialogOpen] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
+  const [lastFiveDigits, setLastFiveDigits] = useState('');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
@@ -480,7 +504,64 @@ export default function BookingManagement() {
                         確認訂房
                       </Button>
                     )}
-                    {(booking.status === "confirmed" || booking.status === "pending") && (
+                    {booking.status === "confirmed" && (
+                      <>
+                        <Button
+                          size="sm"
+                          className="bg-orange-600 hover:bg-orange-700 text-white"
+                          onClick={() => {
+                            if (confirm('確定選擇銀行轉帳支付方式嗎？')) {
+                              selectPaymentMethodMutation.mutate({ 
+                                id: booking.id,
+                                method: 'bank_transfer'
+                              });
+                            }
+                          }}
+                          disabled={selectPaymentMethodMutation.isPending}
+                        >
+                          {selectPaymentMethodMutation.isPending ? (
+                            <Loader2 size={14} className="animate-spin mr-1" />
+                          ) : (
+                            <span className="mr-1">🏦</span>
+                          )}
+                          銀行轉帳
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          onClick={() => {
+                            if (confirm('確定選擇現場支付方式嗎？')) {
+                              selectPaymentMethodMutation.mutate({ 
+                                id: booking.id,
+                                method: 'cash_on_site'
+                              });
+                            }
+                          }}
+                          disabled={selectPaymentMethodMutation.isPending}
+                        >
+                          {selectPaymentMethodMutation.isPending ? (
+                            <Loader2 size={14} className="animate-spin mr-1" />
+                          ) : (
+                            <span className="mr-1">💵</span>
+                          )}
+                          現場支付
+                        </Button>
+                      </>
+                    )}
+                    {booking.status === "pending_payment" && (
+                      <Button
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => {
+                          setSelectedBookingId(booking.id);
+                          setBankTransferDialogOpen(true);
+                        }}
+                      >
+                        <span className="mr-1">✓</span>
+                        確認銀行轉帳
+                      </Button>
+                    )}
+                    {(booking.status === "paid" || booking.status === "cash_on_site") && (
                       <Button
                         size="sm"
                         className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -596,6 +677,66 @@ export default function BookingManagement() {
           </div>
         )}
       </Card>
+      
+      {/* 銀行轉帳後五碼輸入對話框 */}
+      {bankTransferDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-card p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-bold text-foreground mb-4">確認銀行轉帳</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              請輸入銀行轉帳帳號後五碼以確認付款
+            </p>
+            <input
+              type="text"
+              value={lastFiveDigits}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 5) {
+                  setLastFiveDigits(value);
+                }
+              }}
+              placeholder="請輸入後五碼"
+              maxLength={5}
+              className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground mb-4"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setBankTransferDialogOpen(false);
+                  setLastFiveDigits('');
+                  setSelectedBookingId(null);
+                }}
+              >
+                取消
+              </Button>
+              <Button
+                onClick={() => {
+                  if (lastFiveDigits.length !== 5) {
+                    toast.error('請輸入完整的後五碼');
+                    return;
+                  }
+                  if (selectedBookingId) {
+                    confirmBankTransferMutation.mutate({
+                      id: selectedBookingId,
+                      lastFiveDigits
+                    });
+                    setBankTransferDialogOpen(false);
+                    setLastFiveDigits('');
+                    setSelectedBookingId(null);
+                  }
+                }}
+                disabled={confirmBankTransferMutation.isPending || lastFiveDigits.length !== 5}
+              >
+                {confirmBankTransferMutation.isPending ? (
+                  <Loader2 size={14} className="animate-spin mr-1" />
+                ) : null}
+                確認
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
