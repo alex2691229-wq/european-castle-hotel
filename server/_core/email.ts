@@ -287,7 +287,9 @@ export function generateBookingConfirmationEmail(
               ✅ 轉帳後，請<strong>直接回覆此郵件</strong>並填寫轉帳的<strong>後五碼</strong>（例如：「後五碼：12345」），我們會立即確認收款。
             </p>
             <p style="margin: 10px 0; color: #666; font-size: 14px;">
-              💡 如果您不方便回覆郵件，也可以在訂房追蹤頁面填寫後五碼。
+              💡 如果您不方便回覆郵件，也可以在
+              <a href="https://european-castle-hotel.manus.space/booking/tracking" style="color: #1976d2; text-decoration: none; font-weight: bold;">訂房追蹤頁面</a>
+              填寫後五碼。
             </p>
           </div>
           
