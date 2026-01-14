@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Settings, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { wsManager, RoomAvailabilityEvent } from "@/lib/websocket";
 
 export default function AvailabilityManagement() {
   const [selectedRoomTypeId, setSelectedRoomTypeId] = useState<number | null>(null);
@@ -43,6 +44,33 @@ export default function AvailabilityManagement() {
     },
     { enabled: selectedRoomTypeId !== null }
   );
+
+  // 監聽 WebSocket 房間可用性變更事件
+  useEffect(() => {
+    // 連接到 WebSocket
+    if (!wsManager.isConnected()) {
+      wsManager.connect().catch((error) => {
+        console.error('WebSocket 連接失敗:', error);
+      });
+    }
+
+    // 定義事件回調
+    const handleRoomAvailabilityChanged = (event: RoomAvailabilityEvent) => {
+      // 如果是當前選擇的房型，則刷新日曆
+      if (event.roomTypeId === selectedRoomTypeId) {
+        console.log('房間可用性已變更，刷新日曆:', event.date);
+        refetchRecords();
+      }
+    };
+
+    // 訂閱事件
+    wsManager.on('room_availability_changed', handleRoomAvailabilityChanged as any);
+
+    // 清理函數
+    return () => {
+      wsManager.off('room_availability_changed', handleRoomAvailabilityChanged as any);
+    };
+  }, [selectedRoomTypeId, refetchRecords]);
 
   // Set availability mutation
   const setAvailabilityMutation = trpc.roomAvailability.setAvailability.useMutation({
@@ -94,6 +122,14 @@ export default function AvailabilityManagement() {
       toast.error(`批量操作失敗：${error.message}`);
     },
   });
+
+  // 清理函數：在組件卸載時斷開 WebSocket
+  useEffect(() => {
+    return () => {
+      // 可選：在卸載時斷開連接
+      // wsManager.disconnect();
+    };
+  }, []);
 
   // Generate calendar days
   const generateCalendarDays = () => {
@@ -276,8 +312,10 @@ export default function AvailabilityManagement() {
   const handleRefresh = () => {
     refetchRecords();
     refetchUnavailable();
-    toast.success("日曆已刷新");
+    toast.success("已刷新日曆數據");
   };
+
+  // 手動刷新按鈕現在作為備選方案，WebSocket 會自動推送更新
 
   return (
     <div className="space-y-6">

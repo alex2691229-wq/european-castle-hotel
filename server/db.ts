@@ -257,6 +257,8 @@ export async function createBooking(data: InsertBooking): Promise<number> {
   if (!db) throw new Error("Database not available");
   
   try {
+    // 動態導入 wsManager 以避免循環依賴
+    const { wsManager } = await import("./websocket");
     const result = await db.insert(bookings).values(data);
     
     // Drizzle ORM 返回的是插入的行數，我們需要查詢新插入的記錄
@@ -323,8 +325,30 @@ export async function createBooking(data: InsertBooking): Promise<number> {
         
         // 移動到下一天
         currentDate.setDate(currentDate.getDate() + 1);
+        
+        // 發送房間可用性變更事件
+        if (availabilityRecord.length > 0) {
+          const updatedRecord = availabilityRecord[0];
+          wsManager.broadcast({
+            type: 'room_availability_changed',
+            roomTypeId: data.roomTypeId,
+            date: dateForQuery.toISOString().split('T')[0],
+            bookedQuantity: (updatedRecord.bookedQuantity || 0) + 1,
+            maxSalesQuantity: updatedRecord.maxSalesQuantity || 10,
+          });
+        }
       }
     }
+    
+    // 發送訂單創建事件
+    wsManager.broadcast({
+      type: 'booking_created',
+      bookingId,
+      roomTypeId: data.roomTypeId,
+      checkInDate: data.checkInDate?.toISOString().split('T')[0] || '',
+      checkOutDate: data.checkOutDate?.toISOString().split('T')[0] || '',
+      status: data.status || 'pending',
+    });
     
     return bookingId;
   } catch (error) {
