@@ -89,6 +89,7 @@ export default function BookingManagement() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [roomTypeFilter, setRoomTypeFilter] = useState("all");
+  const [expandedBookingId, setExpandedBookingId] = useState<number | null>(null);
   
   // 處理快速篩選按鈕點擊
   const handleQuickFilter = (filter: 'all' | 'pending' | 'confirmed' | 'pending_payment' | 'today_checkin') => {
@@ -227,6 +228,34 @@ export default function BookingManagement() {
           text: "text-gray-800",
           label: "✗ 已取消",
           icon: XCircle,
+        };
+      case "pending_payment":
+        return {
+          bg: "bg-blue-100",
+          text: "text-blue-800",
+          label: "💳 待付款",
+          icon: Clock,
+        };
+      case "paid":
+        return {
+          bg: "bg-green-100",
+          text: "text-green-800",
+          label: "✓ 已付款",
+          icon: CheckCircle,
+        };
+      case "cash_on_site":
+        return {
+          bg: "bg-purple-100",
+          text: "text-purple-800",
+          label: "💵 現場付款",
+          icon: CheckCircle,
+        };
+      case "completed":
+        return {
+          bg: "bg-green-100",
+          text: "text-green-800",
+          label: "✓ 已完成",
+          icon: CheckCircle,
         };
       default:
         return {
@@ -397,7 +426,7 @@ export default function BookingManagement() {
                       ? "border-red-500 bg-red-50"
                       : "border-border bg-card"
                   }`}
-                  onClick={() => setLocation(`/admin/bookings/${booking.id}`)}
+                  onClick={() => setExpandedBookingId(expandedBookingId === booking.id ? null : booking.id)}
                 >
                   {/* 頂部：狀態和訂單號 */}
                   <div className="flex items-start justify-between mb-3">
