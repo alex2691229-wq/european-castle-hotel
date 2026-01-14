@@ -216,3 +216,12 @@
 ### BUG 修復 - 已完成
 - [x] BUG #2 - 日曆可用性實時同步（添加手動刷新按鈕，WebSocket 自動推送）
 - [x] BUG #3 - 假日價格顯示邏輯修復
+
+
+## 🔵 WebSocket 事件發送完整化（2026/01/14 - 用戶要求）
+
+- [x] 為 updateBookingStatus 添加 WebSocket 事件發送（訂單狀態變更時）
+- [x] 為 deleteBooking 添加 WebSocket 事件發送（訂單刪除時）
+- [x] 測試取消訂單時的 WebSocket 事件 - 成功發送
+- [x] 測試刪除訂單時的 WebSocket 事件 - 成功發送
+- [x] 驗證日曆在訂單取消/刪除後正確更新 - 4 個測試全部通過

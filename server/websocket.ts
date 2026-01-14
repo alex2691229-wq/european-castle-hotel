@@ -14,12 +14,24 @@ export interface BookingEvent {
   type: 'booking_created' | 'booking_cancelled' | 'booking_deleted' | 'booking_status_changed';
   bookingId: number;
   roomTypeId: number;
-  checkInDate: string;
-  checkOutDate: string;
-  status: string;
+  checkInDate?: string;
+  checkOutDate?: string;
+  status?: string;
+  oldStatus?: string;
+  newStatus?: string;
 }
 
-export type WebSocketEvent = RoomAvailabilityEvent | BookingEvent;
+export interface BookingStatusChangedEvent {
+  type: 'booking_status_changed';
+  bookingId: number;
+  roomTypeId: number;
+  oldStatus: string;
+  newStatus: string;
+  checkInDate: string;
+  checkOutDate: string;
+}
+
+export type WebSocketEvent = RoomAvailabilityEvent | BookingEvent | BookingStatusChangedEvent;
 
 // WebSocket 伺服器管理器
 class WebSocketManager {

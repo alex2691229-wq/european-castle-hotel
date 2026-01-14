@@ -438,6 +438,9 @@ export async function updateBookingStatus(id: number, status: "pending" | "confi
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // 導入 WebSocket 管理器
+  const { wsManager } = await import('./websocket');
+  
   // 獲取訂單信息
   const booking = await db
     .select()
@@ -453,6 +456,17 @@ export async function updateBookingStatus(id: number, status: "pending" | "confi
   
   // 更新訂單狀態
   await db.update(bookings).set({ status }).where(eq(bookings.id, id));
+  
+  // 發送 WebSocket 事件
+  wsManager.broadcast({
+    type: 'booking_status_changed' as const,
+    bookingId: id,
+    roomTypeId: booking[0].roomTypeId,
+    oldStatus,
+    newStatus: status,
+    checkInDate: booking[0].checkInDate ? new Date(booking[0].checkInDate).toISOString().split('T')[0] : '',
+    checkOutDate: booking[0].checkOutDate ? new Date(booking[0].checkOutDate).toISOString().split('T')[0] : '',
+  });
   
   // 如果從非取消狀態變為取消狀態，減少 bookedQuantity
   if (oldStatus !== 'cancelled' && status === 'cancelled' && booking[0].checkInDate && booking[0].checkOutDate) {
@@ -496,12 +510,47 @@ export async function updateBookingStatus(id: number, status: "pending" | "confi
       // 移動到下一天
       currentDate.setDate(currentDate.getDate() + 1);
     }
+    
+    // 發送房間可用性變更事件
+    let notifyDate = new Date(checkIn);
+    notifyDate.setHours(0, 0, 0, 0);
+    
+    while (notifyDate < checkOut) {
+      const dateStr = notifyDate.toISOString().split('T')[0];
+      
+      // 獲取更新後的可用性信息
+      const updatedAvailability = await db
+        .select()
+        .from(roomAvailability)
+        .where(
+          and(
+            eq(roomAvailability.roomTypeId, booking[0].roomTypeId),
+            eq(roomAvailability.date, currentDate)
+          )
+        )
+        .limit(1);
+      
+      if (updatedAvailability.length > 0) {
+        wsManager.broadcast({
+          type: 'room_availability_changed' as const,
+          roomTypeId: booking[0].roomTypeId,
+          date: dateStr,
+          bookedQuantity: updatedAvailability[0].bookedQuantity || 0,
+          maxSalesQuantity: updatedAvailability[0].maxSalesQuantity || 0,
+        });
+      }
+      
+      notifyDate.setDate(notifyDate.getDate() + 1);
+    }
   }
 }
 
 export async function deleteBooking(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // 導入 WebSocket 管理器
+  const { wsManager } = await import('./websocket');
   
   // 獲取訂單信息
   const booking = await db
@@ -510,7 +559,11 @@ export async function deleteBooking(id: number): Promise<void> {
     .where(eq(bookings.id, id))
     .limit(1);
   
-  if (booking.length > 0 && booking[0].checkInDate && booking[0].checkOutDate) {
+  if (booking.length === 0) {
+    throw new Error("Booking not found");
+  }
+  
+  if (booking[0].checkInDate && booking[0].checkOutDate) {
     const checkIn = new Date(booking[0].checkInDate);
     const checkOut = new Date(booking[0].checkOutDate);
     
@@ -550,6 +603,54 @@ export async function deleteBooking(id: number): Promise<void> {
       
       // 移動到下一天
       currentDate.setDate(currentDate.getDate() + 1);
+    }
+  }
+  
+  // 發送 WebSocket 事件
+  if (booking.length > 0) {
+    wsManager.broadcast({
+      type: 'booking_deleted' as const,
+      bookingId: id,
+      roomTypeId: booking[0].roomTypeId,
+      checkInDate: booking[0].checkInDate ? new Date(booking[0].checkInDate).toISOString().split('T')[0] : '',
+      checkOutDate: booking[0].checkOutDate ? new Date(booking[0].checkOutDate).toISOString().split('T')[0] : '',
+      status: booking[0].status,
+    });
+    
+    // 發送房間可用性變更事件
+    if (booking[0].checkInDate && booking[0].checkOutDate) {
+      const checkIn = new Date(booking[0].checkInDate);
+      const checkOut = new Date(booking[0].checkOutDate);
+      let notifyDate = new Date(checkIn);
+      notifyDate.setHours(0, 0, 0, 0);
+      
+      while (notifyDate < checkOut) {
+        const dateStr = notifyDate.toISOString().split('T')[0];
+        
+        // 獲取更新後的可用性信息
+        const updatedAvailability = await db
+          .select()
+          .from(roomAvailability)
+          .where(
+            and(
+              eq(roomAvailability.roomTypeId, booking[0].roomTypeId),
+              eq(roomAvailability.date, notifyDate)
+            )
+          )
+          .limit(1);
+        
+        if (updatedAvailability.length > 0) {
+          wsManager.broadcast({
+            type: 'room_availability_changed' as const,
+            roomTypeId: booking[0].roomTypeId,
+            date: dateStr,
+            bookedQuantity: updatedAvailability[0].bookedQuantity || 0,
+            maxSalesQuantity: updatedAvailability[0].maxSalesQuantity || 0,
+          });
+        }
+        
+        notifyDate.setDate(notifyDate.getDate() + 1);
+      }
     }
   }
   
