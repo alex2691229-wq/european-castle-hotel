@@ -321,7 +321,7 @@ export default function AdminBookings() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleStatusChange(booking.id, "confirmed");
+                                handleStatusChange(booking.id, "pending_payment");
                               }}
                               className="w-full px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-lg transition"
                             >
@@ -330,27 +330,12 @@ export default function AdminBookings() {
                           </div>
                         )}
 
-                        {/* 步驟2: 已確認 */}
-                        {booking.status === "confirmed" && (
-                          <div className="p-4 bg-blue-900 border-2 border-blue-600 rounded-lg">
-                            <h4 className="text-lg font-bold mb-4 text-blue-300">✓ 步驟2: 已確認</h4>
-                            <p className="text-blue-100 mb-4">訂房已確認，系統自動進入「待付款」狀態</p>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(booking.id, "pending_payment");
-                              }}
-                              className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition"
-                            >
-                              進入待付款 →
-                            </button>
-                          </div>
-                        )}
 
-                        {/* 步驟3: 待付款 - 選擇付款方式 */}
+
+                        {/* 步驟2: 待付款 - 選擇付款方式 */}
                         {booking.status === "pending_payment" && !payment && (
                           <div className="p-4 bg-orange-900 border-2 border-orange-600 rounded-lg">
-                            <h4 className="text-lg font-bold mb-4 text-orange-300">💳 步驟3: 選擇付款方式</h4>
+                            <h4 className="text-lg font-bold mb-4 text-orange-300">💳 步驟2: 選擇付款方式</h4>
                             <p className="text-orange-100 mb-4">請選擇客戶的付款方式</p>
                             <div className="grid grid-cols-2 gap-4">
                               <button
@@ -375,10 +360,10 @@ export default function AdminBookings() {
                           </div>
                         )}
 
-                        {/* 步驟4: 銀行轉帳 - 填寫後五碼 */}
+                        {/* 步驟3: 銀行轉帳 - 填寫後五碼 */}
                         {booking.status === "pending_payment" && payment?.paymentMethod === "bank_transfer" && (
                           <div className="p-4 bg-green-900 border-2 border-green-600 rounded-lg">
-                            <h4 className="text-lg font-bold mb-4 text-green-300">🏦 步驟4: 銀行轉帳 - 填寫後五碼</h4>
+                            <h4 className="text-lg font-bold mb-4 text-green-300">🏪 步驟3: 銀行轉帳 - 填寫後五碼</h4>
                             <p className="text-green-100 mb-4">客戶已轉帳，請填寫轉帳單據的後五碼進行驗證</p>
                             <div className="flex gap-3 mb-4">
                               <input
@@ -412,7 +397,7 @@ export default function AdminBookings() {
                           </div>
                         )}
 
-                        {/* 步驟5: 已付款 */}
+                        {/* 步驟4: 已付款 */}
                         {(booking.status === "paid" || booking.status === "cash_on_site") && (
                           <div className={`p-4 border-2 rounded-lg ${
                             booking.status === "paid" 
@@ -424,7 +409,7 @@ export default function AdminBookings() {
                                 ? "text-green-300" 
                                 : "text-purple-300"
                             }`}>
-                              {booking.status === "paid" ? "✅ 步驟5: 已付款" : "🏨 步驟5: 現場付款"}
+                              {booking.status === "paid" ? "✅ 步驟4: 已付款" : "🏨 步驟4: 現場付款"}
                             </h4>
                             <p className={`mb-4 ${
                               booking.status === "paid" 
@@ -451,10 +436,10 @@ export default function AdminBookings() {
                           </div>
                         )}
 
-                        {/* 步驟6: 已完成 */}
+                        {/* 步驟5: 已完成 */}
                         {booking.status === "completed" && (
                           <div className="p-4 bg-indigo-900 border-2 border-indigo-600 rounded-lg">
-                            <h4 className="text-lg font-bold mb-4 text-indigo-300">🎉 步驟6: 已完成</h4>
+                            <h4 className="text-lg font-bold mb-4 text-indigo-300">🎉 步驟5: 已完成</h4>
                             <p className="text-indigo-100">訂房流程已完成，客戶已入住</p>
                           </div>
                         )}
