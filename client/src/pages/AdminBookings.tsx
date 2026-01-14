@@ -34,7 +34,7 @@ export default function AdminBookings() {
   const [bookings, setBookings] = useState<BookingWithRoom[]>([]);
   const [payments, setPayments] = useState<Record<number, PaymentInfo>>({});
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "pending" | "confirmed" | "pending_payment" | "paid" | "cash_on_site" | "completed">("all");
+  const [filter, setFilter] = useState<"all" | "pending" | "confirmed" | "pending_payment" | "paid" | "cash_on_site" | "completed" | "check_in_today" | "check_out_today">("all");
   const [expandedBooking, setExpandedBooking] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastFiveDigits, setLastFiveDigits] = useState<Record<number, string>>({});
@@ -177,8 +177,22 @@ export default function AdminBookings() {
   };
 
   const filteredBookings = bookings.filter((booking) => {
-    if (filter !== "all" && booking.status !== filter) return false;
-    return true;
+    if (filter === "all") return true;
+    if (filter === "check_in_today") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkInDate = new Date(booking.checkInDate);
+      checkInDate.setHours(0, 0, 0, 0);
+      return checkInDate.getTime() === today.getTime();
+    }
+    if (filter === "check_out_today") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkOutDate = new Date(booking.checkOutDate);
+      checkOutDate.setHours(0, 0, 0, 0);
+      return checkOutDate.getTime() === today.getTime();
+    }
+    return booking.status === filter;
   });
 
   const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
@@ -193,6 +207,20 @@ export default function AdminBookings() {
     pending_payment: bookings.filter(b => b.status === "pending_payment").length,
     paid: bookings.filter(b => b.status === "paid").length,
     cash_on_site: bookings.filter(b => b.status === "cash_on_site").length,
+    check_in_today: bookings.filter(b => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkInDate = new Date(b.checkInDate);
+      checkInDate.setHours(0, 0, 0, 0);
+      return checkInDate.getTime() === today.getTime();
+    }).length,
+    check_out_today: bookings.filter(b => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkOutDate = new Date(b.checkOutDate);
+      checkOutDate.setHours(0, 0, 0, 0);
+      return checkOutDate.getTime() === today.getTime();
+    }).length,
   };
 
   if (loading) {
@@ -209,7 +237,7 @@ export default function AdminBookings() {
         <h1 className="text-4xl font-bold mb-8">訂單管理 - 防呆流程</h1>
 
         {/* 狀態統計框 */}
-        <div className="mb-8 grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div className="mb-8 grid grid-cols-2 md:grid-cols-8 gap-4">
           {[
             { key: "all", label: "全部", color: "bg-gray-700", count: statusCounts.all },
             { key: "pending", label: "待確認", color: "bg-yellow-600", count: statusCounts.pending },
@@ -217,6 +245,8 @@ export default function AdminBookings() {
             { key: "pending_payment", label: "待付款", color: "bg-orange-600", count: statusCounts.pending_payment },
             { key: "paid", label: "已付款", color: "bg-green-600", count: statusCounts.paid },
             { key: "cash_on_site", label: "現場付款", color: "bg-purple-600", count: statusCounts.cash_on_site },
+            { key: "check_in_today", label: "📥 入住名單", color: "bg-red-600", count: statusCounts.check_in_today },
+            { key: "check_out_today", label: "📤 出房名單", color: "bg-pink-600", count: statusCounts.check_out_today },
           ].map((s) => (
             <button
               key={s.key}
