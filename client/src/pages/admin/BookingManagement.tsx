@@ -63,21 +63,27 @@ export default function BookingManagement() {
   });
   
   const selectPaymentMethodMutation = trpc.bookings.selectPaymentMethod.useMutation({
-    onSuccess: () => {
-      utils.bookings.list.invalidate();
+    onSuccess: async () => {
+      await utils.bookings.list.invalidate();
+      // 立即重新獲取訂單列表
+      await utils.bookings.list.refetch();
       toast.success('支付方式已選擇');
     },
     onError: (error) => {
+      console.error('選擇支付方式失敗:', error);
       toast.error(`選擇失敗：${error.message}`);
     },
   });
   
   const confirmBankTransferMutation = trpc.bookings.confirmBankTransfer.useMutation({
-    onSuccess: () => {
-      utils.bookings.list.invalidate();
+    onSuccess: async () => {
+      await utils.bookings.list.invalidate();
+      // 立即重新獲取訂單列表
+      await utils.bookings.list.refetch();
       toast.success('銀行轉帳已確認');
     },
     onError: (error) => {
+      console.error('確認銀行轉帳失敗:', error);
       toast.error(`確認失敗：${error.message}`);
     },
   });

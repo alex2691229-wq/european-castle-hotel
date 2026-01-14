@@ -251,7 +251,62 @@ export async function createBooking(data: InsertBooking): Promise<number> {
       throw new Error("Failed to retrieve created booking");
     }
     
-    return newBooking[0].id;
+    const bookingId = newBooking[0].id;
+    
+    // 更新每一個預訂日期的 bookedQuantity
+    if (data.checkInDate && data.checkOutDate) {
+      const checkIn = new Date(data.checkInDate);
+      const checkOut = new Date(data.checkOutDate);
+      
+      // 生成所有預訂日期
+      const currentDate = new Date(checkIn);
+      currentDate.setHours(0, 0, 0, 0); // 設置為午夜
+      
+      while (currentDate < checkOut) {
+        const dateForQuery = new Date(currentDate);
+        dateForQuery.setHours(0, 0, 0, 0);
+        
+        // 獲取該日期的 roomAvailability 記錄
+        const availabilityRecord = await db
+          .select()
+          .from(roomAvailability)
+          .where(
+            and(
+              eq(roomAvailability.roomTypeId, data.roomTypeId),
+              eq(roomAvailability.date, dateForQuery)
+            )
+          )
+          .limit(1);
+        
+        if (availabilityRecord.length > 0) {
+          // 更新 bookedQuantity
+          const currentBooked = availabilityRecord[0].bookedQuantity || 0;
+          await db
+            .update(roomAvailability)
+            .set({ bookedQuantity: currentBooked + 1 })
+            .where(
+              and(
+                eq(roomAvailability.roomTypeId, data.roomTypeId),
+                eq(roomAvailability.date, dateForQuery)
+              )
+            );
+        } else {
+          // 如果沒有記錄，創建一個新的
+          await db.insert(roomAvailability).values({
+            roomTypeId: data.roomTypeId,
+            date: dateForQuery,
+            maxSalesQuantity: 10,
+            bookedQuantity: 1,
+            isAvailable: true,
+          });
+        }
+        
+        // 移動到下一天
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+    
+    return bookingId;
   } catch (error) {
     console.error("Error creating booking:", error);
     throw error;
@@ -339,13 +394,122 @@ export async function updateBookingStatus(id: number, status: "pending" | "confi
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // 獲取訂單信息
+  const booking = await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.id, id))
+    .limit(1);
+  
+  if (booking.length === 0) {
+    throw new Error("Booking not found");
+  }
+  
+  const oldStatus = booking[0].status;
+  
+  // 更新訂單狀態
   await db.update(bookings).set({ status }).where(eq(bookings.id, id));
+  
+  // 如果從非取消狀態變為取消狀態，減少 bookedQuantity
+  if (oldStatus !== 'cancelled' && status === 'cancelled' && booking[0].checkInDate && booking[0].checkOutDate) {
+    const checkIn = new Date(booking[0].checkInDate);
+    const checkOut = new Date(booking[0].checkOutDate);
+    
+    // 生成所有預訂日期
+    const currentDate = new Date(checkIn);
+    currentDate.setHours(0, 0, 0, 0);
+    
+    while (currentDate < checkOut) {
+      const dateForQuery = new Date(currentDate);
+      dateForQuery.setHours(0, 0, 0, 0);
+      
+      // 獲取該日期的 roomAvailability 記錄
+      const availabilityRecord = await db
+        .select()
+        .from(roomAvailability)
+        .where(
+          and(
+            eq(roomAvailability.roomTypeId, booking[0].roomTypeId),
+            eq(roomAvailability.date, dateForQuery)
+          )
+        )
+        .limit(1);
+      
+      if (availabilityRecord.length > 0) {
+        // 減少 bookedQuantity
+        const currentBooked = availabilityRecord[0].bookedQuantity || 0;
+        await db
+          .update(roomAvailability)
+          .set({ bookedQuantity: Math.max(0, currentBooked - 1) })
+          .where(
+            and(
+              eq(roomAvailability.roomTypeId, booking[0].roomTypeId),
+              eq(roomAvailability.date, dateForQuery)
+            )
+          );
+      }
+      
+      // 移動到下一天
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  }
 }
 
 export async function deleteBooking(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // 獲取訂單信息
+  const booking = await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.id, id))
+    .limit(1);
+  
+  if (booking.length > 0 && booking[0].checkInDate && booking[0].checkOutDate) {
+    const checkIn = new Date(booking[0].checkInDate);
+    const checkOut = new Date(booking[0].checkOutDate);
+    
+    // 生成所有預訂日期
+    const currentDate = new Date(checkIn);
+    currentDate.setHours(0, 0, 0, 0);
+    
+    while (currentDate < checkOut) {
+      const dateForQuery = new Date(currentDate);
+      dateForQuery.setHours(0, 0, 0, 0);
+      
+      // 獲取該日期的 roomAvailability 記錄
+      const availabilityRecord = await db
+        .select()
+        .from(roomAvailability)
+        .where(
+          and(
+            eq(roomAvailability.roomTypeId, booking[0].roomTypeId),
+            eq(roomAvailability.date, dateForQuery)
+          )
+        )
+        .limit(1);
+      
+      if (availabilityRecord.length > 0) {
+        // 減少 bookedQuantity
+        const currentBooked = availabilityRecord[0].bookedQuantity || 0;
+        await db
+          .update(roomAvailability)
+          .set({ bookedQuantity: Math.max(0, currentBooked - 1) })
+          .where(
+            and(
+              eq(roomAvailability.roomTypeId, booking[0].roomTypeId),
+              eq(roomAvailability.date, dateForQuery)
+            )
+          );
+      }
+      
+      // 移動到下一天
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  }
+  
+  // 刪除訂單
   await db.delete(bookings).where(eq(bookings.id, id));
 }
 

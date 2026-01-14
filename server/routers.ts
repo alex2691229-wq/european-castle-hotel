@@ -37,31 +37,32 @@ export const appRouter = router({
         password: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // 簡單的固定用戶名密碼驗證
-        const ADMIN_PASSWORD = '88888888';
+        // 從數據庫查詢用戶
+        const user = await db.getUserByUsername(input.username);
         
-        // 接受 'jason' 或 'castle8888' 作為用戶名
-        const validUsernames = ['jason', 'castle8888'];
-        
-        if (!validUsernames.includes(input.username) || input.password !== ADMIN_PASSWORD) {
+        if (!user || user.role !== 'admin') {
           throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
         }
         
-        // 創建固定的管理员用戶對象
-        const adminUser = {
-          id: 999,
-          openId: 'local-admin',
-          username: input.username,
-          name: input.username === 'jason' ? 'Jason' : '管理员',
-          role: 'admin' as const,
-        };
+        // 驗證密碼
+        if (!user.passwordHash) {
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+        }
+        
+        const passwordMatch = await bcrypt.compare(input.password, user.passwordHash);
+        if (!passwordMatch) {
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+        }
+        
+        // 更新最後登入時間
+        await db.updateUserLastSignedIn(user.id);
         
         // 生成 JWT token
         const token = sign({
-          id: adminUser.id,
-          username: adminUser.username,
-          name: adminUser.name,
-          role: adminUser.role,
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          role: user.role,
         });
         
         // 設置 cookie
@@ -70,8 +71,81 @@ export const appRouter = router({
         
         return {
           success: true,
-          user: adminUser,
+          user: {
+            id: user.id,
+            username: user.username,
+            name: user.name,
+            role: user.role,
+          },
         };
+      }),
+    
+    // 帳號管理 API
+    listAdmins: adminProcedure.query(async () => {
+      const allUsers = await db.getAllUsers();
+      return allUsers.filter(u => u.role === 'admin').map(u => ({
+        id: u.id,
+        username: u.username,
+        name: u.name,
+        status: u.status,
+        createdAt: u.createdAt,
+        lastSignedIn: u.lastSignedIn,
+      }));
+    }),
+    
+    createAdmin: adminProcedure
+      .input(z.object({
+        username: z.string().min(3, '用戶名至少3個字符'),
+        password: z.string().min(6, '密碼至少6個字符'),
+        name: z.string().min(1, '名稱不能為空'),
+      }))
+      .mutation(async ({ input }) => {
+        // 檢查用戶名是否已存在
+        const existingUser = await db.getUserByUsername(input.username);
+        if (existingUser) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: '用戶名已存在' });
+        }
+        
+        // 加密密碼
+        const passwordHash = await bcrypt.hash(input.password, 10);
+        
+        // 創建新用戶
+        await db.upsertUser({
+          username: input.username,
+          passwordHash,
+          name: input.name,
+          role: 'admin',
+          loginMethod: 'password',
+        });
+        
+        return { success: true };
+      }),
+    
+    updateAdmin: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        password: z.string().min(6, '密碼至少6個字符').optional(),
+        status: z.enum(['active', 'inactive']).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const updateData: any = {};
+        
+        if (input.name) updateData.name = input.name;
+        if (input.status) updateData.status = input.status;
+        if (input.password) {
+          updateData.passwordHash = await bcrypt.hash(input.password, 10);
+        }
+        
+        await db.updateUser(input.id, updateData);
+        return { success: true };
+      }),
+    
+    deleteAdmin: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteUser(input.id);
+        return { success: true };
       }),
   }),
 
@@ -540,20 +614,21 @@ export const appRouter = router({
           throw new TRPCError({ code: 'NOT_FOUND', message: '訂單不存在' });
         }
         
+        console.log(`[selectPaymentMethod] 訂單 #${input.id} 當前狀態: ${booking.status}`);
+        
         if (booking.status !== 'confirmed') {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: '只有已確認的訂單才能選擇支付方式' });
+          throw new TRPCError({ code: 'BAD_REQUEST', message: `只有已確認的訂單才能選擇支付方式。當前狀態：${booking.status}` });
         }
         
         // 根據支付方式進入相應狀態
-        if (input.method === 'cash_on_site') {
-          // 現場支付直接進入「現場付款」狀態
-          await db.updateBookingStatus(input.id, 'cash_on_site');
-        } else {
-          // 銀行轉帳進入「待付款」狀態
-          await db.updateBookingStatus(input.id, 'pending_payment');
-        }
+        const newStatus = input.method === 'cash_on_site' ? 'cash_on_site' : 'pending_payment';
+        console.log(`[selectPaymentMethod] 更新訂單 #${input.id} 狀態為: ${newStatus}`);
+        
+        await db.updateBookingStatus(input.id, newStatus);
         
         const updatedBooking = await db.getBookingById(input.id);
+        console.log(`[selectPaymentMethod] 訂單 #${input.id} 更新後狀態: ${updatedBooking?.status}`);
+        
         if (updatedBooking) {
           const roomType = await db.getRoomTypeById(updatedBooking.roomTypeId);
           if (input.method === 'cash_on_site') {

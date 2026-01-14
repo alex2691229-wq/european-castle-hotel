@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Settings, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -272,6 +272,13 @@ export default function AvailabilityManagement() {
 
   const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
 
+  // 手動刷新日曆
+  const handleRefresh = () => {
+    refetchRecords();
+    refetchUnavailable();
+    toast.success("日曆已刷新");
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -423,10 +430,24 @@ export default function AvailabilityManagement() {
                   const dayOfWeek = date.getDay();
                   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                   const selectedRoomData = roomTypes.find(r => r.id === selectedRoomTypeId);
-                  // 根據房型的價格欄位名稱（price 是平日價， weekendPrice 是假日價）
-                  const basePrice = isWeekend ? 
-                    (typeof selectedRoomData?.weekendPrice === 'string' ? parseInt(selectedRoomData.weekendPrice) : selectedRoomData?.weekendPrice) :
-                    (typeof selectedRoomData?.price === 'string' ? parseInt(selectedRoomData.price) : selectedRoomData?.price);
+                  
+                  // 獲取基礎價格（假日優先使用假日價格，否則使用平日價格）
+                  let basePrice: number | undefined;
+                  if (isWeekend) {
+                    // 假日：優先使用假日價格，如果沒有則使用平日價格
+                    const weekendPrice = selectedRoomData?.weekendPrice;
+                    if (weekendPrice) {
+                      basePrice = typeof weekendPrice === 'string' ? parseInt(weekendPrice) : weekendPrice;
+                    } else {
+                      // 假日沒有設置假日價格，使用平日價格
+                      const weekdayPrice = selectedRoomData?.price;
+                      basePrice = typeof weekdayPrice === 'string' ? parseInt(weekdayPrice) : weekdayPrice;
+                    }
+                  } else {
+                    // 平日：使用平日價格
+                    const weekdayPrice = selectedRoomData?.price;
+                    basePrice = typeof weekdayPrice === 'string' ? parseInt(weekdayPrice) : weekdayPrice;
+                  }
                   
                   let displayPrice: number | string | null | undefined = basePrice;
                   // 如果有動態價格，使用動態價格

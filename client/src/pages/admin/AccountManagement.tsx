@@ -2,7 +2,9 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Trash2, Edit2, Plus, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,13 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -32,19 +27,18 @@ export default function AccountManagement() {
   const [formData, setFormData] = useState({
     username: "",
     name: "",
-    role: "user" as "user" | "admin",
     password: "",
   });
 
   // Queries
-  const { data: accounts, isLoading, refetch } = trpc.accounts.list.useQuery();
+  const { data: admins = [], isLoading, refetch } = trpc.auth.listAdmins.useQuery();
 
   // Mutations
-  const createMutation = trpc.accounts.create.useMutation({
+  const createMutation = trpc.auth.createAdmin.useMutation({
     onSuccess: () => {
-      toast.success("帳號已新增");
+      toast.success("管理員帳號已新增");
       setIsOpen(false);
-      setFormData({ username: "", name: "", role: "user", password: "" });
+      setFormData({ username: "", name: "", password: "" });
       refetch();
     },
     onError: (error) => {
@@ -52,12 +46,12 @@ export default function AccountManagement() {
     },
   });
 
-  const updateMutation = trpc.accounts.update.useMutation({
+  const updateMutation = trpc.auth.updateAdmin.useMutation({
     onSuccess: () => {
-      toast.success("帳號已更新");
+      toast.success("管理員帳號已更新");
       setIsOpen(false);
       setEditingId(null);
-      setFormData({ username: "", name: "", role: "user", password: "" });
+      setFormData({ username: "", name: "", password: "" });
       refetch();
     },
     onError: (error) => {
@@ -65,9 +59,9 @@ export default function AccountManagement() {
     },
   });
 
-  const deleteMutation = trpc.accounts.delete.useMutation({
+  const deleteMutation = trpc.auth.deleteAdmin.useMutation({
     onSuccess: () => {
-      toast.success("帳號已刪除");
+      toast.success("管理員帳號已刪除");
       refetch();
     },
     onError: (error) => {
@@ -75,28 +69,17 @@ export default function AccountManagement() {
     },
   });
 
-  const toggleStatusMutation = trpc.accounts.toggleStatus.useMutation({
-    onSuccess: (data) => {
-      toast.success(data.status === "active" ? "帳號已啟用" : "帳號已停用");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message || "操作失敗");
-    },
-  });
-
-  const handleOpenDialog = (account?: any) => {
-    if (account) {
-      setEditingId(account.id);
+  const handleOpenDialog = (admin?: any) => {
+    if (admin) {
+      setEditingId(admin.id);
       setFormData({
-        username: account.username || "",
-        name: account.name || "",
-        role: account.role as "user" | "admin",
-        password: "", // 編輯時密碼留空
+        username: admin.username || "",
+        name: admin.name || "",
+        password: "",
       });
     } else {
       setEditingId(null);
-      setFormData({ username: "", name: "", role: "user", password: "" });
+      setFormData({ username: "", name: "", password: "" });
     }
     setIsOpen(true);
   };
@@ -105,7 +88,7 @@ export default function AccountManagement() {
     e.preventDefault();
 
     if (!formData.name) {
-      toast.error("請填寫員工名稱");
+      toast.error("請填寫名稱");
       return;
     }
 
@@ -114,9 +97,7 @@ export default function AccountManagement() {
       const updateData: any = {
         id: editingId,
         name: formData.name,
-        role: formData.role,
       };
-      // 只有當密碼不為空時才更新密碼
       if (formData.password) {
         updateData.password = formData.password;
       }
@@ -134,7 +115,6 @@ export default function AccountManagement() {
       await createMutation.mutateAsync({
         username: formData.username,
         name: formData.name,
-        role: formData.role,
         password: formData.password,
       });
     }
@@ -146,38 +126,36 @@ export default function AccountManagement() {
     }
   };
 
-  const handleToggleStatus = async (id: number, currentStatus: string) => {
-    await toggleStatusMutation.mutateAsync({ id });
-  };
-
-  if (isLoading) {
-    return <div className="text-center py-8">載入中...</div>;
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-foreground">帳戶管理</h2>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">管理員帳號管理</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            管理系統的管理員帳號和權限
+          </p>
+        </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button
               onClick={() => handleOpenDialog()}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              新增帳號
+              <Plus className="w-4 h-4 mr-2" />
+              新增管理員
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>
-                {editingId ? "編輯帳號" : "新增帳號"}
+                {editingId ? "編輯管理員帳號" : "新增管理員帳號"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!editingId && (
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    用戶名
+                    用戶名 <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="text"
@@ -185,14 +163,15 @@ export default function AccountManagement() {
                     onChange={(e) =>
                       setFormData({ ...formData, username: e.target.value })
                     }
-                    placeholder="輸入用戶名"
+                    placeholder="輸入用戶名（至少3個字符）"
                     disabled={editingId !== null}
+                    minLength={3}
                   />
                 </div>
               )}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  員工名稱
+                  名稱 <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="text"
@@ -200,34 +179,12 @@ export default function AccountManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="輸入員工名稱"
+                  placeholder="輸入名稱"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  角色
-                </label>
-                <Select
-                  value={formData.role}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      role: value as "user" | "admin",
-                    })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">員工</SelectItem>
-                    <SelectItem value="admin">管理員</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  {editingId ? "新密碼（留空不修改）" : "密碼"}
+                  {editingId ? "新密碼（留空不修改）" : "密碼"} <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="password"
@@ -235,7 +192,8 @@ export default function AccountManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  placeholder={editingId ? "留空不修改密碼" : "設置密碼"}
+                  placeholder={editingId ? "留空不修改密碼" : "設置密碼（至少6個字符）"}
+                  minLength={editingId ? 0 : 6}
                 />
               </div>
               <div className="flex gap-2 justify-end">
@@ -261,98 +219,85 @@ export default function AccountManagement() {
         </Dialog>
       </div>
 
-      {accounts && accounts.length > 0 ? (
-        <div className="border border-border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted">
-                <TableHead className="text-foreground">用戶名</TableHead>
-                <TableHead className="text-foreground">名稱</TableHead>
-                <TableHead className="text-foreground">角色</TableHead>
-                <TableHead className="text-foreground">最後登入</TableHead>
-                <TableHead className="text-foreground">狀態</TableHead>
-                <TableHead className="text-foreground">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {accounts.map((account) => (
-                <TableRow key={account.id}>
-                  <TableCell className="font-medium text-foreground">
-                    {account.username || "-"}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {account.name || "-"}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        account.role === "admin"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
-                    >
-                      {account.role === "admin" ? "管理員" : "員工"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {account.lastSignedIn
-                      ? new Date(account.lastSignedIn).toLocaleString("zh-TW", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "從未登入"}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        account.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {account.status === "active" ? "啟用" : "停用"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant={account.status === "active" ? "outline" : "default"}
-                        onClick={() => handleToggleStatus(account.id, account.status)}
-                        disabled={toggleStatusMutation.isPending}
-                      >
-                        {account.status === "active" ? "停用" : "啟用"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleOpenDialog(account)}
-                      >
-                        編輯
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(account.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        刪除
-                      </Button>
-                    </div>
-                  </TableCell>
+      <Card className="p-6 bg-card border-border">
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+        ) : admins && admins.length > 0 ? (
+          <div className="border border-border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted">
+                  <TableHead className="text-foreground">用戶名</TableHead>
+                  <TableHead className="text-foreground">名稱</TableHead>
+                  <TableHead className="text-foreground">狀態</TableHead>
+                  <TableHead className="text-foreground">最後登入</TableHead>
+                  <TableHead className="text-foreground">操作</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ) : (
-        <div className="text-center py-8 text-muted-foreground">
-          還沒有帳號。點擊「新增帳號」按鈕來新增第一個帳號。
-        </div>
-      )}
+              </TableHeader>
+              <TableBody>
+                {admins.map((admin: any) => (
+                  <TableRow key={admin.id}>
+                    <TableCell className="font-medium text-foreground">
+                      {admin.username || "-"}
+                    </TableCell>
+                    <TableCell className="text-foreground">
+                      {admin.name || "-"}
+                    </TableCell>
+                    <TableCell className="text-foreground">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          admin.status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {admin.status === "active" ? "啟用" : "停用"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-foreground">
+                      {admin.lastSignedIn
+                        ? new Date(admin.lastSignedIn).toLocaleString("zh-TW", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "從未登入"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleOpenDialog(admin)}
+                          disabled={updateMutation.isPending}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDelete(admin.id)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            還沒有管理員帳號。點擊「新增管理員」按鈕來新增第一個帳號。
+          </div>
+        )}
+      </Card>
     </div>
   );
 }
