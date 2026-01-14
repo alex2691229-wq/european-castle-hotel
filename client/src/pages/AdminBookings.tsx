@@ -381,8 +381,12 @@ export default function AdminBookings() {
                     </div>
                   </div>
 
-                  {/* 展開的詳細內容 */}
-                  {isExpanded && (
+                  {/* 展開的詳細內容 - 帶動畫效果 */}
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      isExpanded ? "max-h-[2000px]" : "max-h-0"
+                    }`}
+                  >
                     <div className="border-t border-gray-200 p-6 space-y-6">
                       {/* 客戶信息 */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -580,7 +584,7 @@ export default function AdminBookings() {
                         )}
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })
