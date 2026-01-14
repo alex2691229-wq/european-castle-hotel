@@ -236,8 +236,26 @@ export async function createBooking(data: InsertBooking): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(bookings).values(data);
-  return Number(result[0].insertId);
+  try {
+    const result = await db.insert(bookings).values(data);
+    
+    // Drizzle ORM 返回的是插入的行數，我們需要查詢新插入的記錄
+    // 使用最新的訂房記錄
+    const newBooking = await db
+      .select()
+      .from(bookings)
+      .orderBy(desc(bookings.id))
+      .limit(1);
+    
+    if (newBooking.length === 0) {
+      throw new Error("Failed to retrieve created booking");
+    }
+    
+    return newBooking[0].id;
+  } catch (error) {
+    console.error("Error creating booking:", error);
+    throw error;
+  }
 }
 
 export async function getBookingById(id: number): Promise<Booking | undefined> {
