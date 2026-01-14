@@ -1,0 +1,19 @@
+{
+  "query": "SELECT COUNT(*) as total_bookings FROM bookings; SELECT COUNT(*) as total_messages FROM contact_messages;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT COUNT(*) as total_bookings FROM bookings; SELECT COUNT(*) as total_messages FROM contact_messages;",
+  "rows": [
+    {
+      "total_bookings": "0"
+    },
+    {
+      "total_bookings": "total_messages"
+    },
+    {
+      "total_bookings": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_bookings\n0\ntotal_messages\n0\n",
+  "stderr": "",
+  "execution_time_ms": 1731
+}
