@@ -4,8 +4,8 @@ describe('Simplified Booking Flow', () => {
   // 狀態轉換流程
   const statusFlow = {
     pending: "confirmed",
-    confirmed: "paid_pending",
-    paid_pending: "paid",
+    confirmed: "pending_payment",
+    pending_payment: "paid",
     paid: "completed",
   };
 
@@ -13,7 +13,7 @@ describe('Simplified Booking Flow', () => {
   const buttonLabels = {
     pending: "✓ 確認訂房",
     confirmed: "✓ 確認訂房",
-    paid_pending: "🎉 完成訂房",
+    pending_payment: "🎉 完成訂房",
     paid: "✓ 標記入住",
   };
 
@@ -21,7 +21,7 @@ describe('Simplified Booking Flow', () => {
   const buttonColors = {
     pending: "bg-blue-600 hover:bg-blue-700",
     confirmed: "bg-blue-600 hover:bg-blue-700",
-    paid_pending: "bg-green-600 hover:bg-green-700",
+    pending_payment: "bg-green-600 hover:bg-green-700",
     paid: "bg-purple-600 hover:bg-purple-700",
   };
 
@@ -32,14 +32,14 @@ describe('Simplified Booking Flow', () => {
       expect(nextStatus).toBe("confirmed");
     });
 
-    it('should transition from confirmed to paid_pending', () => {
+    it('should transition from confirmed to pending_payment', () => {
       const currentStatus = "confirmed";
       const nextStatus = statusFlow[currentStatus as keyof typeof statusFlow];
-      expect(nextStatus).toBe("paid_pending");
+      expect(nextStatus).toBe("pending_payment");
     });
 
-    it('should transition from paid_pending to paid', () => {
-      const currentStatus = "paid_pending";
+    it('should transition from pending_payment to paid', () => {
+      const currentStatus = "pending_payment";
       const nextStatus = statusFlow[currentStatus as keyof typeof statusFlow];
       expect(nextStatus).toBe("paid");
     });
@@ -63,8 +63,8 @@ describe('Simplified Booking Flow', () => {
       expect(label).not.toContain("標記已匯款");
     });
 
-    it('should show "完成訂房" button for paid_pending status', () => {
-      const label = buttonLabels["paid_pending" as keyof typeof buttonLabels];
+    it('should show "完成訂房" button for pending_payment status', () => {
+      const label = buttonLabels["pending_payment" as keyof typeof buttonLabels];
       expect(label).toBe("🎉 完成訂房");
     });
 
@@ -85,8 +85,8 @@ describe('Simplified Booking Flow', () => {
       expect(color).toContain("bg-blue-600");
     });
 
-    it('should use green color for paid_pending status', () => {
-      const color = buttonColors["paid_pending" as keyof typeof buttonColors];
+    it('should use green color for pending_payment status', () => {
+      const color = buttonColors["pending_payment" as keyof typeof buttonColors];
       expect(color).toContain("bg-green-600");
     });
 
@@ -97,21 +97,21 @@ describe('Simplified Booking Flow', () => {
   });
 
   describe('Last 5 Digits Validation', () => {
-    it('should require last 5 digits before completing paid_pending status', () => {
-      const status = "paid_pending";
+    it('should require last 5 digits before completing pending_payment status', () => {
+      const status = "pending_payment";
       const lastFiveDigits = "";
       
-      // 已匯款狀態沒有填寫後五碼，應該禁用按鈕
-      const isDisabled = status === "paid_pending" && !lastFiveDigits;
+      // 待付款狀態沒有填寫後五碼，應該禁用按鈕
+      const isDisabled = status === "pending_payment" && !lastFiveDigits;
       expect(isDisabled).toBe(true);
     });
 
     it('should enable button when last 5 digits are provided', () => {
-      const status = "paid_pending";
+      const status = "pending_payment";
       const lastFiveDigits = "12345";
       
-      // 已匯款狀態已填寫後五碼，應該啟用按鈕
-      const isDisabled = status === "paid_pending" && !lastFiveDigits;
+      // 待付款狀態已填寫後五碼，應該啟用按鈕
+      const isDisabled = status === "pending_payment" && !lastFiveDigits;
       expect(isDisabled).toBe(false);
     });
 
@@ -130,7 +130,7 @@ describe('Simplified Booking Flow', () => {
   });
 
   describe('Complete Booking Flow', () => {
-    it('should complete full booking flow: pending -> confirmed -> paid_pending -> paid -> completed', () => {
+    it('should complete full booking flow: pending -> confirmed -> pending_payment -> paid -> completed', () => {
       let currentStatus = "pending";
       
       // Step 1: pending -> confirmed
@@ -138,9 +138,9 @@ describe('Simplified Booking Flow', () => {
       expect(currentStatus).toBe("confirmed");
       expect(buttonLabels[currentStatus as keyof typeof buttonLabels]).toBe("✓ 確認訂房");
       
-      // Step 2: confirmed -> paid_pending (auto transition)
+      // Step 2: confirmed -> pending_payment (auto transition)
       currentStatus = statusFlow[currentStatus as keyof typeof statusFlow];
-      expect(currentStatus).toBe("paid_pending");
+      expect(currentStatus).toBe("pending_payment");
       expect(buttonLabels[currentStatus as keyof typeof buttonLabels]).toBe("🎉 完成訂房");
       
       // Step 3: Fill last 5 digits and transition to paid
@@ -155,21 +155,21 @@ describe('Simplified Booking Flow', () => {
       expect(currentStatus).toBe("completed");
     });
 
-    it('should prevent transition from paid_pending without last 5 digits', () => {
-      const status = "paid_pending";
+    it('should prevent transition from pending_payment without last 5 digits', () => {
+      const status = "pending_payment";
       const lastFiveDigits = "";
       
       // 沒有填寫後五碼，不應該允許轉換
-      const canTransition = !(status === "paid_pending" && !lastFiveDigits);
+      const canTransition = !(status === "pending_payment" && !lastFiveDigits);
       expect(canTransition).toBe(false);
     });
 
-    it('should allow transition from paid_pending with last 5 digits', () => {
-      const status = "paid_pending";
+    it('should allow transition from pending_payment with last 5 digits', () => {
+      const status = "pending_payment";
       const lastFiveDigits = "12345";
       
       // 已填寫後五碼，應該允許轉換
-      const canTransition = !(status === "paid_pending" && !lastFiveDigits);
+      const canTransition = !(status === "pending_payment" && !lastFiveDigits);
       expect(canTransition).toBe(true);
     });
   });
@@ -181,10 +181,10 @@ describe('Simplified Booking Flow', () => {
       expect(confirmedLabel).toBe("✓ 確認訂房");
     });
 
-    it('should skip directly from confirmed to paid_pending', () => {
+    it('should skip directly from confirmed to pending_payment', () => {
       const confirmedNextStatus = statusFlow["confirmed" as keyof typeof statusFlow];
-      expect(confirmedNextStatus).toBe("paid_pending");
-      expect(confirmedNextStatus).not.toBe("paid_pending");  // Should be paid_pending, not something else
+      expect(confirmedNextStatus).toBe("pending_payment");
+      expect(confirmedNextStatus).not.toBe("paid_pending");  // Should be pending_payment, not something else
     });
 
     it('should have only 4 status transitions in the flow', () => {
@@ -192,24 +192,24 @@ describe('Simplified Booking Flow', () => {
       expect(transitions).toHaveLength(4);
       expect(transitions).toContain("pending");
       expect(transitions).toContain("confirmed");
-      expect(transitions).toContain("paid_pending");
+      expect(transitions).toContain("pending_payment");
       expect(transitions).toContain("paid");
     });
   });
 
   describe('Button Disabled State', () => {
-    it('should disable button when paid_pending status without last 5 digits', () => {
-      const status = "paid_pending";
+    it('should disable button when pending_payment status without last 5 digits', () => {
+      const status = "pending_payment";
       const lastFiveDigits = "";
-      const isDisabled = status === "paid_pending" && !lastFiveDigits;
+      const isDisabled = status === "pending_payment" && !lastFiveDigits;
       
       expect(isDisabled).toBe(true);
     });
 
-    it('should enable button when paid_pending status with last 5 digits', () => {
-      const status = "paid_pending";
+    it('should enable button when pending_payment status with last 5 digits', () => {
+      const status = "pending_payment";
       const lastFiveDigits = "12345";
-      const isDisabled = status === "paid_pending" && !lastFiveDigits;
+      const isDisabled = status === "pending_payment" && !lastFiveDigits;
       
       expect(isDisabled).toBe(false);
     });
@@ -218,7 +218,7 @@ describe('Simplified Booking Flow', () => {
       const statuses = ["pending", "confirmed", "paid"];
       
       statuses.forEach(status => {
-        const isDisabled = status === "paid_pending" && !("12345");
+        const isDisabled = status === "pending_payment" && !("12345");
         expect(isDisabled).toBe(false);
       });
     });

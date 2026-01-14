@@ -401,7 +401,7 @@ export const appRouter = router({
     updateStatus: adminProcedure
       .input(z.object({
         id: z.number(),
-        status: z.enum(["pending", "confirmed", "paid_pending", "paid", "completed", "cancelled"]),
+        status: z.enum(["pending", "confirmed", "pending_payment", "paid", "completed", "cancelled"]),
         bankName: z.string().optional(),
         accountNumber: z.string().optional(),
         accountName: z.string().optional(),
@@ -435,7 +435,7 @@ export const appRouter = router({
               emailSubject = `訂房已確認 - 歐堡商務汽車旅館 (訂房編號: #${booking.id})`;
               break;
               
-            case 'paid_pending':
+            case 'pending_payment':
               emailHtml = generatePaymentInstructionEmail(
                 booking.guestName,
                 booking.id,
@@ -483,7 +483,7 @@ export const appRouter = router({
         // Notify owner about status change
         const statusLabels: Record<string, string> = {
           confirmed: '已確認',
-          paid_pending: '已匯款',
+          pending_payment: '待付款',
           paid: '已付款',
           completed: '已完成',
           cancelled: '已取消',
@@ -593,7 +593,7 @@ export const appRouter = router({
         const byStatus = {
           pending: filteredBookings.filter(b => b.status === 'pending'),
           confirmed: filteredBookings.filter(b => b.status === 'confirmed'),
-          paid_pending: filteredBookings.filter(b => b.status === 'paid_pending'),
+          pending_payment: filteredBookings.filter(b => b.status === 'pending_payment'),
           paid: filteredBookings.filter(b => b.status === 'paid'),
           completed: filteredBookings.filter(b => b.status === 'completed'),
           cancelled: filteredBookings.filter(b => b.status === 'cancelled'),
@@ -605,12 +605,12 @@ export const appRouter = router({
           totalAmount: filteredBookings.reduce((sum, b) => sum + parseFloat(b.totalPrice || '0'), 0),
           pending: byStatus.pending.length,
           confirmed: byStatus.confirmed.length,
-          paid_pending: byStatus.paid_pending.length,
+          pending_payment: byStatus.pending_payment.length,
           paid: byStatus.paid.length,
           completed: byStatus.completed.length,
           cancelled: byStatus.cancelled.length,
           paidAmount: byStatus.paid.reduce((sum, b) => sum + parseFloat(b.totalPrice || '0'), 0),
-          unpaidAmount: [...byStatus.pending, ...byStatus.confirmed, ...byStatus.paid_pending]
+          unpaidAmount: [...byStatus.pending, ...byStatus.confirmed, ...byStatus.pending_payment]
             .reduce((sum, b) => sum + parseFloat(b.totalPrice || '0'), 0),
         };
 

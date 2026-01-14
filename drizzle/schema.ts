@@ -61,7 +61,7 @@ export const bookings = mysqlTable("bookings", {
   numberOfGuests: int("numberOfGuests").notNull().default(2),
   totalPrice: decimal("totalPrice", { precision: 10, scale: 2 }).notNull(),
   specialRequests: text("specialRequests"),
-  status: mysqlEnum("status", ["pending", "confirmed", "paid_pending", "paid", "completed", "cancelled"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "confirmed", "pending_payment", "paid", "completed", "cancelled"]).default("pending").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

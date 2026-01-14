@@ -77,9 +77,9 @@ export async function handleEmailReply(payload: EmailReplyPayload): Promise<bool
       return false;
     }
 
-    // 檢查訂單狀態是否為「已匯款」
-    if (booking.status !== "paid_pending") {
-      console.error(`Booking ${payload.bookingId} is not in paid_pending status`);
+    // 検查訂升狀態是否為「待付款」
+    if (booking.status !== "pending_payment") {
+      console.error(`Booking ${payload.bookingId} is not in pending_payment status`);
       return false;
     }
 

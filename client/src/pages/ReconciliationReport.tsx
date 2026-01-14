@@ -152,8 +152,8 @@ export function ReconciliationReport() {
               <p className="text-sm text-gray-600">已確認</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-purple-600">{report.stats.paid_pending}</p>
-              <p className="text-sm text-gray-600">已匯款</p>
+              <p className="text-2xl font-bold text-purple-600">{report.stats.pending_payment}</p>
+              <p className="text-sm text-gray-600">待付款</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-green-600">{report.stats.paid}</p>

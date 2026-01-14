@@ -4,20 +4,20 @@ import { useAuth } from "../_core/hooks/useAuth";
 import { format } from "date-fns";
 import { zhTW } from "date-fns/locale";
 
-interface BookingWithRoom {
-  id: number;
-  guestName: string;
-  guestEmail: string | null;
-  guestPhone: string;
-  checkInDate: Date;
-  checkOutDate: Date;
-  numberOfGuests: number;
-  totalPrice: number | string;
-  specialRequests: string | null;
-  status: "pending" | "confirmed" | "paid_pending" | "paid" | "completed" | "cancelled";
-  roomTypeName: string;
-  createdAt: Date;
-}
+  interface BookingWithRoom {
+    id: number;
+    guestName: string;
+    guestEmail: string | null;
+    guestPhone: string;
+    checkInDate: Date;
+    checkOutDate: Date;
+    numberOfGuests: number;
+    totalPrice: number | string;
+    specialRequests: string | null;
+    status: "pending" | "confirmed" | "pending_payment" | "paid" | "completed" | "cancelled";
+    roomTypeName: string;
+    createdAt: Date;
+  }
 
 interface PaymentInfo {
   bookingId: number;
@@ -93,7 +93,7 @@ export default function AdminBookings() {
         numberOfGuests: 2,
         totalPrice: 3560,
         specialRequests: null,
-        status: "paid_pending",
+        status: "pending_payment",
         roomTypeName: "標準雙床房",
         createdAt: new Date("2026-01-10"),
       },
@@ -183,8 +183,8 @@ export default function AdminBookings() {
   const getNextStatus = (currentStatus: string): string | null => {
     const statusFlow: Record<string, string> = {
       pending: "confirmed",
-      confirmed: "paid_pending",
-      paid_pending: "paid",
+      confirmed: "pending_payment",  // 已確認自動進入待付款
+      pending_payment: "paid",       // 填寫後五碼後才能進入已付款
       paid: "completed",
     };
     return statusFlow[currentStatus] || null;
@@ -193,8 +193,8 @@ export default function AdminBookings() {
   const getButtonLabel = (currentStatus: string): string => {
     const labels: Record<string, string> = {
       pending: "✓ 確認訂房",
-      confirmed: "✓ 確認訂房",  // 已確認狀態也顯示確認按鈕，點擊後自動進入已匯款
-      paid_pending: "🎉 完成訂房",  // 已匯款狀態，填寫後五碼後點擊完成訂房
+      confirmed: "✓ 確認訂房",  // 已確認狀態也顯示確認按鈕，點擊後自動進入待付款
+      pending_payment: "🎉 完成訂房",  // 待付款狀態，填寫後五碼後點擊完成訂房
       paid: "✓ 標記入住",
     };
     return labels[currentStatus] || "➜ 下一步";
@@ -203,8 +203,8 @@ export default function AdminBookings() {
   const getButtonColor = (currentStatus: string): string => {
     const colors: Record<string, string> = {
       pending: "bg-blue-600 hover:bg-blue-700",
-      confirmed: "bg-blue-600 hover:bg-blue-700",  // 已確認也用藍色
-      paid_pending: "bg-green-600 hover:bg-green-700",
+      confirmed: "bg-blue-600 hover:bg-blue-700",
+      pending_payment: "bg-green-600 hover:bg-green-700",
       paid: "bg-purple-600 hover:bg-purple-700",
     };
     return colors[currentStatus] || "bg-gray-600 hover:bg-gray-700";
@@ -212,12 +212,12 @@ export default function AdminBookings() {
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { text: string; color: string }> = {
-      pending: { text: "⏳ 待確認", color: "bg-yellow-100 text-yellow-800" },
+      pending: { text: "⛳ 待確認", color: "bg-yellow-100 text-yellow-800" },
       confirmed: { text: "✓ 已確認", color: "bg-blue-100 text-blue-800" },
-      paid_pending: { text: "💳 已匯款", color: "bg-orange-100 text-orange-800" },
+      pending_payment: { text: "💳 待付款", color: "bg-orange-100 text-orange-800" },
       paid: { text: "✅ 已付款", color: "bg-green-100 text-green-800" },
       completed: { text: "🎉 已完成", color: "bg-purple-100 text-purple-800" },
-      cancelled: { text: "✕ 已取消", color: "bg-red-100 text-red-800" },
+      cancelled: { text: "✗ 已取消", color: "bg-red-100 text-red-800" },
     };
     const badge = badges[status] || { text: "未知", color: "bg-gray-100 text-gray-800" };
     return <span className={`px-3 py-1 rounded-full text-sm font-medium ${badge.color}`}>{badge.text}</span>;
@@ -376,7 +376,7 @@ export default function AdminBookings() {
                     )}
 
                     {/* 後五碼填寫區 */}
-                    {booking.status === "paid_pending" && (
+                    {booking.status === "pending_payment" && (
                       <div className="mb-6 p-4 bg-orange-900 border border-orange-700 rounded-lg">
                         <h4 className="text-lg font-bold mb-4 text-orange-300">💳 填寫後五碼確認付款</h4>
                         <div className="flex gap-3">
@@ -418,11 +418,11 @@ export default function AdminBookings() {
                     <div className="border-t border-gray-700 pt-6 flex flex-wrap gap-3">
                       {booking.status !== "completed" && booking.status !== "cancelled" && (
                         <>
-                          {(booking.status === "pending" || booking.status === "confirmed" || booking.status === "paid_pending" || booking.status === "paid") && (
+                          {(booking.status === "pending" || booking.status === "confirmed" || booking.status === "pending_payment" || booking.status === "paid") && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (booking.status === "paid_pending" && !lastFiveDigits[booking.id]) {
+                                if (booking.status === "pending_payment" && !lastFiveDigits[booking.id]) {
                                   setLastFiveDigitsError({
                                     ...lastFiveDigitsError,
                                     [booking.id]: "請先填寫後五碼",
@@ -431,8 +431,8 @@ export default function AdminBookings() {
                                 }
                                 handleStatusChange(booking.id, getNextStatus(booking.status)!);
                               }}
-                              disabled={booking.status === "paid_pending" && !lastFiveDigits[booking.id]}
-                              className={`px-4 py-2 text-white rounded-lg transition font-medium ${getButtonColor(booking.status)} ${booking.status === "paid_pending" && !lastFiveDigits[booking.id] ? "opacity-50 cursor-not-allowed" : ""}`}
+                              disabled={booking.status === "pending_payment" && !lastFiveDigits[booking.id]}
+                              className={`px-4 py-2 text-white rounded-lg transition font-medium ${getButtonColor(booking.status)} ${booking.status === "pending_payment" && !lastFiveDigits[booking.id] ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                               {getButtonLabel(booking.status)}
                             </button>
