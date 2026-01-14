@@ -18,6 +18,9 @@ export default function BookingManagement() {
   const { data: bookings, isLoading } = trpc.bookings.list.useQuery();
   const utils = trpc.useUtils();
   const [, setLocation] = useLocation();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [quickFilter, setQuickFilter] = useState<'all' | 'pending' | 'confirmed' | 'urgent'>('all');
+  const itemsPerPage = 10;
   
   // 快速操作 mutations
   const deleteBookingMutation = trpc.bookings.deleteBooking.useMutation({
@@ -63,6 +66,27 @@ export default function BookingManagement() {
   const [dateFilter, setDateFilter] = useState("all");
   const [roomTypeFilter, setRoomTypeFilter] = useState("all");
   
+  // 處理快速篩選按鈕點擊
+  const handleQuickFilter = (filter: 'all' | 'pending' | 'confirmed' | 'urgent') => {
+    setQuickFilter(filter);
+    setCurrentPage(1);
+    setSearchQuery('');
+    setDateFilter('all');
+    setRoomTypeFilter('all');
+    
+    // 更新狀態篩選
+    if (filter === 'all') {
+      setStatusFilter('all');
+    } else if (filter === 'pending') {
+      setStatusFilter('pending');
+    } else if (filter === 'confirmed') {
+      setStatusFilter('confirmed');
+    } else if (filter === 'urgent') {
+      setStatusFilter('all');
+      setDateFilter('urgent');
+    }
+  };
+  
   // 獲取房型列表用於篩選
   const { data: roomTypes } = trpc.roomTypes.list.useQuery();
 
@@ -99,7 +123,7 @@ export default function BookingManagement() {
 
   // 篩選和搜尋
   const filteredBookings = useMemo(() => {
-    return processedBookings.filter((booking: any) => {
+    let filtered = processedBookings.filter((booking: any) => {
       // 搜尋過濾 - 添加 null 檢查
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch =
@@ -124,7 +148,14 @@ export default function BookingManagement() {
 
       return true;
     });
+    return filtered;
   }, [processedBookings, searchQuery, statusFilter, dateFilter, roomTypeFilter]);
+  
+  // 計算分頁
+  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
 
   // 統計數據
   const stats = useMemo(() => {
@@ -183,6 +214,54 @@ export default function BookingManagement() {
 
   return (
     <div className="space-y-6">
+      {/* 快速篩選按鈕 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button
+          onClick={() => handleQuickFilter('all')}
+          className={`p-4 rounded-lg border-2 transition-all ${
+            quickFilter === 'all'
+              ? 'bg-blue-900 border-blue-500 text-white'
+              : 'bg-card border-border hover:border-blue-500'
+          }`}
+        >
+          <p className="text-sm text-muted-foreground">全部訂單</p>
+          <p className="text-2xl font-bold text-blue-400">{stats.total}</p>
+        </button>
+        <button
+          onClick={() => handleQuickFilter('pending')}
+          className={`p-4 rounded-lg border-2 transition-all ${
+            quickFilter === 'pending'
+              ? 'bg-yellow-900 border-yellow-500 text-white'
+              : 'bg-card border-border hover:border-yellow-500'
+          }`}
+        >
+          <p className="text-sm text-muted-foreground">待確認</p>
+          <p className="text-2xl font-bold text-yellow-400">{stats.pending}</p>
+        </button>
+        <button
+          onClick={() => handleQuickFilter('confirmed')}
+          className={`p-4 rounded-lg border-2 transition-all ${
+            quickFilter === 'confirmed'
+              ? 'bg-green-900 border-green-500 text-white'
+              : 'bg-card border-border hover:border-green-500'
+          }`}
+        >
+          <p className="text-sm text-muted-foreground">已確認</p>
+          <p className="text-2xl font-bold text-green-400">{stats.confirmed}</p>
+        </button>
+        <button
+          onClick={() => handleQuickFilter('urgent')}
+          className={`p-4 rounded-lg border-2 transition-all ${
+            quickFilter === 'urgent'
+              ? 'bg-red-900 border-red-500 text-white'
+              : 'bg-card border-border hover:border-red-500'
+          }`}
+        >
+          <p className="text-sm text-muted-foreground">緊急訂單</p>
+          <p className="text-2xl font-bold text-red-400">{stats.urgent}</p>
+        </button>
+      </div>
+      
       {/* 統計卡片 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="p-4 bg-card border-border">
@@ -264,9 +343,9 @@ export default function BookingManagement() {
           <div className="flex justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
-        ) : filteredBookings.length > 0 ? (
+        ) : paginatedBookings.length > 0 ? (
           <div className="space-y-3">
-            {filteredBookings.map((booking: any) => {
+            {paginatedBookings.map((booking: any) => {
               const statusBadge = getStatusBadge(
                 booking.status,
                 booking.isUrgent
@@ -458,6 +537,50 @@ export default function BookingManagement() {
               ? "沒有符合條件的訂單"
               : "尚無訂單資料"}
           </p>
+        )}
+        
+        {/* 分頁控制 */}
+        {filteredBookings.length > itemsPerPage && (
+          <div className="flex justify-center items-center gap-2 mt-6 pt-4 border-t border-border">
+            <Button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              variant="outline"
+              className="border-border text-foreground hover:bg-accent"
+            >
+              ← 上一頁
+            </Button>
+            
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const pageNum = i + 1;
+              return (
+                <Button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  variant={currentPage === pageNum ? 'default' : 'outline'}
+                  className={currentPage === pageNum ? 'bg-primary text-primary-foreground' : 'border-border text-foreground hover:bg-accent'}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+            
+            <Button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              variant="outline"
+              className="border-border text-foreground hover:bg-accent"
+            >
+              下一頁 →
+            </Button>
+          </div>
+        )}
+        
+        {/* 分頁信息 */}
+        {filteredBookings.length > 0 && (
+          <div className="text-center mt-4 text-sm text-muted-foreground">
+            第 {currentPage} 頁，共 {totalPages} 頁 | 顯示 {paginatedBookings.length} / {filteredBookings.length} 筆訂單
+          </div>
         )}
       </Card>
     </div>
