@@ -19,7 +19,7 @@ export default function BookingManagement() {
   const utils = trpc.useUtils();
   const [, setLocation] = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
-  const [quickFilter, setQuickFilter] = useState<'all' | 'pending' | 'confirmed' | 'urgent'>('all');
+  const [quickFilter, setQuickFilter] = useState<'all' | 'pending' | 'confirmed' | 'pending_payment' | 'today_checkin'>('all');
   const itemsPerPage = 10;
   
   // 快速操作 mutations
@@ -67,7 +67,7 @@ export default function BookingManagement() {
   const [roomTypeFilter, setRoomTypeFilter] = useState("all");
   
   // 處理快速篩選按鈕點擊
-  const handleQuickFilter = (filter: 'all' | 'pending' | 'confirmed' | 'urgent') => {
+  const handleQuickFilter = (filter: 'all' | 'pending' | 'confirmed' | 'pending_payment' | 'today_checkin') => {
     setQuickFilter(filter);
     setCurrentPage(1);
     setSearchQuery('');
@@ -81,7 +81,9 @@ export default function BookingManagement() {
       setStatusFilter('pending');
     } else if (filter === 'confirmed') {
       setStatusFilter('confirmed');
-    } else if (filter === 'urgent') {
+    } else if (filter === 'pending_payment') {
+      setStatusFilter('pending_payment');
+    } else if (filter === 'today_checkin') {
       setStatusFilter('all');
       setDateFilter('urgent');
     }
@@ -250,15 +252,26 @@ export default function BookingManagement() {
           <p className="text-2xl font-bold text-green-400">{stats.confirmed}</p>
         </button>
         <button
-          onClick={() => handleQuickFilter('urgent')}
+          onClick={() => handleQuickFilter('pending_payment')}
           className={`p-4 rounded-lg border-2 transition-all ${
-            quickFilter === 'urgent'
-              ? 'bg-red-900 border-red-500 text-white'
-              : 'bg-card border-border hover:border-red-500'
+            quickFilter === 'pending_payment'
+              ? 'bg-orange-900 border-orange-500 text-white'
+              : 'bg-card border-border hover:border-orange-500'
           }`}
         >
-          <p className="text-sm text-muted-foreground">緊急訂單</p>
-          <p className="text-2xl font-bold text-red-400">{stats.urgent}</p>
+          <p className="text-sm text-muted-foreground">待付款</p>
+          <p className="text-2xl font-bold text-orange-400">{processedBookings.filter((b: any) => b.status === 'pending_payment').length}</p>
+        </button>
+        <button
+          onClick={() => handleQuickFilter('today_checkin')}
+          className={`p-4 rounded-lg border-2 transition-all ${
+            quickFilter === 'today_checkin'
+              ? 'bg-purple-900 border-purple-500 text-white'
+              : 'bg-card border-border hover:border-purple-500'
+          }`}
+        >
+          <p className="text-sm text-muted-foreground">當日入住</p>
+          <p className="text-2xl font-bold text-purple-400">{processedBookings.filter((b: any) => b.daysUntilCheckIn === 0).length}</p>
         </button>
       </div>
       
