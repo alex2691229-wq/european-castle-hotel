@@ -236,6 +236,30 @@ export default function AdminBookings() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-8">訂單管理 - 防呆流程</h1>
 
+        {/* 快速篩選按鈕 */}
+        <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { key: "all", label: "總訂單數", color: "bg-gray-700", count: statusCounts.all },
+            { key: "pending", label: "待確認", color: "bg-yellow-600", count: statusCounts.pending },
+            { key: "confirmed", label: "已確認", color: "bg-blue-600", count: statusCounts.confirmed },
+            { key: "check_in_today", label: "當日入住名單", color: "bg-red-600", count: statusCounts.check_in_today },
+          ].map((s) => (
+            <button
+              key={s.key}
+              onClick={() => {
+                setFilter(s.key as any);
+                setCurrentPage(1);
+              }}
+              className={`p-6 rounded-lg transition font-bold text-center text-lg ${
+                filter === s.key ? "ring-4 ring-yellow-400 " + s.color : s.color + " hover:opacity-80"
+              }`}
+            >
+              <div className="text-5xl font-bold mb-2">{s.count}</div>
+              <div className="text-base">{s.label}</div>
+            </button>
+          ))}
+        </div>
+
         {/* 狀態統計框 */}
         <div className="mb-8 grid grid-cols-2 md:grid-cols-8 gap-4">
           {[
