@@ -129,77 +129,55 @@ export default function AdminBookings() {
   }, [user]);
 
   const handleStatusChange = async (bookingId: number, newStatus: string) => {
-    const booking = bookings.find(b => b.id === bookingId);
-    if (!booking) return;
-
-    const statusMessages: Record<string, string> = {
-      confirmed: "✓ 訂房已確認，確認郵件已發送給客戶",
-      paid_pending: "💳 已標記為已匯款，等待款項確認",
-      paid: "✅ 已確認付款，訂房完成確認",
-      completed: "🎉 訂房已完成",
-    };
-
-    setBookings(bookings.map(b =>
-      b.id === bookingId ? { ...b, status: newStatus as any } : b
-    ));
-    alert(statusMessages[newStatus] || "訂房狀態已更新");
-  };
-
-  const handleAddPayment = (bookingId: number) => {
-    setPaymentForm({ bookingId, paymentMethod: "bank_transfer", paymentStatus: "pending", amount: 0 });
-    setShowPaymentModal(true);
-  };
-
-  const handleCancelBooking = (bookingId: number) => {
-    setBookings(bookings.map(b =>
-      b.id === bookingId ? { ...b, status: "cancelled" } : b
-    ));
-    alert("訂房已取消，取消通知已發送給客戶");
+    setBookings(
+      bookings.map((b) =>
+        b.id === bookingId ? { ...b, status: newStatus as any } : b
+      )
+    );
   };
 
   const handleConfirmPayment = (bookingId: number) => {
     const lastFive = lastFiveDigits[bookingId];
-    if (!lastFive || lastFive.length !== 5) {
-      setLastFiveDigitsError({ ...lastFiveDigitsError, [bookingId]: "請填寫有效的後五碼" });
+    if (!lastFive || lastFive.length !== 5 || !/^\d{5}$/.test(lastFive)) {
+      setLastFiveDigitsError({
+        ...lastFiveDigitsError,
+        [bookingId]: "請填寫有效的後五碼（5 個數字）",
+      });
       return;
     }
 
-    const payment = payments[bookingId];
-    if (payment) {
-      setPayments({
-        ...payments,
-        [bookingId]: {
-          ...payment,
-          lastFiveDigits: lastFive,
-          paymentStatus: "received",
-          confirmedAt: new Date(),
-        },
-      });
-    }
+    setPayments({
+      ...payments,
+      [bookingId]: {
+        ...payments[bookingId],
+        lastFiveDigits: lastFive,
+        confirmedAt: new Date(),
+      },
+    });
 
-    alert("✅ 付款已確認，訂房狀態已更新為已付款");
     handleStatusChange(bookingId, "paid");
     setLastFiveDigits({ ...lastFiveDigits, [bookingId]: "" });
+    setLastFiveDigitsError({ ...lastFiveDigitsError, [bookingId]: "" });
   };
 
-  const handleSavePayment = async () => {
-    if (!paymentForm.bookingId) return;
+  const handleCancelBooking = (bookingId: number) => {
+    handleStatusChange(bookingId, "cancelled");
+  };
 
-    const newPayment: PaymentInfo = {
-      bookingId: paymentForm.bookingId,
-      paymentMethod: (paymentForm.paymentMethod || "bank_transfer") as any,
-      paymentStatus: "pending",
-      amount: paymentForm.amount || 0,
-      bankName: paymentForm.bankName,
-      accountNumber: paymentForm.accountNumber,
-      accountName: paymentForm.accountName,
-      notes: paymentForm.notes,
-    };
+  const handleAddPayment = (bookingId: number) => {
+    setPaymentForm({ bookingId });
+    setShowPaymentModal(true);
+  };
 
-    setPayments({ ...payments, [paymentForm.bookingId]: newPayment });
-    setShowPaymentModal(false);
-    setPaymentForm({});
-    alert("付款詳情已保存");
+  const handleSavePayment = () => {
+    if (paymentForm.bookingId) {
+      setPayments({
+        ...payments,
+        [paymentForm.bookingId]: paymentForm as PaymentInfo,
+      });
+      setShowPaymentModal(false);
+      setPaymentForm({});
+    }
   };
 
   const getNextStatus = (currentStatus: string): string | null => {
@@ -215,9 +193,9 @@ export default function AdminBookings() {
   const getButtonLabel = (currentStatus: string): string => {
     const labels: Record<string, string> = {
       pending: "✓ 確認訂房",
-      confirmed: "💳 標記已匯款",
-      paid_pending: "✓ 確認付款",
-      paid: "🎉 完成訂房",
+      confirmed: "✓ 確認訂房",  // 已確認狀態也顯示確認按鈕，點擊後自動進入已匯款
+      paid_pending: "🎉 完成訂房",  // 已匯款狀態，填寫後五碼後點擊完成訂房
+      paid: "✓ 標記入住",
     };
     return labels[currentStatus] || "➜ 下一步";
   };
@@ -225,434 +203,323 @@ export default function AdminBookings() {
   const getButtonColor = (currentStatus: string): string => {
     const colors: Record<string, string> = {
       pending: "bg-blue-600 hover:bg-blue-700",
-      confirmed: "bg-orange-600 hover:bg-orange-700",
+      confirmed: "bg-blue-600 hover:bg-blue-700",  // 已確認也用藍色
       paid_pending: "bg-green-600 hover:bg-green-700",
       paid: "bg-purple-600 hover:bg-purple-700",
     };
     return colors[currentStatus] || "bg-gray-600 hover:bg-gray-700";
   };
 
-  const isOverduePayment = (booking: BookingWithRoom): boolean => {
-    const statusesToCheck = ["pending", "confirmed", "paid_pending"];
-    if (!statusesToCheck.includes(booking.status)) return false;
+  const getStatusBadge = (status: string) => {
+    const badges: Record<string, { text: string; color: string }> = {
+      pending: { text: "⏳ 待確認", color: "bg-yellow-100 text-yellow-800" },
+      confirmed: { text: "✓ 已確認", color: "bg-blue-100 text-blue-800" },
+      paid_pending: { text: "💳 已匯款", color: "bg-orange-100 text-orange-800" },
+      paid: { text: "✅ 已付款", color: "bg-green-100 text-green-800" },
+      completed: { text: "🎉 已完成", color: "bg-purple-100 text-purple-800" },
+      cancelled: { text: "✕ 已取消", color: "bg-red-100 text-red-800" },
+    };
+    const badge = badges[status] || { text: "未知", color: "bg-gray-100 text-gray-800" };
+    return <span className={`px-3 py-1 rounded-full text-sm font-medium ${badge.color}`}>{badge.text}</span>;
+  };
 
+  const isOverduePayment = (booking: BookingWithRoom): boolean => {
+    if (booking.status === "paid" || booking.status === "completed" || booking.status === "cancelled") {
+      return false;
+    }
+    const createdDate = new Date(booking.createdAt);
     const now = new Date();
-    const daysDiff = Math.floor((now.getTime() - booking.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+    const daysDiff = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
     return daysDiff > 3;
   };
 
-  const filteredBookings = bookings.filter(b => {
-    if (filter === "all") return true;
-    if (filter === "pending") return b.status === "pending";
-    if (filter === "confirmed") return ["confirmed", "paid_pending", "paid"].includes(b.status);
-    if (filter === "completed") return b.status === "completed";
-    if (filter === "cancelled") return b.status === "cancelled";
+  const filteredBookings = bookings.filter((booking) => {
+    if (filter !== "all" && booking.status !== filter) return false;
     return true;
   });
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-      pending: { bg: "bg-yellow-100", text: "text-yellow-800", label: "⏳ 待確認" },
-      confirmed: { bg: "bg-blue-100", text: "text-blue-800", label: "✓ 已確認" },
-      paid_pending: { bg: "bg-orange-100", text: "text-orange-800", label: "💳 已匯款" },
-      paid: { bg: "bg-green-100", text: "text-green-800", label: "✅ 已付款" },
-      completed: { bg: "bg-purple-100", text: "text-purple-800", label: "🎉 已完成" },
-      cancelled: { bg: "bg-red-100", text: "text-red-800", label: "✕ 已取消" },
-    };
-    const config = statusConfig[status] || statusConfig.pending;
-    return <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900">
+        <div className="text-white text-xl">載入中...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">訂單管理</h1>
-          <p className="text-gray-600 mt-2">管理和確認客戶訂房及付款</p>
-        </div>
+    <div className="min-h-screen bg-gray-900 text-white p-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8">訂單列表 ({filteredBookings.length})</h1>
 
-        {/* 統計卡片 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-gray-600 text-sm">⏳ 待確認訂房</div>
-            <div className="text-3xl font-bold text-yellow-600 mt-2">{bookings.filter(b => b.status === "pending").length}</div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-gray-600 text-sm">✓ 已確認訂房</div>
-            <div className="text-3xl font-bold text-blue-600 mt-2">{bookings.filter(b => b.status === "confirmed").length}</div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-gray-600 text-sm">💰 已確認收款</div>
-            <div className="text-3xl font-bold text-green-600 mt-2">{bookings.filter(b => b.status === "paid").length}</div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-gray-600 text-sm">🎉 已完成訂房</div>
-            <div className="text-3xl font-bold text-purple-600 mt-2">{bookings.filter(b => b.status === "completed").length}</div>
-          </div>
-        </div>
-
-        {/* 篩選和搜尋 */}
-        <div className="bg-white p-6 rounded-lg shadow mb-8">
-          <div className="flex flex-wrap gap-2">
-            {["all", "pending", "confirmed", "completed", "cancelled"].map(s => (
-              <button
-                key={s}
-                onClick={() => setFilter(s as any)}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  filter === s
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {s === "all" ? "全部" : s === "pending" ? "⏳ 待確認" : s === "confirmed" ? "✓ 已確認" : s === "completed" ? "🎉 已完成" : "✕ 已取消"}
-              </button>
-            ))}
-          </div>
+        {/* 篩選按鈕 */}
+        <div className="mb-8 flex flex-wrap gap-3">
+          {["all", "pending", "confirmed", "completed", "cancelled"].map((s) => (
+            <button
+              key={s}
+              onClick={() => setFilter(s as any)}
+              className={`px-6 py-2 rounded-lg transition font-medium ${
+                filter === s ? "bg-yellow-500 text-black" : "bg-gray-700 hover:bg-gray-600"
+              }`}
+            >
+              {s === "all" ? "全部" : s === "pending" ? "待確認" : s === "confirmed" ? "已確認" : s === "completed" ? "已完成" : "已取消"}
+            </button>
+          ))}
         </div>
 
         {/* 訂單列表 */}
         <div className="space-y-6">
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="text-gray-600">加載中...</div>
-            </div>
-          ) : filteredBookings.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-gray-600">沒有找到符合條件的訂單</div>
-            </div>
-          ) : (
-            filteredBookings.map(booking => {
-              const payment = payments[booking.id];
-              const isExpanded = expandedBooking === booking.id;
-              const isOverdue = isOverduePayment(booking);
+          {filteredBookings.map((booking) => {
+            const payment = payments[booking.id];
+            const isExpanded = expandedBooking === booking.id;
 
-              return (
-                <div
-                  key={booking.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
-                  onClick={() => setExpandedBooking(isExpanded ? null : booking.id)}
-                >
-                  {/* 訂單卡片頭部 */}
-                  <div className="p-6 border-b border-gray-200">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          {getStatusBadge(booking.status)}
-                          {isOverdue && (
-                            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                              ⚠️ 超過 3 天未付款
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900">{booking.guestName}</h3>
-                        <p className="text-sm text-gray-600">訂單 #{booking.id}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">NT$ {Number(booking.totalPrice).toLocaleString()}</div>
-                        <div className="text-sm text-gray-600">{Math.ceil((booking.checkOutDate.getTime() - booking.checkInDate.getTime()) / (1000 * 60 * 60 * 24))} 晚</div>
-                      </div>
+            return (
+              <div
+                key={booking.id}
+                className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-gray-600 transition cursor-pointer"
+                onClick={() => setExpandedBooking(isExpanded ? null : booking.id)}
+              >
+                {/* 訂單摘要 */}
+                <div className="p-6 flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-4">
+                      {getStatusBadge(booking.status)}
+                      <h3 className="text-2xl font-bold">{booking.guestName}</h3>
+                      <span className="text-gray-400">訂單 #{booking.id}</span>
                     </div>
-                    <div className="mt-4 text-sm text-gray-600">
-                      <span>{format(booking.checkInDate, "yyyy/MM/dd", { locale: zhTW })} → {format(booking.checkOutDate, "yyyy/MM/dd", { locale: zhTW })}</span>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-400">入住日期</span>
+                        <p className="text-lg font-medium">{format(new Date(booking.checkInDate), "yyyy/M/d", { locale: zhTW })}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">退房日期</span>
+                        <p className="text-lg font-medium">{format(new Date(booking.checkOutDate), "yyyy/M/d", { locale: zhTW })}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">入住人數</span>
+                        <p className="text-lg font-medium">{booking.numberOfGuests} 人</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">總金額</span>
+                        <p className="text-lg font-medium text-yellow-400">NT$ {booking.totalPrice}</p>
+                      </div>
                     </div>
                   </div>
+                  <div className="text-2xl ml-4">{isExpanded ? "▼" : "▶"}</div>
+                </div>
 
-                  {/* 展開詳情 */}
-                  {isExpanded && (
-                    <div className="p-6 bg-gray-50 space-y-6">
-                      {/* 客戶信息 */}
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-900 mb-3">客戶信息</h3>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="text-gray-600">電話：</span>
-                            <span className="font-medium">{booking.guestPhone}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">郵件：</span>
-                            <span className="font-medium break-all">{booking.guestEmail || "未提供"}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">人數：</span>
-                            <span className="font-medium">{booking.numberOfGuests} 人</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* 訂房信息 */}
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-900 mb-3">訂房信息</h3>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="text-gray-600">房型：</span>
-                            <span className="font-medium">{booking.roomTypeName}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">入住：</span>
-                            <span className="font-medium">{format(booking.checkInDate, "yyyy/MM/dd", { locale: zhTW })}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">退房：</span>
-                            <span className="font-medium">{format(booking.checkOutDate, "yyyy/MM/dd", { locale: zhTW })}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">晚數：</span>
-                            <span className="font-medium">
-                              {Math.ceil((booking.checkOutDate.getTime() - booking.checkInDate.getTime()) / (1000 * 60 * 60 * 24))} 晚
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* 特殊需求 */}
-                      {booking.specialRequests && (
+                {/* 展開詳情 */}
+                {isExpanded && (
+                  <div className="border-t border-gray-700 p-6 bg-gray-750">
+                    {/* 客戶信息 */}
+                    <div className="mb-6">
+                      <h4 className="text-lg font-bold mb-4 text-yellow-400">客戶信息</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <h3 className="text-sm font-semibold text-gray-900 mb-2">特殊需求</h3>
-                          <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
-                            {booking.specialRequests}
-                          </p>
+                          <span className="text-gray-400">客戶名稱</span>
+                          <p className="text-lg">{booking.guestName}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">聯絡電話</span>
+                          <p className="text-lg">{booking.guestPhone}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">聯絡信箱</span>
+                          <p className="text-lg">{booking.guestEmail || "未提供"}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">房型</span>
+                          <p className="text-lg">{booking.roomTypeName}</p>
+                        </div>
+                      </div>
+                      {booking.specialRequests && (
+                        <div className="mt-4">
+                          <span className="text-gray-400">特殊要求</span>
+                          <p className="text-lg">{booking.specialRequests}</p>
                         </div>
                       )}
+                    </div>
 
-                      {/* 付款信息 */}
-                      <div className="border-t border-gray-200 pt-6">
-                        <h3 className="text-sm font-semibold text-gray-900 mb-3">付款信息</h3>
-                        {payment ? (
-                          <div className="bg-white p-4 rounded-lg space-y-3">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">付款方式：</span>
-                              <span className="font-medium">
-                                {payment.paymentMethod === "bank_transfer" ? "🏦 銀行轉帳" : "💳 信用卡"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">金額：</span>
-                              <span className="font-medium">NT$ {payment.amount.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">狀態：</span>
-                              <span className={`font-medium ${payment.paymentStatus === "received" ? "text-green-600" : "text-orange-600"}`}>
-                                {payment.paymentStatus === "received" ? "✅ 已收款" : "⏳ 待確認"}
-                              </span>
-                            </div>
-                            {payment.bankName && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">銀行：</span>
-                                <span className="font-medium">{payment.bankName}</span>
-                              </div>
-                            )}
-                            {payment.accountNumber && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">帳號：</span>
-                                <span className="font-medium">{payment.accountNumber}</span>
-                              </div>
-                            )}
-                            {payment.lastFiveDigits && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">後五碼：</span>
-                                <span className="font-mono font-bold text-lg tracking-widest">{payment.lastFiveDigits}</span>
-                              </div>
-                            )}
-                            {payment.transferDate && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">轉帳日期：</span>
-                                <span className="font-medium">{format(payment.transferDate, "yyyy/MM/dd", { locale: zhTW })}</span>
-                              </div>
-                            )}
+                    {/* 付款信息 */}
+                    {payment && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-bold mb-4 text-yellow-400">付款信息</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-gray-400">付款方式</span>
+                            <p className="text-lg">{payment.paymentMethod === "bank_transfer" ? "銀行轉帳" : payment.paymentMethod}</p>
                           </div>
-                        ) : (
-                          <div className="bg-red-50 p-4 rounded-lg text-red-700 text-sm">
-                            ❌ 尚未添加付款信息
+                          <div>
+                            <span className="text-gray-400">付款金額</span>
+                            <p className="text-lg text-yellow-400">NT$ {payment.amount}</p>
                           </div>
-                        )}
+                          {payment.bankName && (
+                            <>
+                              <div>
+                                <span className="text-gray-400">銀行名稱</span>
+                                <p className="text-lg">{payment.bankName}</p>
+                              </div>
+                              <div>
+                                <span className="text-gray-400">帳號</span>
+                                <p className="text-lg font-mono">{payment.accountNumber}</p>
+                              </div>
+                            </>
+                          )}
+                          {payment.lastFiveDigits && (
+                            <div>
+                              <span className="text-gray-400">後五碼</span>
+                              <p className="text-lg font-mono text-green-400">{payment.lastFiveDigits}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
-                        {/* 後五碼填寫區（僅在已匯款狀態顯示） */}
-                        {booking.status === "paid_pending" && payment && !payment.lastFiveDigits && (
-                          <div className="mt-4 bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
-                            <h3 className="text-sm font-semibold text-gray-900 mb-3">⚠️ 請確認後五碼</h3>
-                            <div className="flex gap-2">
-                              <input
-                                type="text"
-                                value={lastFiveDigits[booking.id] || ""}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/\D/g, "").slice(0, 5);
-                                  setLastFiveDigits({ ...lastFiveDigits, [booking.id]: value });
-                                  setLastFiveDigitsError({ ...lastFiveDigitsError, [booking.id]: "" });
-                                }}
-                                placeholder="輸入後五碼"
-                                maxLength={5}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono text-lg tracking-widest"
-                              />
-                              <button
-                                onClick={() => handleConfirmPayment(booking.id)}
-                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium whitespace-nowrap"
-                              >
-                                ✓ 確認
-                              </button>
-                            </div>
-                            {lastFiveDigitsError[booking.id] && (
-                              <p className="text-red-600 text-sm mt-2">{lastFiveDigitsError[booking.id]}</p>
-                            )}
-                          </div>
+                    {/* 後五碼填寫區 */}
+                    {booking.status === "paid_pending" && (
+                      <div className="mb-6 p-4 bg-orange-900 border border-orange-700 rounded-lg">
+                        <h4 className="text-lg font-bold mb-4 text-orange-300">💳 填寫後五碼確認付款</h4>
+                        <div className="flex gap-3">
+                          <input
+                            type="text"
+                            value={lastFiveDigits[booking.id] || ""}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, "").slice(0, 5);
+                              setLastFiveDigits({ ...lastFiveDigits, [booking.id]: value });
+                              if (lastFiveDigitsError[booking.id]) {
+                                setLastFiveDigitsError({ ...lastFiveDigitsError, [booking.id]: "" });
+                              }
+                            }}
+                            placeholder="輸入後五碼"
+                            maxLength={5}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono text-lg tracking-widest"
+                          />
+                          <button
+                            onClick={() => handleConfirmPayment(booking.id)}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium whitespace-nowrap"
+                          >
+                            ✓ 確認
+                          </button>
+                        </div>
+                        {lastFiveDigitsError[booking.id] && (
+                          <p className="text-red-600 text-sm mt-2">{lastFiveDigitsError[booking.id]}</p>
                         )}
                       </div>
+                    )}
 
-                      {/* 操作按鈕 */}
-                      <div className="border-t border-gray-200 pt-6 flex flex-wrap gap-3">
-                        {booking.status !== "completed" && booking.status !== "cancelled" && (
-                          <>
-                            {getNextStatus(booking.status) && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleStatusChange(booking.id, getNextStatus(booking.status)!);
-                                }}
-                                className={`px-4 py-2 text-white rounded-lg transition font-medium ${getButtonColor(booking.status)}`}
-                              >
-                                {getButtonLabel(booking.status)}
-                              </button>
-                            )}
-                            {!payment && (booking.status === "pending" || booking.status === "confirmed") && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAddPayment(booking.id);
-                                }}
-                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
-                              >
-                                💰 添加付款信息
-                              </button>
-                            )}
+                    {/* 超期警告 */}
+                    {isOverduePayment(booking) && (
+                      <div className="mb-6 p-4 bg-red-900 border border-red-700 rounded-lg">
+                        <p className="text-red-300 font-medium">⚠️ 超過 3 天未付款</p>
+                      </div>
+                    )}
+
+                    {/* 操作按鈕 */}
+                    <div className="border-t border-gray-700 pt-6 flex flex-wrap gap-3">
+                      {booking.status !== "completed" && booking.status !== "cancelled" && (
+                        <>
+                          {(booking.status === "pending" || booking.status === "confirmed" || booking.status === "paid_pending" || booking.status === "paid") && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleCancelBooking(booking.id);
+                                if (booking.status === "paid_pending" && !lastFiveDigits[booking.id]) {
+                                  setLastFiveDigitsError({
+                                    ...lastFiveDigitsError,
+                                    [booking.id]: "請先填寫後五碼",
+                                  });
+                                  return;
+                                }
+                                handleStatusChange(booking.id, getNextStatus(booking.status)!);
                               }}
-                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+                              disabled={booking.status === "paid_pending" && !lastFiveDigits[booking.id]}
+                              className={`px-4 py-2 text-white rounded-lg transition font-medium ${getButtonColor(booking.status)} ${booking.status === "paid_pending" && !lastFiveDigits[booking.id] ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
-                              ✕ 取消訂房
+                              {getButtonLabel(booking.status)}
                             </button>
-                          </>
-                        )}
-                      </div>
+                          )}
+                          {booking.status === "pending" && !payment && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddPayment(booking.id);
+                              }}
+                              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+                            >
+                              💰 添加付款信息
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCancelBooking(booking.id);
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+                          >
+                            ✕ 取消訂房
+                          </button>
+                        </>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })
-          )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* 付款詳情模態框 */}
+      {/* 付款信息模態框 */}
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold mb-6">添加付款詳情</h2>
-
+          <div className="bg-gray-800 rounded-lg p-8 max-w-md w-full">
+            <h3 className="text-2xl font-bold mb-6">添加付款信息</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">付款方式</label>
+                <label className="block text-gray-400 mb-2">付款方式</label>
                 <select
                   value={paymentForm.paymentMethod || "bank_transfer"}
                   onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                 >
-                  <option value="bank_transfer">🏦 銀行轉帳</option>
-                  <option value="credit_card">💳 信用卡</option>
-                  <option value="ecpay">🟢 綠界 ECPay</option>
+                  <option value="bank_transfer">銀行轉帳</option>
+                  <option value="credit_card">信用卡</option>
+                  <option value="ecpay">綠界金流</option>
                 </select>
               </div>
-
-              {paymentForm.paymentMethod === "bank_transfer" && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">銀行名稱</label>
-                    <input
-                      type="text"
-                      value={paymentForm.bankName || ""}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, bankName: e.target.value })}
-                      placeholder="例：台灣銀行"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">帳號</label>
-                    <input
-                      type="text"
-                      value={paymentForm.accountNumber || ""}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, accountNumber: e.target.value })}
-                      placeholder="例：123-456-789"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">帳戶名</label>
-                    <input
-                      type="text"
-                      value={paymentForm.accountName || ""}
-                      onChange={(e) => setPaymentForm({ ...paymentForm, accountName: e.target.value })}
-                      placeholder="例：歐堡商務汽車旅館"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">轉帳後五碼</label>
-                    <input
-                      type="text"
-                      value={paymentForm.lastFiveDigits || ""}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "").slice(0, 5);
-                        setPaymentForm({ ...paymentForm, lastFiveDigits: value });
-                      }}
-                      placeholder="例：12345"
-                      maxLength={5}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                    />
-                  </div>
-                </>
-              )}
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">金額</label>
+                <label className="block text-gray-400 mb-2">金額</label>
                 <input
                   type="number"
                   value={paymentForm.amount || ""}
-                  onChange={(e) => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
-                  placeholder="例：5000"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setPaymentForm({ ...paymentForm, amount: parseFloat(e.target.value) })}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">備註</label>
+                <label className="block text-gray-400 mb-2">備註</label>
                 <textarea
                   value={paymentForm.notes || ""}
                   onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
-                  placeholder="例：客戶已轉帳，待確認"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  rows={3}
                 />
               </div>
             </div>
-
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => {
                   setShowPaymentModal(false);
                   setPaymentForm({});
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
               >
                 取消
               </button>
               <button
                 onClick={handleSavePayment}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                className="flex-1 px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition font-medium"
               >
-                {paymentForm.paymentMethod === "bank_transfer" && !paymentForm.lastFiveDigits ? "請填寫後五碼" : "保存"}
+                保存
               </button>
             </div>
           </div>

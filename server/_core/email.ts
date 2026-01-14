@@ -284,7 +284,22 @@ export function generateBookingConfirmationEmail(
               ✅ 轉帳時請在備註欄填寫你的訂房編號：<strong>#${bookingId}</strong>，以便我們快速對帳。
             </p>
             <p style="margin: 10px 0; color: #666; font-size: 14px;">
-              ✅ 轉帳後，請在訂房追蹤頁面填寫轉帳的後五碼，以便我們確認收款。
+              ✅ 轉帳後，請<strong>直接回覆此郵件</strong>並填寫轉帳的<strong>後五碼</strong>（例如：「後五碼：12345」），我們會立即確認收款。
+            </p>
+            <p style="margin: 10px 0; color: #666; font-size: 14px;">
+              💡 如果您不方便回覆郵件，也可以在訂房追蹤頁面填寫後五碼。
+            </p>
+          </div>
+          
+          <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 4px;">
+            <strong style="color: #856404; font-size: 16px;">❓ 常見問題</strong>
+            <p style="margin: 15px 0 10px 0; color: #333;">
+              <strong>Q: 如何查看轉帳憑證後五碼？</strong><br>
+              A: 在銀行 APP 或網路銀行的交易記錄中，找到您的轉帳交易，轉帳憑證號碼的最後 5 位數字即為後五碼。
+            </p>
+            <p style="margin: 10px 0; color: #333;">
+              <strong>Q: 郵件回覆後多久會確認？</strong><br>
+              A: 我們會在營業時間內（09:00-18:00）立即確認，通常在 1 小時內完成。
             </p>
           </div>
           
