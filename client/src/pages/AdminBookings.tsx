@@ -136,6 +136,7 @@ export default function AdminBookings() {
           amount: Number(bookings.find(b => b.id === bookingId)?.totalPrice) || 0,
         },
       });
+      // 保持在 pending_payment 狀態，等待填寫後五碼
     }
   };
 
