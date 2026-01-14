@@ -44,7 +44,7 @@ export const appRouter = router({
         const validUsernames = ['jason', 'castle8888'];
         
         if (!validUsernames.includes(input.username) || input.password !== ADMIN_PASSWORD) {
-          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼驗證' });
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
         }
         
         // 創建固定的管理员用戶對象

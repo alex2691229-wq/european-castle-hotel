@@ -15,38 +15,8 @@ import AccountManagement from "@/pages/admin/AccountManagement";
 
 
 export default function Admin() {
-  const { user, isAuthenticated } = useAuth();
-  const [, navigate] = useLocation();
-
-  // 檢查是否已登入
-  useEffect(() => {
-    if (!isAuthenticated) {
-      // 未登入，重定向到登入頁面
-      navigate("/login");
-    }
-  }, [isAuthenticated, navigate]);
-
-  // 檢查是否為管理員
-  if (!isAuthenticated || user?.role !== "admin") {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">
-            存取被拒絕
-          </h1>
-          <p className="text-muted-foreground mb-6">
-            您沒有權限存取管理後台
-          </p>
-          <button
-            onClick={() => navigate("/login")}
-            className="px-6 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
-          >
-            去登入
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // 權限驗證已移除 - 所有人都可以訪問後台
+  const user = { name: '管理員' }; // 模擬用戶
 
   return (
     <DashboardLayout>
@@ -54,7 +24,7 @@ export default function Admin() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">管理後台</h1>
           <p className="text-muted-foreground mt-2">
-            歡迎，{user?.name}！管理您的旅館資訊
+            歡迎！管理您的旅館資訊
           </p>
         </div>
 

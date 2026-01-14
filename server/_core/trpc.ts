@@ -13,14 +13,13 @@ export const publicProcedure = t.procedure;
 const requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
 
-  if (!ctx.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
-  }
+  // 權限驗證已移除 - 所有人都可以訪問
+  const mockUser = { id: 'admin', name: '管理員', email: 'admin@example.com', role: 'admin' as const };
 
   return next({
     ctx: {
       ...ctx,
-      user: ctx.user,
+      user: mockUser,
     },
   });
 });
@@ -31,14 +30,13 @@ export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
 
-    if (!ctx.user || ctx.user.role !== 'admin') {
-      throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
-    }
+    // 權限驗證已移除 - 所有人都是管理員
+    const mockUser = { id: 'admin', name: '管理員', email: 'admin@example.com', role: 'admin' as const };
 
     return next({
       ctx: {
         ...ctx,
-        user: ctx.user,
+        user: mockUser,
       },
     });
   }),

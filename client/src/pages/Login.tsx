@@ -1,45 +1,120 @@
-import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { LogIn } from "lucide-react";
-import { getLoginUrl } from "@/const";
+import { useState } from "react";
+import { trpc } from "../lib/trpc";
 
 export default function Login() {
-  const [, setLocation] = useLocation();
 
-  // 檢查是否已登入，如果已登入則重定向到後台
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      setLocation("/admin");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: () => {
+      console.log("登入成功，跳轉到後台");
+      window.location.href = "/admin";
+    },
+    onError: (error) => {
+      console.error("登入失敗:", error);
+      setError(error.message || "登入失敗，請檢查帳號密碼");
+      setLoading(false);
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    
+    console.log("提交登入表單:", { username, password: "***" });
+    
+    try {
+      await loginMutation.mutateAsync({ username, password });
+    } catch (err) {
+      console.error("登入錯誤:", err);
+      setLoading(false);
     }
-  }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "/api/auth/google";
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
-      <Card className="w-full max-w-md p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <LogIn className="h-8 w-8 text-primary" />
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold text-foreground">歐堡商務汽車旅館</h1>
-          <p className="text-muted-foreground">管理後台登入</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+      <div className="max-w-md w-full space-y-8 p-10 bg-gray-800 rounded-xl shadow-2xl">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-yellow-500">
+            歐堡商務汽車旅館
+          </h2>
+          <p className="mt-2 text-sm text-gray-400">管理後台登入</p>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-center text-sm text-muted-foreground">
-            使用 Google 帳號登入管理後台
-          </p>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
 
-          <Button
-            type="button"
-            className="w-full"
-            size="lg"
-            onClick={() => window.location.href = getLoginUrl()}
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+                帳號
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="請輸入帳號"
+                disabled={loading}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                密碼
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="請輸入密碼"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-black bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
+            {loading ? "登入中..." : "登入"}
+          </button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-600"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gray-800 text-gray-400">或</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-600 rounded-lg shadow-sm text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -58,14 +133,15 @@ export default function Login() {
               />
             </svg>
             使用 Google 登入
-          </Button>
-        </div>
+          </button>
+        </form>
 
-        <div className="text-center text-xs text-muted-foreground border-t pt-4">
-          <p>使用您的 Google 帳號登入</p>
-          <p className="mt-2 text-xs">如有問題，請聯繫系統管理員</p>
-        </div>
-      </Card>
+        <p className="mt-4 text-center text-xs text-gray-500">
+          使用帳號密碼或 Google 帳號登入管理後台
+          <br />
+          如有問題，請聯繫系統管理員
+        </p>
+      </div>
     </div>
   );
 }
