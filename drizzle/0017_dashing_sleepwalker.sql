@@ -1,0 +1,3 @@
+ALTER TABLE `bookings` MODIFY COLUMN `status` enum('pending','confirmed','pending_payment','paid','cash_on_site','completed','cancelled') NOT NULL DEFAULT 'pending';--> statement-breakpoint
+ALTER TABLE `payment_details` MODIFY COLUMN `paymentMethod` enum('bank_transfer','credit_card','ecpay','cash_on_site') NOT NULL DEFAULT 'bank_transfer';--> statement-breakpoint
+ALTER TABLE `payment_details` ADD `lastFiveDigits` varchar(5);

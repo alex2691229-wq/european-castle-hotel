@@ -61,7 +61,7 @@ export const bookings = mysqlTable("bookings", {
   numberOfGuests: int("numberOfGuests").notNull().default(2),
   totalPrice: decimal("totalPrice", { precision: 10, scale: 2 }).notNull(),
   specialRequests: text("specialRequests"),
-  status: mysqlEnum("status", ["pending", "confirmed", "pending_payment", "paid", "completed", "cancelled"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "confirmed", "pending_payment", "paid", "cash_on_site", "completed", "cancelled"]).default("pending").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -189,7 +189,7 @@ export type InsertFeaturedService = typeof featuredServices.$inferInsert;
 export const paymentDetails = mysqlTable("payment_details", {
   id: int("id").autoincrement().primaryKey(),
   bookingId: int("bookingId").notNull(),
-  paymentMethod: mysqlEnum("paymentMethod", ["bank_transfer", "credit_card", "ecpay"]).default("bank_transfer").notNull(),
+  paymentMethod: mysqlEnum("paymentMethod", ["bank_transfer", "credit_card", "ecpay", "cash_on_site"]).default("bank_transfer").notNull(),
   paymentStatus: mysqlEnum("paymentStatus", ["pending", "received", "failed", "refunded"]).default("pending").notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).default("TWD").notNull(),
@@ -200,6 +200,7 @@ export const paymentDetails = mysqlTable("payment_details", {
   accountName: varchar("accountName", { length: 100 }),
   transferReference: varchar("transferReference", { length: 100 }), // transfer memo/reference number
   transferDate: timestamp("transferDate"), // when the transfer was made
+  lastFiveDigits: varchar("lastFiveDigits", { length: 5 }), // last 5 digits of transfer for verification
   // Payment confirmation
   confirmedAt: timestamp("confirmedAt"), // when payment was confirmed
   confirmedBy: int("confirmedBy"), // admin user who confirmed the payment

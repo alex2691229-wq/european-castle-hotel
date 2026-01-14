@@ -1,0 +1,190 @@
+{
+  "query": "SELECT id, name, price, weekendPrice FROM room_types ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, name, price, weekendPrice FROM room_types ORDER BY id;",
+  "rows": [
+    {
+      "id": "30022",
+      "name": "六人家庭房",
+      "price": "3980.00",
+      "weekendPrice": "4580.00"
+    },
+    {
+      "id": "180003",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "180006",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "180007",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "180010",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "180011",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210005",
+      "name": "測試房型",
+      "price": "1000.00",
+      "weekendPrice": "1200.00"
+    },
+    {
+      "id": "210006",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210007",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210009",
+      "name": "測試房型",
+      "price": "1000.00",
+      "weekendPrice": "1200.00"
+    },
+    {
+      "id": "210010",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210011",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210013",
+      "name": "測試房型",
+      "price": "1000.00",
+      "weekendPrice": "1200.00"
+    },
+    {
+      "id": "210014",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210015",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210017",
+      "name": "測試房型",
+      "price": "1000.00",
+      "weekendPrice": "1200.00"
+    },
+    {
+      "id": "210018",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210019",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210021",
+      "name": "測試房型",
+      "price": "1000.00",
+      "weekendPrice": "1200.00"
+    },
+    {
+      "id": "210022",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210023",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210025",
+      "name": "測試房型",
+      "price": "1000.00",
+      "weekendPrice": "1200.00"
+    },
+    {
+      "id": "210026",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210027",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210029",
+      "name": "測試房型",
+      "price": "1000.00",
+      "weekendPrice": "1200.00"
+    },
+    {
+      "id": "210030",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210031",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210033",
+      "name": "測試房型",
+      "price": "1000.00",
+      "weekendPrice": "1200.00"
+    },
+    {
+      "id": "210034",
+      "name": "豪華雙人房",
+      "price": "3500.00",
+      "weekendPrice": "NULL"
+    },
+    {
+      "id": "210035",
+      "name": "標準雙床房 - 更新",
+      "price": "2200.00",
+      "weekendPrice": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tprice\tweekendPrice\n30022\t六人家庭房\t3980.00\t4580.00\n180003\t標準雙床房 - 更新\t2200.00\tNULL\n180006\t豪華雙人房\t3500.00\tNULL\n180007\t標準雙床房 - 更新\t2200.00\tNULL\n180010\t豪華雙人房\t3500.00\tNULL\n180011\t標準雙床房 - 更新\t2200.00\tNULL\n210005\t測試房型\t1000.00\t1200.00\n210006\t豪華雙人房\t3500.00\tNULL\n210007\t標準雙床房 - 更新\t2200.00\tNULL\n210009\t測試房型\t1000.00\t1200.00\n210010\t豪華雙人房\t3500.00\tNULL\n210011\t標準雙床房 - 更新\t2200.00\tNULL\n210013\t測試房型\t1000.00\t1200.00\n210014\t豪華雙人房\t3500.00\tNULL\n210015\t標準雙床房 - 更新\t2200.00\tNULL\n210017\t測試房型\t1000.00\t1200.00\n210018\t豪華雙人房\t3500.00\tNULL\n210019\t標準雙床房 - 更新\t2200.00\tNULL\n210021\t測試房型\t1000.00\t1200.00\n210022\t豪華雙人房\t3500.00\tNULL\n210023\t標準雙床房 - 更新\t2200.00\tNULL\n210025\t測試房型\t1000.00\t1200.00\n210026\t豪華雙人房\t3500.00\tNULL\n210027\t標準雙床房 - 更新\t2200.00\tNULL\n210029\t測試房型\t1000.00\t1200.00\n210030\t豪華雙人房\t3500.00\tNULL\n210031\t標準雙床房 - 更新\t2200.00\tNULL\n210033\t測試房型\t1000.00\t1200.00\n210034\t豪華雙人房\t3500.00\tNULL\n210035\t標準雙床房 - 更新\t2200.00\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1559
+}
