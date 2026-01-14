@@ -140,6 +140,26 @@ export async function getUserByUsername(username: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function createUser(data: InsertUser): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(users).values(data);
+  
+  // 獲取新創建的用戶
+  const newUser = await db
+    .select()
+    .from(users)
+    .orderBy(desc(users.id))
+    .limit(1);
+  
+  if (newUser.length === 0) {
+    throw new Error("Failed to retrieve created user");
+  }
+  
+  return newUser[0].id;
+}
+
 export async function getAllUsers() {
   const db = await getDb();
   if (!db) return [];
