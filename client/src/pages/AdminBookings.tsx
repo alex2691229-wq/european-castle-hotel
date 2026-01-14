@@ -363,8 +363,8 @@ export default function AdminBookings() {
 
 
 
-                        {/* 步驟2: 待付款 - 選擇付款方式 */}
-                        {booking.status === "pending_payment" && !payment && (
+                        {/* 步驅2: 待付款 - 選擇付款方式 */}
+                        {booking.status === "pending_payment" && !payments[booking.id] && (
                           <div className="p-4 bg-orange-900 border-2 border-orange-600 rounded-lg">
                             <h4 className="text-lg font-bold mb-4 text-orange-300">💳 步驟2: 選擇付款方式</h4>
                             <p className="text-orange-100 mb-4">請選擇客戶的付款方式</p>
@@ -391,8 +391,8 @@ export default function AdminBookings() {
                           </div>
                         )}
 
-                        {/* 步驟3: 銀行轉帳 - 填寫後五碼 */}
-                        {booking.status === "pending_payment" && payment?.paymentMethod === "bank_transfer" && (
+                        {/* 步驅3: 銀行轉帳 - 填寫後五碼 */}
+                        {booking.status === "pending_payment" && payments[booking.id]?.paymentMethod === "bank_transfer" && (
                           <div className="p-4 bg-green-900 border-2 border-green-600 rounded-lg">
                             <h4 className="text-lg font-bold mb-4 text-green-300">🏪 步驟3: 銀行轉帳 - 填寫後五碼</h4>
                             <p className="text-green-100 mb-4">客戶已轉帳，請填寫轉帳單據的後五碼進行驗證</p>
