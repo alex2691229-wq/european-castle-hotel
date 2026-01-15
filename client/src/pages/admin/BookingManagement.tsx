@@ -37,6 +37,7 @@ export default function BookingManagement() {
     onSuccess: () => {
       utils.bookings.list.invalidate();
       toast.success('訂房已確認');
+      window.location.reload();
     },
     onError: (error) => {
       toast.error(`確認失敗：${error.message}`);
@@ -47,6 +48,7 @@ export default function BookingManagement() {
     onSuccess: () => {
       utils.bookings.list.invalidate();
       toast.success('已標記入住');
+      window.location.reload();
     },
     onError: (error) => {
       toast.error(`標記失敗：${error.message}`);
@@ -68,6 +70,7 @@ export default function BookingManagement() {
       // 立即重新獲取訂單列表
       await utils.bookings.list.refetch();
       toast.success('支付方式已選擇');
+      window.location.reload();
     },
     onError: (error) => {
       console.error('選擇支付方式失敗:', error);
@@ -81,6 +84,7 @@ export default function BookingManagement() {
       // 立即重新獲取訂單列表
       await utils.bookings.list.refetch();
       toast.success('銀行轉帳已確認');
+      window.location.reload();
     },
     onError: (error) => {
       console.error('確認銀行轉帳失敗:', error);
