@@ -367,9 +367,9 @@ export default function RoomComparisonView() {
       <Card className="bg-slate-900/80 border-slate-700 overflow-hidden">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse min-w-max">
+            <table className="w-full border-collapse min-w-max bg-slate-900">
               <thead>
-                <tr className="bg-slate-800/80">
+                <tr className="bg-slate-800">
                   <th className="sticky left-0 z-10 bg-slate-800 border-b border-r border-slate-700 p-2 text-left text-sm font-semibold text-gold min-w-[140px]">
                     房型
                   </th>
@@ -380,8 +380,8 @@ export default function RoomComparisonView() {
                     return (
                       <th 
                         key={index} 
-                        className={`border-b border-slate-700 p-1 text-center min-w-[60px] ${
-                          isWeekend ? 'bg-amber-900/20' : ''
+                        className={`border-b border-slate-700 p-1 text-center min-w-[60px] bg-slate-800 ${
+                          isWeekend ? 'bg-amber-900/30' : ''
                         }`}
                       >
                         <div className={`text-xs font-medium ${isWeekend ? 'text-amber-400' : 'text-gray-400'}`}>
@@ -413,7 +413,7 @@ export default function RoomComparisonView() {
                       return (
                         <td 
                           key={index}
-                          className={`border-b border-slate-700/50 p-0.5 ${isWeekend ? 'bg-amber-900/10' : ''}`}
+                          className={`border-b border-slate-700/50 p-0.5 bg-slate-900 ${isWeekend ? 'bg-amber-900/20' : ''}`}
                         >
                           <button
                             onClick={() => handleCellClick(room.id, date)}
