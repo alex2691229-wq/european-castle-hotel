@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { wsManager } from "../websocket";
+import { initializeSchedulers } from "../schedulers/reminder-scheduler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -46,6 +47,8 @@ async function startServer() {
   );
   // Initialize WebSocket server
   wsManager.initialize(server);
+  // Initialize automatic reminder schedulers
+  initializeSchedulers();
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
@@ -62,6 +65,7 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    console.log(`[Scheduler] 自動提醒調度器已啟動`);
   });
 }
 

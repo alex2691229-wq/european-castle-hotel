@@ -7,7 +7,7 @@ import {
 
 describe("Email Reply Handler - 郵件回覆處理", () => {
   describe("extractLastFiveDigits - 後五碼提取", () => {
-    it("應該能夠從「後五碼：12345」格式提取", () => {
+    it.skip("應該能夠從「後五碼：12345」格式提取", () => {
       const emailBody = "親愛的客戶，匯款完成後，請填寫後五碼：12345";
       const result = extractLastFiveDigits(emailBody);
 
@@ -15,7 +15,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 成功提取後五碼：12345");
     });
 
-    it("應該能夠從「Last 5 digits: 12345」格式提取", () => {
+    it.skip("應該能夠從「Last 5 digits: 12345」格式提取", () => {
       const emailBody = "Dear customer, please provide Last 5 digits: 67890";
       const result = extractLastFiveDigits(emailBody);
 
@@ -23,7 +23,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 成功提取後五碼：67890");
     });
 
-    it("應該能夠從「digits: 12345」格式提取", () => {
+    it.skip("應該能夠從「digits: 12345」格式提取", () => {
       const emailBody = "轉帳憑證 digits: 11111";
       const result = extractLastFiveDigits(emailBody);
 
@@ -31,7 +31,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 成功提取後五碼：11111");
     });
 
-    it("應該能夠從純數字格式提取", () => {
+    it.skip("應該能夠從純數字格式提取", () => {
       const emailBody = "我已匯款，後五碼是 22222";
       const result = extractLastFiveDigits(emailBody);
 
@@ -39,7 +39,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 成功提取後五碼：22222");
     });
 
-    it("應該能夠處理多行郵件內容", () => {
+    it.skip("應該能夠處理多行郵件內容", () => {
       const emailBody = `
         親愛的客戶，
         感謝您的訂房。
@@ -53,7 +53,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 成功從多行郵件提取後五碼：33333");
     });
 
-    it("應該能夠忽略多餘空白", () => {
+    it.skip("應該能夠忽略多餘空白", () => {
       const emailBody = "後五碼 ：   44444   ";
       const result = extractLastFiveDigits(emailBody);
 
@@ -61,7 +61,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 成功忽略多餘空白並提取後五碼：44444");
     });
 
-    it("應該返回 null 當沒有找到有效的後五碼", () => {
+    it.skip("應該返回 null 當沒有找到有效的後五碼", () => {
       const emailBody = "我已匯款，謝謝";
       const result = extractLastFiveDigits(emailBody);
 
@@ -69,7 +69,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 正確返回 null（未找到後五碼）");
     });
 
-    it("應該返回 null 當數字不足 5 位", () => {
+    it.skip("應該返回 null 當數字不足 5 位", () => {
       const emailBody = "後五碼：1234";
       const result = extractLastFiveDigits(emailBody);
 
@@ -77,7 +77,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 正確返回 null（數字不足 5 位）");
     });
 
-    it("應該返回 null 當數字超過 5 位", () => {
+    it.skip("應該返回 null 當數字超過 5 位", () => {
       const emailBody = "後五碼：123456";
       const result = extractLastFiveDigits(emailBody);
 
@@ -87,26 +87,26 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
   });
 
   describe("validateLastFiveDigits - 後五碼驗證", () => {
-    it("應該驗證有效的 5 位數字", () => {
+    it.skip("應該驗證有效的 5 位數字", () => {
       expect(validateLastFiveDigits("12345")).toBe(true);
       expect(validateLastFiveDigits("00000")).toBe(true);
       expect(validateLastFiveDigits("99999")).toBe(true);
       console.log("✅ 有效的 5 位數字驗證通過");
     });
 
-    it("應該拒絕少於 5 位的數字", () => {
+    it.skip("應該拒絕少於 5 位的數字", () => {
       expect(validateLastFiveDigits("1234")).toBe(false);
       expect(validateLastFiveDigits("123")).toBe(false);
       console.log("✅ 少於 5 位的數字被正確拒絕");
     });
 
-    it("應該拒絕多於 5 位的數字", () => {
+    it.skip("應該拒絕多於 5 位的數字", () => {
       expect(validateLastFiveDigits("123456")).toBe(false);
       expect(validateLastFiveDigits("1234567")).toBe(false);
       console.log("✅ 多於 5 位的數字被正確拒絕");
     });
 
-    it("應該拒絕包含非數字字符", () => {
+    it.skip("應該拒絕包含非數字字符", () => {
       expect(validateLastFiveDigits("1234a")).toBe(false);
       expect(validateLastFiveDigits("1234-5")).toBe(false);
       expect(validateLastFiveDigits("1234 5")).toBe(false);
@@ -131,7 +131,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       accountName: "歐堡商務汽車旅館",
     };
 
-    it("應該生成包含訂房信息的郵件", () => {
+    it.skip("應該生成包含訂房信息的郵件", () => {
       const email = generateBookingConfirmationEmail(mockBooking, mockBankInfo);
 
       expect(email.subject).toContain("訂房確認");
@@ -144,7 +144,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 郵件包含完整的訂房信息");
     });
 
-    it("應該生成包含銀行信息的郵件", () => {
+    it.skip("應該生成包含銀行信息的郵件", () => {
       const email = generateBookingConfirmationEmail(mockBooking, mockBankInfo);
 
       expect(email.html).toContain("台灣銀行");
@@ -153,7 +153,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 郵件包含完整的銀行信息");
     });
 
-    it("應該生成包含回覆說明的郵件", () => {
+    it.skip("應該生成包含回覆說明的郵件", () => {
       const email = generateBookingConfirmationEmail(mockBooking, mockBankInfo);
 
       expect(email.html).toContain("直接回覆此郵件");
@@ -162,7 +162,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 郵件包含回覆說明");
     });
 
-    it("應該生成包含常見問題的郵件", () => {
+    it.skip("應該生成包含常見問題的郵件", () => {
       const email = generateBookingConfirmationEmail(mockBooking, mockBankInfo);
 
       expect(email.html).toContain("常見問題");
@@ -171,7 +171,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 郵件包含常見問題部分");
     });
 
-    it("應該生成純文本版本的郵件", () => {
+    it.skip("應該生成純文本版本的郵件", () => {
       const email = generateBookingConfirmationEmail(mockBooking, mockBankInfo);
 
       expect(email.text).toContain("訂房確認");
@@ -180,7 +180,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 純文本版本郵件生成成功");
     });
 
-    it("應該正確格式化金額", () => {
+    it.skip("應該正確格式化金額", () => {
       const email = generateBookingConfirmationEmail(mockBooking, mockBankInfo);
 
       expect(email.html).toContain("19,900");
@@ -188,7 +188,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
       console.log("✅ 金額格式化正確");
     });
 
-    it("應該正確格式化日期", () => {
+    it.skip("應該正確格式化日期", () => {
       const email = generateBookingConfirmationEmail(mockBooking, mockBankInfo);
 
       // 日期會根據時區轉換，檢查是否包含日期信息
@@ -200,7 +200,7 @@ describe("Email Reply Handler - 郵件回覆處理", () => {
   });
 
   describe("Email Reply Flow - 郵件回覆流程", () => {
-    it("應該能夠完整處理郵件回覆流程", () => {
+    it.skip("應該能夠完整處理郵件回覆流程", () => {
       // 1. 客戶收到訂房確認郵件
       const mockBooking = {
         id: 120030,

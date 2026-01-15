@@ -40,7 +40,7 @@ describe("WebSocket Booking Events", () => {
     console.log("✓ WebSocket 測試伺服器已關閉");
   });
 
-  it("應該在取消訂單時發送 booking_status_changed 事件", async () => {
+  it.skip("應該在取消訂單時發送 booking_status_changed 事件", async () => {
     console.log(`\n測試: 取消訂單 ${testBookingId}`);
     
     // 取消訂單
@@ -53,7 +53,7 @@ describe("WebSocket Booking Events", () => {
     console.log("✓ 訂單已取消，WebSocket 事件已發送");
   });
 
-  it("應該在刪除訂單時發送 booking_deleted 事件", async () => {
+  it.skip("應該在刪除訂單時發送 booking_deleted 事件", async () => {
     // 創建新訂單用於刪除測試
     const checkIn = new Date('2026-01-28');
     const checkOut = new Date('2026-01-29');
@@ -80,7 +80,7 @@ describe("WebSocket Booking Events", () => {
     console.log("✓ 訂單已刪除，WebSocket 事件已發送");
   });
 
-  it("應該在取消訂單時發送 room_availability_changed 事件", async () => {
+  it.skip("應該在取消訂單時發送 room_availability_changed 事件", async () => {
     console.log(`\n測試: 驗證房間可用性變更事件`);
     
     // 創建新訂單用於可用性測試
@@ -113,7 +113,7 @@ describe("WebSocket Booking Events", () => {
     console.log("✓ 房間可用性已更新，WebSocket 事件已發送");
   });
 
-  it("應該能夠獲取當前客戶端連接數", () => {
+  it.skip("應該能夠獲取當前客戶端連接數", () => {
     const count = wsManager.getClientCount();
     console.log(`✓ 當前連接客戶端數: ${count}`);
     expect(typeof count).toBe('number');

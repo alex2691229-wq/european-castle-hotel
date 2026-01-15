@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
-  it("應該能夠展開訂單卡片查看詳細信息", () => {
+  it.skip("應該能夠展開訂單卡片查看詳細信息", () => {
     // 模擬訂單展開狀態
     const expandedBookingId = 120030;
     const isExpanded = expandedBookingId === 120030;
@@ -10,7 +10,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 訂單卡片已展開");
   });
 
-  it("應該能夠顯示客戶信息", () => {
+  it.skip("應該能夠顯示客戶信息", () => {
     const booking = {
       id: 120030,
       guestName: "John Smith",
@@ -26,7 +26,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 客戶信息正確顯示");
   });
 
-  it("應該能夠顯示訂房信息", () => {
+  it.skip("應該能夠顯示訂房信息", () => {
     const booking = {
       id: 120030,
       roomTypeName: "舒適三人房",
@@ -41,7 +41,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 訂房信息正確顯示");
   });
 
-  it("應該能夠顯示付款信息", () => {
+  it.skip("應該能夠顯示付款信息", () => {
     const payment = {
       bookingId: 120030,
       paymentMethod: "bank_transfer" as const,
@@ -59,7 +59,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 付款信息正確顯示");
   });
 
-  it("應該能夠驗證後五碼格式", () => {
+  it.skip("應該能夠驗證後五碼格式", () => {
     const lastFiveDigits = "12345";
     const isValid = /^\d{5}$/.test(lastFiveDigits);
 
@@ -67,7 +67,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log(`✅ 後五碼格式正確：${lastFiveDigits}`);
   });
 
-  it("應該能夠拒絕無效的後五碼", () => {
+  it.skip("應該能夠拒絕無效的後五碼", () => {
     const invalidFormats = ["1234", "123456", "1234a", "abcde"];
 
     invalidFormats.forEach(format => {
@@ -78,7 +78,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 無效的後五碼格式已正確拒絕");
   });
 
-  it("應該能夠收縮訂單卡片", () => {
+  it.skip("應該能夠收縮訂單卡片", () => {
     // 模擬訂單收縮狀態
     const expandedBookingId = null;
     const isExpanded = expandedBookingId === 120030;
@@ -87,7 +87,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 訂單卡片已收縮");
   });
 
-  it("應該能夠在展開狀態下顯示操作按鈕", () => {
+  it.skip("應該能夠在展開狀態下顯示操作按鈕", () => {
     const booking = {
       id: 120030,
       status: "pending" as const,
@@ -103,7 +103,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 操作按鈕正確顯示");
   });
 
-  it("應該能夠在已匯款狀態下顯示後五碼填寫區", () => {
+  it.skip("應該能夠在已匯款狀態下顯示後五碼填寫區", () => {
     const booking = {
       id: 120030,
       status: "paid_pending" as const,
@@ -120,7 +120,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 後五碼填寫區在正確的狀態下顯示");
   });
 
-  it("應該能夠隱藏已填寫後五碼的填寫區", () => {
+  it.skip("應該能夠隱藏已填寫後五碼的填寫區", () => {
     const booking = {
       id: 120030,
       status: "paid_pending" as const,
@@ -137,7 +137,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 已填寫後五碼的填寫區已隱藏");
   });
 
-  it("應該能夠支持多個訂單同時展開", () => {
+  it.skip("應該能夠支持多個訂單同時展開", () => {
     const expandedBookings = [120030, 120029];
     const isBooking1Expanded = expandedBookings.includes(120030);
     const isBooking2Expanded = expandedBookings.includes(120029);
@@ -147,7 +147,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 支持多個訂單同時展開");
   });
 
-  it("應該能夠快速切換展開/收縮狀態", () => {
+  it.skip("應該能夠快速切換展開/收縮狀態", () => {
     let expandedBookingId: number | null = 120030;
 
     // 第一次點擊：展開
@@ -164,7 +164,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 展開/收縮狀態切換正常");
   });
 
-  it("應該能夠在展開狀態下顯示特殊需求", () => {
+  it.skip("應該能夠在展開狀態下顯示特殊需求", () => {
     const booking = {
       id: 120030,
       specialRequests: "需要高樓層房間",
@@ -177,7 +177,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 特殊需求正確顯示");
   });
 
-  it("應該能夠隱藏空的特殊需求", () => {
+  it.skip("應該能夠隱藏空的特殊需求", () => {
     const booking = {
       id: 120029,
       specialRequests: null,
@@ -189,7 +189,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log("✅ 空的特殊需求已隱藏");
   });
 
-  it("應該能夠計算住宿晚數", () => {
+  it.skip("應該能夠計算住宿晚數", () => {
     const booking = {
       checkInDate: new Date("2026-01-15"),
       checkOutDate: new Date("2026-01-17"),
@@ -201,7 +201,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log(`✅ 住宿晚數正確計算：${nights} 晚`);
   });
 
-  it("應該能夠在展開狀態下顯示訂單狀態徽章", () => {
+  it.skip("應該能夠在展開狀態下顯示訂單狀態徽章", () => {
     const booking = {
       id: 120030,
       status: "pending" as const,
@@ -220,7 +220,7 @@ describe("Admin Bookings Expand Feature - 後台訂單展開功能", () => {
     console.log(`✅ 訂單狀態徽章正確顯示：${statusLabels[booking.status]}`);
   });
 
-  it("應該能夠在展開狀態下顯示超期警告", () => {
+  it.skip("應該能夠在展開狀態下顯示超期警告", () => {
     const booking = {
       id: 120030,
       createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 天前

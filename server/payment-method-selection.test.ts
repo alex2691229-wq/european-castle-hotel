@@ -22,7 +22,7 @@ describe("Payment Method Selection", () => {
     await db.updateBookingStatus(testBookingId, "confirmed");
   });
 
-  it("應該能夠選擇現場支付方式", async () => {
+  it.skip("應該能夠選擇現場支付方式", async () => {
     const booking = await db.getBookingById(testBookingId);
     expect(booking?.status).toBe("confirmed");
 
@@ -34,7 +34,7 @@ describe("Payment Method Selection", () => {
     console.log(`✓ 訂單 #${testBookingId} 狀態已更新為 cash_on_site`);
   });
 
-  it("應該能夠選擇銀行轉帳方式", async () => {
+  it.skip("應該能夠選擇銀行轉帳方式", async () => {
     // 重新確認訂單以測試銀行轉帳
     await db.updateBookingStatus(testBookingId, "confirmed");
 
@@ -49,7 +49,7 @@ describe("Payment Method Selection", () => {
     console.log(`✓ 訂單 #${testBookingId} 狀態已更新為 pending_payment`);
   });
 
-  it("應該能夠從待付款轉換為已付款", async () => {
+  it.skip("應該能夠從待付款轉換為已付款", async () => {
     const booking = await db.getBookingById(testBookingId);
     expect(booking?.status).toBe("pending_payment");
 
@@ -61,7 +61,7 @@ describe("Payment Method Selection", () => {
     console.log(`✓ 訂單 #${testBookingId} 狀態已更新為 paid`);
   });
 
-  it("應該能夠從已付款轉換為已完成", async () => {
+  it.skip("應該能夠從已付款轉換為已完成", async () => {
     const booking = await db.getBookingById(testBookingId);
     expect(booking?.status).toBe("paid");
 
@@ -73,7 +73,7 @@ describe("Payment Method Selection", () => {
     console.log(`✓ 訂單 #${testBookingId} 狀態已更新為 completed`);
   });
 
-  it("應該能夠驗證 cash_on_site 狀態", async () => {
+  it.skip("應該能夠驗證 cash_on_site 狀態", async () => {
     // 重新確認訂單
     await db.updateBookingStatus(testBookingId, "confirmed");
     

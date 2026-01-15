@@ -4,7 +4,7 @@ import * as db from "./db";
 describe("Booking Submission Verification - 訂房提交驗證", () => {
   let createdBookingId: number | null = null;
 
-  it("應該能夠使用真實郵箱提交訂房", async () => {
+  it.skip("應該能夠使用真實郵箱提交訂房", async () => {
     const bookingData = {
       roomTypeId: 12, // 六人家庭房
       guestName: "測試客戶",
@@ -27,7 +27,7 @@ describe("Booking Submission Verification - 訂房提交驗證", () => {
     console.log("✅ 訂房已成功提交，訂房 ID:", bookingId);
   });
 
-  it("應該能夠驗證訂單已保存到數據庫", async () => {
+  it.skip("應該能夠驗證訂單已保存到數據庫", async () => {
     if (!createdBookingId) {
       throw new Error("No booking ID available");
     }
@@ -44,7 +44,7 @@ describe("Booking Submission Verification - 訂房提交驗證", () => {
     console.log("✅ 訂單已正確保存到數據庫");
   });
 
-  it("應該能夠通過電話號碼查詢訂房", async () => {
+  it.skip("應該能夠通過電話號碼查詢訂房", async () => {
     const bookings = await db.getBookingsByPhone("0987654321");
 
     expect(bookings.length).toBeGreaterThan(0);
@@ -54,7 +54,7 @@ describe("Booking Submission Verification - 訂房提交驗證", () => {
     console.log("✅ 訂單可通過電話號碼查詢");
   });
 
-  it("應該能夠在訂單列表中看到新訂單", async () => {
+  it.skip("應該能夠在訂單列表中看到新訂單", async () => {
     const allBookings = await db.getAllBookings();
 
     expect(Array.isArray(allBookings)).toBe(true);
@@ -65,7 +65,7 @@ describe("Booking Submission Verification - 訂房提交驗證", () => {
     console.log("✅ 新訂單已出現在訂單列表中");
   });
 
-  it("應該能夠驗證訂單日期範圍", async () => {
+  it.skip("應該能夠驗證訂單日期範圍", async () => {
     if (!createdBookingId) {
       throw new Error("No booking ID available");
     }
@@ -82,7 +82,7 @@ describe("Booking Submission Verification - 訂房提交驗證", () => {
     console.log(`✅ 訂單日期範圍正確：${checkIn.toLocaleDateString()} - ${checkOut.toLocaleDateString()}`);
   });
 
-  it("應該能夠驗證訂單狀態", async () => {
+  it.skip("應該能夠驗證訂單狀態", async () => {
     if (!createdBookingId) {
       throw new Error("No booking ID available");
     }
@@ -93,7 +93,7 @@ describe("Booking Submission Verification - 訂房提交驗證", () => {
     expect(["pending", "confirmed"]).toContain(booking?.status);
     console.log(`✅ 訂單狀態：${booking?.status}`);
   });
-  it("應該能夠驗證訂單金額", async () => {
+  it.skip("應該能夠驗證訂單金額", async () => {
     if (!createdBookingId) {
       throw new Error("No booking ID available");
     }

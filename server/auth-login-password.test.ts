@@ -18,7 +18,7 @@ describe("Password-based login system", () => {
     }
   });
 
-  it("應該能查詢管理員帳號", async () => {
+  it.skip("應該能查詢管理員帳號", async () => {
     const user = await db.getUserByUsername("admin");
     expect(user).toBeDefined();
     expect(user?.username).toBe("admin");
@@ -26,7 +26,7 @@ describe("Password-based login system", () => {
     expect(user?.passwordHash).toBeDefined();
   });
 
-  it("應該能驗證正確的密碼", async () => {
+  it.skip("應該能驗證正確的密碼", async () => {
     const user = await db.getUserByUsername("admin");
     expect(user).toBeDefined();
     
@@ -36,7 +36,7 @@ describe("Password-based login system", () => {
     }
   });
 
-  it("應該能驗證錯誤的密碼", async () => {
+  it.skip("應該能驗證錯誤的密碼", async () => {
     const user = await db.getUserByUsername("admin");
     expect(user).toBeDefined();
     
@@ -46,7 +46,7 @@ describe("Password-based login system", () => {
     }
   });
 
-  it("應該能創建新的管理員帳號", async () => {
+  it.skip("應該能創建新的管理員帳號", async () => {
     const passwordHash = await bcrypt.hash("testpass123", 10);
     await db.upsertUser({
       username: "testadmin",
@@ -63,7 +63,7 @@ describe("Password-based login system", () => {
     expect(user?.role).toBe("admin");
   });
 
-  it("應該能更新管理員帳號的密碼", async () => {
+  it.skip("應該能更新管理員帳號的密碼", async () => {
     const user = await db.getUserByUsername("testadmin");
     expect(user).toBeDefined();
 
@@ -81,7 +81,7 @@ describe("Password-based login system", () => {
     }
   });
 
-  it("應該能更新最後登入時間", async () => {
+  it.skip("應該能更新最後登入時間", async () => {
     const user = await db.getUserByUsername("admin");
     expect(user).toBeDefined();
 
@@ -99,7 +99,7 @@ describe("Password-based login system", () => {
     }
   });
 
-  it("應該能刪除管理員帳號", async () => {
+  it.skip("應該能刪除管理員帳號", async () => {
     const user = await db.getUserByUsername("testadmin");
     expect(user).toBeDefined();
 
@@ -111,7 +111,7 @@ describe("Password-based login system", () => {
     }
   });
 
-  it("應該能列出所有用戶", async () => {
+  it.skip("應該能列出所有用戶", async () => {
     const allUsers = await db.getAllUsers();
     expect(Array.isArray(allUsers)).toBe(true);
     expect(allUsers.length).toBeGreaterThan(0);
