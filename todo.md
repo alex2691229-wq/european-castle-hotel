@@ -1,4 +1,5 @@
 # 歐堡商務汽車旅館 - 項目待辦清單
+    
 
 ## 🔴 根據 Booking.com 設計重新構建訂房後台系統（2026/01/14）
 
@@ -961,3 +962,8 @@
 - [x] 將白色的四個格子換成深色背景（slate-800）
 - [x] 測試修改結果（118 個測試通過）
 - [x] 保存檢查點
+
+
+## Deployment Status (2026/01/15 - 20:30)
+✅ Fixed Root Directory configuration in Vercel
+✅ All Radix UI dependencies added to client/package.json
