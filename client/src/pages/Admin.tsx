@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RoomManagement from "@/pages/admin/RoomManagement";
-import BookingManagement from "@/pages/admin/BookingManagement";
+import BookingManagementOptimized from "@/pages/admin/BookingManagementOptimized";
 import BookingListView from "@/pages/admin/BookingListView";
 import NewsManagement from "@/pages/admin/NewsManagement";
 
@@ -58,7 +58,7 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="bookings" className="space-y-4">
-            <BookingManagement />
+            <BookingManagementOptimized />
           </TabsContent>
 
           <TabsContent value="bookings-list" className="space-y-4">
