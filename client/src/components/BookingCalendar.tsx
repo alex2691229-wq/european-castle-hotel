@@ -13,8 +13,7 @@ export default function BookingCalendar({ roomTypeId, onDateSelect }: BookingCal
   const [currentDate, setCurrentDate] = useState(new Date());
   
   // 查詢該房型的訂房記錄
-  const { data: bookings } = trpc.bookings.list.useQuery();
-  
+const { data: bookings } = trpc.bookings.list.useQuery({ roomTypeId });  
   // 獲取當前月份的天數
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
