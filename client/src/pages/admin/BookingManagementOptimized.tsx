@@ -485,6 +485,15 @@ export default function BookingManagementOptimized() {
         ) : paginatedBookings.length > 0 ? (
           <div className="space-y-4">
             {paginatedBookings.map((booking: any) => {
+              // 計算距離入住日期的天數
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const checkInDate = new Date(booking.checkInDate);
+              checkInDate.setHours(0, 0, 0, 0);
+              const daysUntilCheckIn = Math.ceil(
+                (checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+              );
+              
               const statusBadge = getStatusBadge(
                 booking.status,
                 booking.isUrgent
@@ -524,10 +533,10 @@ export default function BookingManagementOptimized() {
                         NT${booking.totalPrice || 0}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {booking.daysUntilCheckIn >= 0
-                          ? booking.daysUntilCheckIn === 0
+                        {daysUntilCheckIn >= 0
+                          ? daysUntilCheckIn === 0
                             ? "今天入住"
-                            : `${booking.daysUntilCheckIn}天後入住`
+                            : `${daysUntilCheckIn}天後入住`
                           : "已過期"}
                       </p>
                     </div>
