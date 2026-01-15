@@ -143,7 +143,7 @@ export default function Navbar() {
                   </Button>
                 </>
               ) : (
-                        <Link href="/track-booking">
+                        <Link href="/booking-tracking">
               <button
                 variant="ghost"
                 className="w-full"
