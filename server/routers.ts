@@ -11,6 +11,7 @@ import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
 import bcrypt from "bcrypt";
 import { sign } from "./_core/jwt";
+import { bookingRemindersRouter } from "./routers.booking-reminders";
 
 
 // Admin-only procedure
@@ -23,6 +24,7 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
 
 export const appRouter = router({
   system: systemRouter,
+  bookingReminders: bookingRemindersRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
