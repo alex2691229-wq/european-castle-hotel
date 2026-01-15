@@ -98,6 +98,10 @@ export default function AccountManagement() {
         id: editingId,
         name: formData.name,
       };
+          if (!formData.username) {
+                  toast.error("請填寫用戶名");
+                  return;
+                }
       if (formData.password) {
         updateData.password = formData.password;
       }
