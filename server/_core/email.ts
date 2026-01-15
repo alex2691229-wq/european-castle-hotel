@@ -311,7 +311,7 @@ export function generateBookingConfirmationEmail(
           
           <div style="text-align: center; margin: 30px 0;">
             <p style="margin-bottom: 15px; color: #666;">需要取消訂單嗎？</p>
-            <a href="https://3000-i6tfff90fhdcsut2i9gdb-8dc5f50d.sg1.manus.computer/cancel-booking?bookingId=${bookingId}" class="button" style="background-color: #e74c3c; display: inline-block; padding: 12px 30px; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">取消訂單</a>
+            <a href="${process.env.VITE_APP_URL || 'https://european-castle-hotel.manus.space'}/cancel-booking?bookingId=${bookingId}" class="button" style="background-color: #e74c3c; display: inline-block; padding: 12px 30px; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">取消訂單</a>
           </div>
           
           <div class="footer">

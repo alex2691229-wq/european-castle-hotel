@@ -63,6 +63,19 @@ export default function BookingTracking() {
     }
   };
 
+  const confirmTransferMutation = trpc.bookings.confirmBankTransfer.useMutation({
+    onSuccess: () => {
+      toast.success("✅ 已記錄轉帳後五碼，我們將在 1-2 小時內確認收款");
+      setShowTransferModal(false);
+      setLastFiveDigits("");
+      setSelectedBookingId(null);
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "提交失敗，請稍後再試");
+    },
+  });
+
   const handleSubmitTransfer = () => {
     if (!lastFiveDigits || lastFiveDigits.length !== 5) {
       toast.error("請輸入有效的轉帳後五碼（5 個數字）");
@@ -70,10 +83,10 @@ export default function BookingTracking() {
     }
     
     if (selectedBookingId) {
-      toast.success(`✅ 已記錄轉帳後五碼：${lastFiveDigits}\n\n我們將在 1-2 小時內確認收款並更新訂房狀態`);
-      setShowTransferModal(false);
-      setLastFiveDigits("");
-      setSelectedBookingId(null);
+      confirmTransferMutation.mutate({
+        id: selectedBookingId,
+        lastFiveDigits: lastFiveDigits,
+      });
     }
   };
 
@@ -432,8 +445,9 @@ export default function BookingTracking() {
                   <Button
                     className="flex-1 bg-amber-600 text-white hover:bg-amber-700"
                     onClick={handleSubmitTransfer}
+                    disabled={confirmTransferMutation.isPending}
                   >
-                    提交
+                    {confirmTransferMutation.isPending ? "提交中..." : "提交"}
                   </Button>
                 </div>
               </div>
