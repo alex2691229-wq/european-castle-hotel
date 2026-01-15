@@ -1,0 +1,106 @@
+{
+  "query": "SELECT b.id, b.roomTypeId, b.guestName, b.status \nFROM bookings b \nLEFT JOIN room_types rt ON b.roomTypeId = rt.id \nWHERE rt.id IS NULL\nORDER BY b.id DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT b.id, b.roomTypeId, b.guestName, b.status \nFROM bookings b \nLEFT JOIN room_types rt ON b.roomTypeId = rt.id \nWHERE rt.id IS NULL\nORDER BY b.id DESC;",
+  "rows": [
+    {
+      "id": "270021",
+      "roomTypeId": "210011",
+      "guestName": "測試客戶",
+      "status": "cancelled"
+    },
+    {
+      "id": "270020",
+      "roomTypeId": "1",
+      "guestName": "Availability Test Guest",
+      "status": "cancelled"
+    },
+    {
+      "id": "270018",
+      "roomTypeId": "1",
+      "guestName": "測試客戶",
+      "status": "completed"
+    },
+    {
+      "id": "270017",
+      "roomTypeId": "1",
+      "guestName": "測試客人",
+      "status": "cash_on_site"
+    },
+    {
+      "id": "270016",
+      "roomTypeId": "1",
+      "guestName": "Test Guest",
+      "status": "cancelled"
+    },
+    {
+      "id": "270015",
+      "roomTypeId": "1",
+      "guestName": "測試客戶",
+      "status": "cancelled"
+    },
+    {
+      "id": "270013",
+      "roomTypeId": "1",
+      "guestName": "測試客人 2",
+      "status": "completed"
+    },
+    {
+      "id": "270011",
+      "roomTypeId": "12",
+      "guestName": "測試客戶",
+      "status": "cash_on_site"
+    },
+    {
+      "id": "270010",
+      "roomTypeId": "1",
+      "guestName": "Availability Test Guest",
+      "status": "cancelled"
+    },
+    {
+      "id": "270008",
+      "roomTypeId": "1",
+      "guestName": "測試客戶",
+      "status": "confirmed"
+    },
+    {
+      "id": "270007",
+      "roomTypeId": "1",
+      "guestName": "測試客人",
+      "status": "cash_on_site"
+    },
+    {
+      "id": "270006",
+      "roomTypeId": "1",
+      "guestName": "Test Guest",
+      "status": "cancelled"
+    },
+    {
+      "id": "270005",
+      "roomTypeId": "1",
+      "guestName": "測試客戶",
+      "status": "pending"
+    },
+    {
+      "id": "270003",
+      "roomTypeId": "240001",
+      "guestName": "測試訪客",
+      "status": "confirmed"
+    },
+    {
+      "id": "270002",
+      "roomTypeId": "1",
+      "guestName": "測試客人",
+      "status": "cancelled"
+    },
+    {
+      "id": "240004",
+      "roomTypeId": "210011",
+      "guestName": "小周",
+      "status": "confirmed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\troomTypeId\tguestName\tstatus\n270021\t210011\t測試客戶\tcancelled\n270020\t1\tAvailability Test Guest\tcancelled\n270018\t1\t測試客戶\tcompleted\n270017\t1\t測試客人\tcash_on_site\n270016\t1\tTest Guest\tcancelled\n270015\t1\t測試客戶\tcancelled\n270013\t1\t測試客人 2\tcompleted\n270011\t12\t測試客戶\tcash_on_site\n270010\t1\tAvailability Test Guest\tcancelled\n270008\t1\t測試客戶\tconfirmed\n270007\t1\t測試客人\tcash_on_site\n270006\t1\tTest Guest\tcancelled\n270005\t1\t測試客戶\tpending\n270003\t240001\t測試訪客\tconfirmed\n270002\t1\t測試客人\tcancelled\n240004\t210011\t小周\tconfirmed\n",
+  "stderr": "",
+  "execution_time_ms": 1498
+}

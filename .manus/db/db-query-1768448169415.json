@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, guestName, status FROM bookings WHERE guestName = '完整流程測試客戶' ORDER BY id DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, guestName, status FROM bookings WHERE guestName = '完整流程測試客戶' ORDER BY id DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "300001",
+      "guestName": "完整流程測試客戶",
+      "status": "pending"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tguestName\tstatus\n300001\t完整流程測試客戶\tpending\n",
+  "stderr": "",
+  "execution_time_ms": 1571
+}

@@ -1,0 +1,8 @@
+{
+  "query": "SELECT b.id, b.room_type_id, b.guest_name, b.status, rt.name as room_name \nFROM bookings b \nLEFT JOIN room_types rt ON b.room_type_id = rt.id \nORDER BY b.id DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT b.id, b.room_type_id, b.guest_name, b.status, rt.name as room_name \nFROM bookings b \nLEFT JOIN room_types rt ON b.room_type_id = rt.id \nORDER BY b.id DESC;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'b.room_type_id' in 'on clause'"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO bookings (roomTypeId, guestName, guestEmail, guestPhone, checkInDate, checkOutDate, numberOfGuests, totalPrice, specialRequests, status, createdAt, updatedAt)\nVALUES (240006, '完整流程測試客戶', 'flowtest@example.com', '0912345678', '2026-02-01', '2026-02-03', 2, '3360.00', '測試完整訂單流程', 'pending', NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute INSERT INTO bookings (roomTypeId, guestName, guestEmail, guestPhone, checkInDate, checkOutDate, numberOfGuests, totalPrice, specialRequests, status, createdAt, updatedAt)\nVALUES (240006, '完整流程測試客戶', 'flowtest@example.com', '0912345678', '2026-02-01', '2026-02-03', 2, '3360.00', '測試完整訂單流程', 'pending', NOW(), NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1587
+}
