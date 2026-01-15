@@ -125,7 +125,7 @@ export function generateBookingConfirmationEmail(
   totalPrice: string,
   bookingId: number,
   specialRequests?: string,
-  baseUrl: string = 'https://european-castle-hotel.manus.space'
+  baseUrl: string = 'https://j4lgdbyk5e-tcqganzzma-uk.a.run.app'
 ): string {
   const checkInFormatted = checkInDate.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
   const checkOutFormatted = checkOutDate.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
