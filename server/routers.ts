@@ -12,6 +12,7 @@ import { invokeLLM } from "./_core/llm";
 import bcrypt from "bcrypt";
 import { sign } from "./_core/jwt";
 import { bookingRemindersRouter } from "./routers.booking-reminders";
+import { dataExportRouter } from "./routers.data-export";
 
 
 // Admin-only procedure
@@ -25,6 +26,7 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
 export const appRouter = router({
   system: systemRouter,
   bookingReminders: bookingRemindersRouter,
+  dataExport: dataExportRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
