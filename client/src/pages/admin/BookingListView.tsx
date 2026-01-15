@@ -51,6 +51,7 @@ export default function BookingListView() {
     onSuccess: () => {
       utils.bookings.list.invalidate();
       toast.success("訂房已確認");
+      window.location.reload();
     },
     onError: (error) => {
       toast.error(`確認失敗：${error.message}`);
@@ -61,6 +62,7 @@ export default function BookingListView() {
     onSuccess: () => {
       utils.bookings.list.invalidate();
       toast.success("已標記入住");
+      window.location.reload();
     },
     onError: (error) => {
       toast.error(`標記失敗：${error.message}`);
@@ -71,6 +73,7 @@ export default function BookingListView() {
     onSuccess: () => {
       toast.success("訂單已刪除");
       utils.bookings.list.invalidate();
+      window.location.reload();
     },
     onError: (error) => {
       toast.error(error.message || "刪除失敗");
