@@ -339,8 +339,9 @@ export const appRouter = router({
         }
         
         // Send notification email to admin
-        const adminEmail = process.env.SMTP_USER;
-        if (adminEmail) {
+        const adminEmail = = 'jason88488848@gmail.com';  // 测試用 email
+        if (342
+           ) {
           const adminEmailHtml = generateAdminNotificationEmail(
             input.guestName,
             input.guestEmail || '未提供',
