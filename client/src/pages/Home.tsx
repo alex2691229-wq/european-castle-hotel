@@ -84,6 +84,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+            <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-3 flex justify-end">
+          <button
+            onClick={() => window.location.href = '/booking-tracking'}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+          >
+            追蹤訂單
+          </button>
+        </div>
+      </div>
       {/* Hero Section with Carousel */}
       <section className="relative h-screen">
         {/* Carousel Images */}
