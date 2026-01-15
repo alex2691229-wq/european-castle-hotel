@@ -53,14 +53,14 @@ export default function Admin() {
 
           {/* 儀表板 */}
           <TabsContent value="dashboard" className="space-y-4">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-slate-900 rounded-lg shadow p-6">
               <Dashboard />
             </div>
           </TabsContent>
 
           {/* 訂單管理分類 */}
           <TabsContent value="bookings" className="space-y-4">
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-slate-900 rounded-lg shadow">
               <Tabs defaultValue="booking-management" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
                   <TabsTrigger value="booking-management" className="rounded-none">
@@ -93,9 +93,9 @@ export default function Admin() {
 
           {/* 房型管理分類 */}
           <TabsContent value="rooms" className="space-y-4">
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-slate-900 rounded-lg shadow">
               <Tabs defaultValue="room-management" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
+                <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
                   <TabsTrigger value="room-management" className="rounded-none">
                     房型列表
                   </TabsTrigger>
@@ -103,7 +103,10 @@ export default function Admin() {
                     批量更新
                   </TabsTrigger>
                   <TabsTrigger value="bulk-edit" className="rounded-none">
-                    批量編輯
+                    批量编辑
+                  </TabsTrigger>
+                  <TabsTrigger value="availability" className="rounded-none">
+                    可用性管理
                   </TabsTrigger>
                 </TabsList>
 
@@ -119,6 +122,10 @@ export default function Admin() {
                   <TabsContent value="bulk-edit" className="space-y-4 mt-0">
                     <RoomBulkEdit />
                   </TabsContent>
+
+                  <TabsContent value="availability" className="space-y-4 mt-0">
+                    <AvailabilityManagement />
+                  </TabsContent>
                 </div>
               </Tabs>
             </div>
@@ -126,7 +133,7 @@ export default function Admin() {
 
           {/* 內容管理分類 */}
           <TabsContent value="content" className="space-y-4">
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-slate-900 rounded-lg shadow">
               <Tabs defaultValue="news" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
                   <TabsTrigger value="news" className="rounded-none">
@@ -152,25 +159,18 @@ export default function Admin() {
 
           {/* 系統設置分類 */}
           <TabsContent value="settings" className="space-y-4">
-            <div className="bg-white rounded-lg shadow">
-              <Tabs defaultValue="availability" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
-                  <TabsTrigger value="availability" className="rounded-none">
-                    可用性管理
-                  </TabsTrigger>
+            <div className="bg-slate-900 rounded-lg shadow">
+              <Tabs defaultValue="calendar" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
                   <TabsTrigger value="calendar" className="rounded-none">
                     日曆管理
                   </TabsTrigger>
                   <TabsTrigger value="accounts" className="rounded-none">
-                    帳戶管理
+                    账户管理
                   </TabsTrigger>
                 </TabsList>
 
                 <div className="p-6">
-                  <TabsContent value="availability" className="space-y-4 mt-0">
-                    <AvailabilityManagement />
-                  </TabsContent>
-
                   <TabsContent value="calendar" className="space-y-4 mt-0">
                     <AvailabilityCalendar />
                   </TabsContent>

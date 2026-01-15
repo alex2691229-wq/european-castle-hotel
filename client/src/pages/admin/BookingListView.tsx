@@ -471,8 +471,8 @@ export default function BookingListView() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4">
+                <tr className="border-b border-border bg-slate-800">
+                  <th className="text-left py-4 px-5">
                     <input
                       type="checkbox"
                       checked={
@@ -484,42 +484,42 @@ export default function BookingListView() {
                     />
                   </th>
                   <th
-                    className="text-left py-3 px-4 font-semibold text-foreground cursor-pointer hover:bg-accent"
+                    className="text-left py-4 px-5 font-semibold text-foreground cursor-pointer hover:bg-slate-700"
                     onClick={() => handleSort("id")}
                   >
                     訂單編號 <SortIndicator field="id" />
                   </th>
                   <th
-                    className="text-left py-3 px-4 font-semibold text-foreground cursor-pointer hover:bg-accent"
+                    className="text-left py-4 px-5 font-semibold text-foreground cursor-pointer hover:bg-slate-700"
                     onClick={() => handleSort("guestName")}
                   >
                     客戶名稱 <SortIndicator field="guestName" />
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                  <th className="text-left py-4 px-5 font-semibold text-foreground">
                     房型
                   </th>
                   <th
-                    className="text-left py-3 px-4 font-semibold text-foreground cursor-pointer hover:bg-accent"
+                    className="text-left py-4 px-5 font-semibold text-foreground cursor-pointer hover:bg-slate-700"
                     onClick={() => handleSort("checkInDate")}
                   >
                     入住日期 <SortIndicator field="checkInDate" />
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                  <th className="text-left py-4 px-5 font-semibold text-foreground">
                     退房日期
                   </th>
                   <th
-                    className="text-left py-3 px-4 font-semibold text-foreground cursor-pointer hover:bg-accent"
+                    className="text-left py-4 px-5 font-semibold text-foreground cursor-pointer hover:bg-slate-700"
                     onClick={() => handleSort("totalPrice")}
                   >
                     金額 <SortIndicator field="totalPrice" />
                   </th>
                   <th
-                    className="text-left py-3 px-4 font-semibold text-foreground cursor-pointer hover:bg-accent"
+                    className="text-left py-4 px-5 font-semibold text-foreground cursor-pointer hover:bg-slate-700"
                     onClick={() => handleSort("status")}
                   >
                     狀態 <SortIndicator field="status" />
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                  <th className="text-left py-4 px-5 font-semibold text-foreground">
                     操作
                   </th>
                 </tr>
@@ -534,9 +534,9 @@ export default function BookingListView() {
                   return (
                     <tr
                       key={booking.id}
-                      className="border-b border-border hover:bg-accent transition-colors"
+                      className="border-b border-border hover:bg-slate-800 transition-colors"
                     >
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-5">
                         <input
                           type="checkbox"
                           checked={selectedBookings.has(booking.id)}
@@ -544,32 +544,32 @@ export default function BookingListView() {
                           className="rounded border-border"
                         />
                       </td>
-                      <td className="py-3 px-4 font-medium text-foreground">
+                      <td className="py-4 px-5 font-medium text-foreground">
                         #{booking.id}
                       </td>
-                      <td className="py-3 px-4 text-foreground">
+                      <td className="py-4 px-5 text-foreground">
                         {booking.guestName}
                         <div className="text-xs text-muted-foreground">
                           {booking.guestPhone}
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-foreground">
+                      <td className="py-4 px-5 text-foreground">
                         {roomType?.name || "未知"}
                       </td>
-                      <td className="py-3 px-4 text-foreground">
+                      <td className="py-4 px-5 text-foreground">
                         {new Date(booking.checkInDate).toLocaleDateString(
                           "zh-TW"
                         )}
                       </td>
-                      <td className="py-3 px-4 text-foreground">
+                      <td className="py-4 px-5 text-foreground">
                         {new Date(booking.checkOutDate).toLocaleDateString(
                           "zh-TW"
                         )}
                       </td>
-                      <td className="py-3 px-4 font-medium text-foreground">
+                      <td className="py-4 px-5 font-medium text-foreground">
                         NT${booking.totalPrice.toLocaleString()}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-5">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${statusBadge.bg} ${statusBadge.text}`}
                         >
