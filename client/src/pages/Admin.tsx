@@ -11,8 +11,7 @@ import RoomBatchUpdate from "@/pages/admin/RoomBatchUpdate";
 import RoomBulkEdit from "@/pages/admin/RoomBulkEdit";
 import DataExport from "@/pages/admin/DataExport";
 import HomeManagement from "@/pages/admin/HomeManagement";
-import AvailabilityManagement from "@/pages/admin/AvailabilityManagement";
-import AvailabilityCalendar from "@/pages/admin/AvailabilityCalendar";
+import UnifiedRoomManagement from "@/pages/admin/UnifiedRoomManagement";
 import AccountManagement from "@/pages/admin/AccountManagement";
 import Dashboard from "@/pages/admin/Dashboard";
 
@@ -117,7 +116,7 @@ export default function Admin() {
                   </TabsContent>
 
                   <TabsContent value="calendar-management" className="space-y-4 mt-0">
-                    <AvailabilityManagement />
+                    <UnifiedRoomManagement />
                   </TabsContent>
                 </div>
               </Tabs>
