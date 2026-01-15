@@ -1114,4 +1114,53 @@ export async function checkMaxSalesQuantity(
   }
 
   return true;
+
+  // 房間控制系統 - RoomBlockage 函數
+type RoomBlockage = {
+  id: number;
+  roomTypeId: number;
+  startDate: Date;
+  endDate: Date;
+  reason?: string;
+};
+
+export async function createRoomBlockage(
+  roomTypeId: number,
+  startDate: Date,
+  endDate: Date,
+  reason: string = '手動關閉'
+): Promise<RoomBlockage> {
+  // TODO: 実現資料庫存儲
+  return {
+    id: Math.random(),
+    roomTypeId,
+    startDate,
+    endDate,
+    reason
+  };
+}
+
+export async function getRoomBlockages(roomTypeId: number): Promise<RoomBlockage[]> {
+  // TODO: 從資料庫查詢
+  return [];
+}
+
+export async function isDateBlocked(roomTypeId: number, date: Date): Promise<boolean> {
+  // TODO: 棄查是否被關閉
+  return false;
+}
+
+export async function deleteRoomBlockage(id: number): Promise<boolean> {
+  // TODO: 実現資料庫刪除
+  return true;
+}
+
+export async function getBlockedDatesInRange(
+  roomTypeId: number,
+  startDate: Date,
+  endDate: Date
+): Promise<RoomBlockage[]> {
+  // TODO: 取得範圍內的關閉日期
+  return [];
+}
 }
