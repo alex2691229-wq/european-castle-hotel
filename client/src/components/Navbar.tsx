@@ -154,6 +154,7 @@ export default function Navbar() {
                 </Link>
               )}
             </div>
+            // Force redeploy - trigger build
           </div>
         )}
       </div>
