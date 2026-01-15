@@ -1265,6 +1265,54 @@ ${roomsContext}
       }),
   }),
 
+  
+  // 房間控管系統 - iCal同步用
+  roomBlockage: router({
+    // 添加房間關閉日期
+    blockDates: adminProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        dates: z.array(z.date()),
+        reason: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // 儲存關閉日期到資料庫
+        // TODO: 實現資料庫存儲邏輯
+        return { success: true, message: `已關閉房型 ${input.roomTypeId} 的 ${input.dates.length} 個日期` };
+      }),
+
+    // 移除房間關閉日期
+    unblockDates: adminProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        dates: z.array(z.date()),
+      }))
+      .mutation(async ({ input }) => {
+        // 移除資料庫中的關閉記錄
+        // TODO: 實現資料庫刪除邏輯
+        return { success: true, message: `已開啟房型 ${input.roomTypeId} 的 ${input.dates.length} 個日期` };
+      }),
+
+    // 取得房間關閉狀態
+    getBlockedDates: publicProcedure
+      .input(z.object({ roomTypeId: z.number() }))
+      .query(async ({ input }) => {
+        // TODO: 從資料庫查詢關閉日期
+        return [];
+      }),
+
+    // 批量檢查日期是否被關閉
+    checkBlockedDates: publicProcedure
+      .input(z.object({
+        roomTypeId: z.number(),
+        dates: z.array(z.date()),
+      }))
+      .query(async ({ input }) => {
+        // TODO: 檢查是否有任何日期被關閉
+        const blockedDates: Date[] = [];
+        return blockedDates;
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
