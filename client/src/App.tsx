@@ -41,7 +41,7 @@ function Router() {
           <Route path="/booking" component={Booking} />
           <Route path="/booking/confirmation" component={BookingConfirmation} />
           <Route path="/booking/confirmation/:id" component={BookingConfirmation} />
-          <Route path="/booking/tracking" component={BookingTracking} />
+          <Route path="/booking-tracking" component={BookingTracking} />
           <Route path="/contact" component={Contact} />
           <Route path="/news" component={News} />
           <Route path="/news/:id" component={NewsDetail} />
