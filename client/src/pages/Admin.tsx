@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -95,18 +95,15 @@ export default function Admin() {
           <TabsContent value="rooms" className="space-y-4">
             <div className="bg-slate-900 rounded-lg shadow">
               <Tabs defaultValue="room-management" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
+                <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
                   <TabsTrigger value="room-management" className="rounded-none">
                     房型列表
                   </TabsTrigger>
                   <TabsTrigger value="batch-update" className="rounded-none">
                     批量更新
                   </TabsTrigger>
-                  <TabsTrigger value="bulk-edit" className="rounded-none">
-                    批量编辑
-                  </TabsTrigger>
-                  <TabsTrigger value="availability" className="rounded-none">
-                    可用性管理
+                  <TabsTrigger value="calendar-management" className="rounded-none">
+                    可銷售房間管理
                   </TabsTrigger>
                 </TabsList>
 
@@ -119,11 +116,7 @@ export default function Admin() {
                     <RoomBatchUpdate />
                   </TabsContent>
 
-                  <TabsContent value="bulk-edit" className="space-y-4 mt-0">
-                    <RoomBulkEdit />
-                  </TabsContent>
-
-                  <TabsContent value="availability" className="space-y-4 mt-0">
+                  <TabsContent value="calendar-management" className="space-y-4 mt-0">
                     <AvailabilityManagement />
                   </TabsContent>
                 </div>
@@ -160,21 +153,14 @@ export default function Admin() {
           {/* 系統設置分類 */}
           <TabsContent value="settings" className="space-y-4">
             <div className="bg-slate-900 rounded-lg shadow">
-              <Tabs defaultValue="calendar" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
-                  <TabsTrigger value="calendar" className="rounded-none">
-                    日曆管理
-                  </TabsTrigger>
+              <Tabs defaultValue="accounts" className="w-full">
+                <TabsList className="grid w-full grid-cols-1 rounded-none border-b">
                   <TabsTrigger value="accounts" className="rounded-none">
                     账户管理
                   </TabsTrigger>
                 </TabsList>
 
                 <div className="p-6">
-                  <TabsContent value="calendar" className="space-y-4 mt-0">
-                    <AvailabilityCalendar />
-                  </TabsContent>
-
                   <TabsContent value="accounts" className="space-y-4 mt-0">
                     <AccountManagement />
                   </TabsContent>
