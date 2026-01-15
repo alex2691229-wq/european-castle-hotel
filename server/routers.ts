@@ -14,6 +14,7 @@ import { sign } from "./_core/jwt";
 import { bookingRemindersRouter } from "./routers.booking-reminders";
 import { dataExportRouter } from "./routers.data-export";
 import { autoRemindersRouter } from "./routers.auto-reminders";
+import { startBookingCalendarSync, stopBookingCalendarSync, manualSyncBookingCalendar } from './_core/booking-ical-sync';
 
 
 // Admin-only procedure
@@ -1314,6 +1315,29 @@ ${roomsContext}
         }
       }
       return blockedDates;
-  }),});
+    }),
+
+  // Booking.com iCal 同步
+  iCalSync: router({
+    // 手動触發同步
+    syncNow: adminProcedure
+      .mutation(async () => {
+        return await manualSyncBookingCalendar();
+      }),
+    // 启動自動同步
+    start: adminProcedure
+      .mutation(async () => {
+        startBookingCalendarSync();
+        return { success: true, message: 'iCal 同步已啟動' };
+      }),
+    // 停止自動同步
+    stop: adminProcedure
+      .mutation(async () => {
+        stopBookingCalendarSync();
+        return { success: true, message: 'iCal 同步已停止' };
+      }),
+      }),});
 
 export type AppRouter = typeof appRouter;
+1318
+        
