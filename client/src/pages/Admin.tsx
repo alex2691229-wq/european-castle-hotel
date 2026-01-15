@@ -6,11 +6,14 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RoomManagement from "@/pages/admin/RoomManagement";
 import BookingManagement from "@/pages/admin/BookingManagement";
+import BookingListView from "@/pages/admin/BookingListView";
 import NewsManagement from "@/pages/admin/NewsManagement";
 
 import RoomBatchUpdate from "@/pages/admin/RoomBatchUpdate";
+import RoomBulkEdit from "@/pages/admin/RoomBulkEdit";
 import HomeManagement from "@/pages/admin/HomeManagement";
 import AvailabilityManagement from "@/pages/admin/AvailabilityManagement";
+import AvailabilityCalendar from "@/pages/admin/AvailabilityCalendar";
 import AccountManagement from "@/pages/admin/AccountManagement";
 
 
@@ -29,13 +32,16 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="rooms" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-10">
             <TabsTrigger value="rooms">房型管理</TabsTrigger>
             <TabsTrigger value="batch-update">批量更新</TabsTrigger>
+            <TabsTrigger value="bulk-edit">批量編輯</TabsTrigger>
             <TabsTrigger value="bookings">訂單管理</TabsTrigger>
+            <TabsTrigger value="bookings-list">訂單列表</TabsTrigger>
             <TabsTrigger value="news">最新消息</TabsTrigger>
             <TabsTrigger value="home">首頁管理</TabsTrigger>
             <TabsTrigger value="availability">可用性管理</TabsTrigger>
+            <TabsTrigger value="availability-calendar">日曆管理</TabsTrigger>
             <TabsTrigger value="accounts">帳戶管理</TabsTrigger>
           </TabsList>
 
@@ -47,8 +53,16 @@ export default function Admin() {
             <RoomBatchUpdate />
           </TabsContent>
 
+          <TabsContent value="bulk-edit" className="space-y-4">
+            <RoomBulkEdit />
+          </TabsContent>
+
           <TabsContent value="bookings" className="space-y-4">
             <BookingManagement />
+          </TabsContent>
+
+          <TabsContent value="bookings-list" className="space-y-4">
+            <BookingListView />
           </TabsContent>
 
           <TabsContent value="news" className="space-y-4">
@@ -61,6 +75,10 @@ export default function Admin() {
 
           <TabsContent value="availability" className="space-y-4">
             <AvailabilityManagement />
+          </TabsContent>
+
+          <TabsContent value="availability-calendar" className="space-y-4">
+            <AvailabilityCalendar />
           </TabsContent>
 
           <TabsContent value="accounts" className="space-y-4">
