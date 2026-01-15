@@ -102,8 +102,7 @@ export default function CancelBooking() {
                     onChange={(e) => setBookingId(e.target.value ? parseInt(e.target.value, 10) : null)}
                     placeholder="請輸入訂房編號"
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-yellow-500"
-                    disabled={!!window.location.search.includes('bookingId')}
-                  />
+disabled={!bookingId}                  />
                 </div>
 
                 <div className="mb-6">
