@@ -143,6 +143,15 @@ export default function Navbar() {
                   </Button>
                 </>
               ) : (
+                        <Link href="/track-booking">
+              <button
+                variant="ghost"
+                className="w-full"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                追蹤訂單
+              </button>
+            </Link>
                 <Link href="/login">
                   <Button 
                     variant="ghost" 
