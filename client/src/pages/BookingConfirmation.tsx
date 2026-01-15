@@ -307,7 +307,7 @@ export default function BookingConfirmation() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center flex-wrap">
             <Button
               size="lg"
               className="px-8 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition"
@@ -322,6 +322,13 @@ export default function BookingConfirmation() {
               onClick={() => window.print()}
             >
               🖨️ 列印確認單
+            </Button>
+            <Button
+              size="lg"
+              className="px-8 bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl transition"
+              onClick={() => navigate(`/cancel-booking?bookingId=${bookingData.bookingId}`)}
+            >
+              ✕ 取消訂房
             </Button>
           </div>
         </div>
