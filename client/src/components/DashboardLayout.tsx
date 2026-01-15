@@ -32,9 +32,9 @@ const menuItems = [
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
-const DEFAULT_WIDTH = 320; // 擴大默認寬度
-const MIN_WIDTH = 250;
-const MAX_WIDTH = 500;
+const DEFAULT_WIDTH = 200; // 縮小默認寬度
+const MIN_WIDTH = 180;
+const MAX_WIDTH = 350;
 
 export default function DashboardLayout({
   children,

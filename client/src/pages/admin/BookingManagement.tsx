@@ -520,7 +520,8 @@ export default function BookingManagement() {
                   </div>
 
                   {/* 快速操作按鈕 */}
-                  <div className="flex flex-wrap gap-2 mt-4" onClick={(e) => e.stopPropagation()}>                {booking.status === "pending" && (
+                  <div className="flex flex-wrap gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
+                    {booking.status === "pending" && (
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
