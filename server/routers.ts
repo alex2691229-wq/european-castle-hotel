@@ -314,6 +314,11 @@ export const appRouter = router({
         
         // Send confirmation email to guest
         if (input.guestEmail) {
+          // Get base URL from request headers or use default
+          const protocol = ctx.req?.headers['x-forwarded-proto'] || 'https';
+          const host = ctx.req?.headers['x-forwarded-host'] || ctx.req?.headers['host'] || 'european-castle-hotel.manus.space';
+          const baseUrl = `${protocol}://${host}`;
+          
           const guestEmailHtml = generateBookingConfirmationEmail(
             input.guestName,
             roomType?.name || '房型',
@@ -322,7 +327,8 @@ export const appRouter = router({
             input.numberOfGuests,
             input.totalPrice,
             id,
-            input.specialRequests
+            input.specialRequests,
+            baseUrl
           );
           await sendEmail(
             input.guestEmail,

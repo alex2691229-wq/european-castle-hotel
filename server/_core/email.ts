@@ -62,7 +62,8 @@ export function generateBookingConfirmationEmail(
   numberOfGuests: number,
   totalPrice: string,
   bookingId: number,
-  specialRequests?: string
+  specialRequests?: string,
+  baseUrl: string = 'https://european-castle-hotel.manus.space'
 ): string {
   const checkInFormatted = checkInDate.toLocaleDateString('zh-TW', {
     year: 'numeric',
@@ -311,7 +312,7 @@ export function generateBookingConfirmationEmail(
           
           <div style="text-align: center; margin: 30px 0;">
             <p style="margin-bottom: 15px; color: #666;">需要取消訂單嗎？</p>
-            <a href="${process.env.VITE_APP_URL || 'https://european-castle-hotel.manus.space'}/cancel-booking?bookingId=${bookingId}" class="button" style="background-color: #e74c3c; display: inline-block; padding: 12px 30px; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">取消訂單</a>
+            <a href="${baseUrl}/cancel-booking?bookingId=${bookingId}" class="button" style="background-color: #e74c3c; display: inline-block; padding: 12px 30px; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">取消訂單</a>
           </div>
           
           <div class="footer">
