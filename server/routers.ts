@@ -13,6 +13,7 @@ import bcrypt from "bcrypt";
 import { sign } from "./_core/jwt";
 import { bookingRemindersRouter } from "./routers.booking-reminders";
 import { dataExportRouter } from "./routers.data-export";
+import { autoRemindersRouter } from "./routers.auto-reminders";
 
 
 // Admin-only procedure
@@ -27,6 +28,7 @@ export const appRouter = router({
   system: systemRouter,
   bookingReminders: bookingRemindersRouter,
   dataExport: dataExportRouter,
+  autoReminders: autoRemindersRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
