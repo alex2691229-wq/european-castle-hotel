@@ -17,6 +17,7 @@ export default function Navbar() {
     { href: "/news", label: "最新消息" },
     { href: "/location", label: "交通資訊" },
     { href: "/contact", label: "聯絡我們" },
+        { href: "/booking-tracking", label: "📋 追蹤訂單" },
   ];
 
   return (
