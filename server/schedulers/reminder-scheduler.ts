@@ -126,9 +126,9 @@ export function scheduleConfirmationReminders() {
   });
 }
 
-// 每日 14:00 發送待付款提醒
+// 每日 9:00 發送待付款提醒
 export function schedulePaymentReminders() {
-  cron.schedule('0 14 * * *', async () => {
+  cron.schedule('0 9 * * *', async () => {
     console.log('[Scheduler] 執行待付款訂房提醒任務...');
     try {
       const allBookings = await db.getAllBookings();
@@ -155,9 +155,9 @@ export function schedulePaymentReminders() {
   });
 }
 
-// 每日 18:00 發送入住前 1 天提醒
+// 每日 9:00 發送入住前 1 天提醒
 export function scheduleCheckInReminders() {
-  cron.schedule('0 18 * * *', async () => {
+  cron.schedule('0 9 * * *', async () => {
     console.log('[Scheduler] 執行入住提醒任務...');
     try {
       const allBookings = await db.getAllBookings();
@@ -231,6 +231,7 @@ export function scheduleCheckInReminders() {
 // 初始化所有調度器
 export function initializeSchedulers() {
   console.log('[Scheduler] 初始化自動提醒調度器...');
+  console.log('[Scheduler] ⏰ 設置每日 09:00 執行所有自動提醒任務');
   scheduleConfirmationReminders();
   schedulePaymentReminders();
   scheduleCheckInReminders();
