@@ -9,7 +9,7 @@ interface BookingDetail {
   checkIn: string;
   checkOut: string;
   totalPrice: number;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'pending_payment' | 'paid' | 'completed' | 'cash_on_site';
   bankLastFive?: string;
   customerName?: string;
   customerPhone?: string;
@@ -29,24 +29,26 @@ export default function TrackBooking() {
     setError('');
     
     try {
-      // TODO: Call trackBooking API when available
-      console.log('Tracking booking:', { orderId, phone });
+      // Call the API to get bookings by phone
+      const result = await trpc.bookings.getByPhone.query({ phone });
       
-      // Mock data for testing
-      if (orderId && phone) {
+      // Find booking matching the orderId
+      const matchedBooking = result.find((b: any) => b.id.toString() === orderId);
+      
+      if (matchedBooking) {
         setBooking({
-          id: orderId,
-          roomName: '標準雙床房',
-          checkIn: '2026-01-20',
-          checkOut: '2026-01-22',
-          totalPrice: 3560,
-          status: 'pending',
-          bankLastFive: '',
-          customerName: '測試客戶',
-          customerPhone: phone
+          id: matchedBooking.id.toString(),
+          roomName: matchedBooking.roomName,
+          checkIn: new Date(matchedBooking.checkInDate).toLocaleDateString('zh-TW'),
+          checkOut: new Date(matchedBooking.checkOutDate).toLocaleDateString('zh-TW'),
+          totalPrice: parseFloat(matchedBooking.totalPrice),
+          status: matchedBooking.status,
+          bankLastFive: matchedBooking.bankLastFive,
+          customerName: matchedBooking.guestName,
+          customerPhone: matchedBooking.guestPhone
         });
       } else {
-        setError('請輸入訂單 ID 和手機号碼');
+        setError('找不到符合條件的訂單。請確認訂單 ID 和手機是否正確');
       }
     } catch (err) {
       setError('找不到符合條件的訂單。請確認訂單 ID 和手機是否正確');
@@ -61,28 +63,53 @@ export default function TrackBooking() {
       return;
     }
     
+    if (!booking) return;
+    
     try {
-      // TODO: Call API: PATCH /api/bookings/{id}/bank-info
-      alert(`已送出后五码: ${lastFive}，管理冓將實快核對。`);
-      setBooking(prev => prev ? { ...prev, bankLastFive: lastFive, status: 'confirmed' } : null);
+      // Call the API to confirm bank transfer
+      await trpc.bookings.confirmBankTransfer.mutate({
+        id: parseInt(booking.id),
+        lastFiveDigits: lastFive
+      });
+      
+      alert(`已送出後五碼: ${lastFive}，管理員將儘快核對。`);
+      setBooking(prev => prev ? { ...prev, bankLastFive: lastFive, status: 'paid' } : null);
       setLastFive('');
     } catch (error) {
-      alert('輸入失敗，請稍並');
+      alert('輸入失敗，請稍後重試');
     }
   };
 
   const handleCancel = async () => {
-    const confirmCancel = window.confirm('您確定要取消此画予訂吗？取消後房間將釋出。');
+    const confirmCancel = window.confirm('您確定要取消此訂房嗎？取消後房間將釋出。');
     
-    if (confirmCancel) {
+    if (confirmCancel && booking) {
       try {
-        // TODO: Call API: POST /api/bookings/{id}/cancel
-        alert('訂単已成功取消');
+        // Call the API to cancel booking
+        await trpc.bookings.cancel.mutate({
+          id: parseInt(booking.id),
+          phone: booking.customerPhone || ''
+        });
+        
+        alert('訂單已成功取消');
         setBooking(prev => prev ? { ...prev, status: 'cancelled' } : null);
       } catch (error) {
-        alert('取消失敗，請稍並');
+        alert('取消失敗，請稍後重試');
       }
     }
+  };
+
+  const getStatusDisplay = (status: string) => {
+    const statusMap: Record<string, string> = {
+      pending: '待確認',
+      confirmed: '已確認',
+      pending_payment: '待付款',
+      paid: '已付款',
+      cash_on_site: '現場支付',
+      completed: '已完成',
+      cancelled: '已取消'
+    };
+    return statusMap[status] || status;
   };
 
   return (
@@ -91,7 +118,7 @@ export default function TrackBooking() {
         <h1 className="text-4xl font-bold text-gold mb-8 text-center">
           追蹤我的訂房
         </h1>
-
+        
         {!booking ? (
           <form onSubmit={handleSearch} className="bg-card p-8 rounded-lg shadow-lg border border-gold/20">
             <div className="mb-6">
@@ -100,14 +127,14 @@ export default function TrackBooking() {
                 type="text"
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
-                placeholder="例如: #360002"
+                placeholder="例如: 360002"
                 className="w-full px-4 py-2 bg-input text-white rounded border border-gold/30 focus:outline-none focus:border-gold"
                 required
               />
             </div>
-
+            
             <div className="mb-6">
-              <label className="block text-white font-semibold mb-2">話購人手機號碼</label>
+              <label className="block text-white font-semibold mb-2">訂房人手機號碼</label>
               <input
                 type="tel"
                 value={phone}
@@ -117,13 +144,13 @@ export default function TrackBooking() {
                 required
               />
             </div>
-
+            
             {error && (
               <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded text-red-400">
                 {error}
               </div>
             )}
-
+            
             <button
               type="submit"
               disabled={loading}
@@ -137,17 +164,16 @@ export default function TrackBooking() {
             <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500 rounded">
               <h2 className="text-xl font-bold text-gold mb-2">訂單狀態</h2>
               <p className="text-white text-lg">
-                {booking.status === 'pending' ? '待確認' : booking.status === 'confirmed' ? '已確認' : '已取消'}
+                {getStatusDisplay(booking.status)}
               </p>
             </div>
-
+            
             <div className="mb-6">
-              <h3 className="text-2xl font-bold text-gold mb-2"># {booking.roomName}</h3>
-              <p className="text-gray-300 mb-2">訂單 ID: {booking.id}</p>
+              <h3 className="text-2xl font-bold text-gold mb-2">#{booking.id} - {booking.roomName}</h3>
               <p className="text-gray-300 mb-2">客戶姓名: {booking.customerName}</p>
-              <p className="text-gray-300">的話號: {booking.customerPhone}</p>
+              <p className="text-gray-300">手機號: {booking.customerPhone}</p>
             </div>
-
+            
             <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-input rounded">
               <div>
                 <p className="text-gray-400 text-sm">入住日期</p>
@@ -158,13 +184,13 @@ export default function TrackBooking() {
                 <p className="text-white font-semibold">{booking.checkOut}</p>
               </div>
             </div>
-
+            
             <div className="mb-6 p-4 bg-input rounded">
               <p className="text-gray-400 text-sm">總金額</p>
               <p className="text-white text-2xl font-bold">NT${booking.totalPrice.toLocaleString()}</p>
             </div>
-
-            {booking.status === 'pending' && !booking.bankLastFive && (
+            
+            {booking.status === 'pending_payment' && !booking.bankLastFive && (
               <div className="mb-6 p-4 bg-yellow-500/20 border border-yellow-500 rounded">
                 <h4 className="text-lg font-bold text-yellow-400 mb-3">填寫匯款資訊</h4>
                 <div className="flex gap-2">
@@ -173,7 +199,7 @@ export default function TrackBooking() {
                     maxLength={5}
                     value={lastFive}
                     onChange={(e) => setLastFive(e.target.value.replace(/\D/g, ''))}
-                    placeholder="輸入銀行轉帳後五码"
+                    placeholder="輸入銀行轉帳後五碼"
                     className="flex-1 px-3 py-2 bg-input text-white rounded border border-gold/30 focus:outline-none focus:border-gold"
                   />
                   <button
@@ -185,13 +211,13 @@ export default function TrackBooking() {
                 </div>
               </div>
             )}
-
+            
             {booking.bankLastFive && (
               <div className="mb-6 p-3 bg-green-500/20 border border-green-500 rounded text-green-400">
-                ✓ 已回報上位码: {booking.bankLastFive}
+                ✓ 已回報後五碼: {booking.bankLastFive}
               </div>
             )}
-
+            
             <div className="flex gap-3">
               <button
                 onClick={() => { setBooking(null); setError(''); }}
@@ -199,7 +225,7 @@ export default function TrackBooking() {
               >
                 返回查詢
               </button>
-              {booking.status !== 'cancelled' && (
+              {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                 <button
                   onClick={handleCancel}
                   className="flex-1 py-3 bg-red-600 text-white font-bold rounded hover:bg-red-700 transition"
