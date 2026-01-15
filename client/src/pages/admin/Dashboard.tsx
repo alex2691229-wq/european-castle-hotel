@@ -146,26 +146,26 @@ export default function Dashboard() {
       {/* 第二行統計 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* 房型數量 */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-slate-800 rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">可用房型</p>
-              <p className="text-2xl font-bold mt-1">{stats.totalRoomTypes} 種</p>
+              <p className="text-slate-400 text-sm">可用房型</p>
+              <p className="text-2xl font-bold mt-1 text-white">{stats.totalRoomTypes} 種</p>
             </div>
             <div className="text-3xl">🏨</div>
           </div>
         </div>
         
         {/* 佔用率 */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-slate-800 rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">預估佔用率</p>
-              <p className="text-2xl font-bold mt-1">{stats.occupancyRate}%</p>
+              <p className="text-slate-400 text-sm">預估佔用率</p>
+              <p className="text-2xl font-bold mt-1 text-white">{stats.occupancyRate}%</p>
             </div>
             <div className="text-3xl">📊</div>
           </div>
-          <div className="mt-3 bg-gray-200 rounded-full h-2">
+          <div className="mt-3 bg-slate-700 rounded-full h-2">
             <div 
               className="bg-blue-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${stats.occupancyRate}%` }}
@@ -174,18 +174,18 @@ export default function Dashboard() {
         </div>
         
         {/* 快速操作 */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-500 text-sm mb-3">快速操作</p>
+        <div className="bg-slate-800 rounded-lg shadow p-6">
+          <p className="text-slate-400 text-sm mb-3">快速操作</p>
           <div className="space-y-2">
             <button 
               onClick={() => window.location.href = '/admin?tab=bookings'}
-              className="w-full text-left px-3 py-2 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition"
+              className="w-full text-left px-3 py-2 bg-slate-700 text-blue-400 rounded hover:bg-slate-600 transition"
             >
               📋 查看訂單管理
             </button>
             <button 
               onClick={() => window.location.href = '/admin?tab=rooms'}
-              className="w-full text-left px-3 py-2 bg-green-50 text-green-700 rounded hover:bg-green-100 transition"
+              className="w-full text-left px-3 py-2 bg-slate-700 text-green-400 rounded hover:bg-slate-600 transition"
             >
               🛏️ 管理房型
             </button>
@@ -194,39 +194,39 @@ export default function Dashboard() {
       </div>
       
       {/* 待處理任務 */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">待處理任務</h3>
+      <div className="bg-slate-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold mb-4 text-white">待處理任務</h3>
         <div className="space-y-3">
           {stats.pendingBookings > 0 && (
-            <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-orange-900/30 rounded-lg">
               <div className="flex items-center">
-                <span className="text-orange-500 mr-3">⚠️</span>
-                <span>有 {stats.pendingBookings} 筆訂單待確認</span>
+                <span className="text-orange-400 mr-3">⚠️</span>
+                <span className="text-orange-200">有 {stats.pendingBookings} 筆訂單待確認</span>
               </div>
               <button 
                 onClick={() => window.location.href = '/admin?tab=bookings'}
-                className="text-orange-600 hover:text-orange-800 text-sm font-medium"
+                className="text-orange-400 hover:text-orange-300 text-sm font-medium"
               >
                 立即處理 →
               </button>
             </div>
           )}
           {stats.todayBookings > 0 && (
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-blue-900/30 rounded-lg">
               <div className="flex items-center">
-                <span className="text-blue-500 mr-3">📅</span>
-                <span>今日有 {stats.todayBookings} 位客人入住</span>
+                <span className="text-blue-400 mr-3">📅</span>
+                <span className="text-blue-200">今日有 {stats.todayBookings} 位客人入住</span>
               </div>
               <button 
                 onClick={() => window.location.href = '/admin?tab=bookings-list'}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium"
               >
                 查看詳情 →
               </button>
             </div>
           )}
           {stats.pendingBookings === 0 && stats.todayBookings === 0 && (
-            <div className="text-center text-gray-500 py-4">
+            <div className="text-center text-slate-400 py-4">
               ✨ 目前沒有待處理的任務
             </div>
           )}
