@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
-import { Streamdown } from "streamdown";
 
 type Message = {
   id: string;
