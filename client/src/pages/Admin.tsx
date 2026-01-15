@@ -12,6 +12,7 @@ import RoomBulkEdit from "@/pages/admin/RoomBulkEdit";
 import DataExport from "@/pages/admin/DataExport";
 import HomeManagement from "@/pages/admin/HomeManagement";
 import UnifiedRoomManagement from "@/pages/admin/UnifiedRoomManagement";
+import RoomComparisonView from "@/pages/admin/RoomComparisonView";
 import AccountManagement from "@/pages/admin/AccountManagement";
 import Dashboard from "@/pages/admin/Dashboard";
 
@@ -94,7 +95,7 @@ export default function Admin() {
           <TabsContent value="rooms" className="space-y-4">
             <div className="bg-slate-900 rounded-lg shadow">
               <Tabs defaultValue="room-management" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
+                <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
                   <TabsTrigger value="room-management" className="rounded-none">
                     房型列表
                   </TabsTrigger>
@@ -103,6 +104,9 @@ export default function Admin() {
                   </TabsTrigger>
                   <TabsTrigger value="calendar-management" className="rounded-none">
                     可銷售房間管理
+                  </TabsTrigger>
+                  <TabsTrigger value="comparison-view" className="rounded-none">
+                    多房型比較
                   </TabsTrigger>
                 </TabsList>
 
@@ -117,6 +121,10 @@ export default function Admin() {
 
                   <TabsContent value="calendar-management" className="space-y-4 mt-0">
                     <UnifiedRoomManagement />
+                  </TabsContent>
+
+                  <TabsContent value="comparison-view" className="space-y-4 mt-0">
+                    <RoomComparisonView />
                   </TabsContent>
                 </div>
               </Tabs>
