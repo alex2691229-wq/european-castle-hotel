@@ -470,6 +470,19 @@ export const appRouter = router({
         // 更新狀態為已取消
         await db.updateBookingStatus(input.id, 'cancelled');
         
+        // 發送取消確認郵件給客戶
+        if (booking.guestEmail) {
+          const cancellationEmailHtml = generateBookingCancelledEmail(
+            booking.guestName,
+            booking.id
+          );
+          await sendEmail(
+            booking.guestEmail,
+            `訂房已取消 - 歐堡商務汽車旅館 (訂房編號: #${booking.id})`,
+            cancellationEmailHtml
+          );
+        }
+        
         // 通知管理員
         const roomType = await db.getRoomTypeById(booking.roomTypeId);
         await notifyOwner({
