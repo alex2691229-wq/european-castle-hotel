@@ -1,9 +1,18 @@
-import { router, adminProcedure } from "./_core/trpc";
+import { router, protectedProcedure } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "./db";
 import { bookings, roomTypes } from "../drizzle/schema";
-import { sql } from "drizzle-orm";
+import { sql, eq, and, gte, lte, desc } from "drizzle-orm";
 import ExcelJS from "exceljs";
+
+// Admin-only procedure
+const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== 'admin') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+  }
+  return next({ ctx });
+});
 
 export const dataExportRouter = router({
   /**
@@ -22,38 +31,26 @@ export const dataExportRouter = router({
       const db = await getDb();
       if (!db) throw new Error('數據庫連接失敗');
 
-      // 構建 WHERE 子句
-      const whereConditions: string[] = [];
-      if (startDate) whereConditions.push(`checkInDate >= '${startDate}'`);
-      if (endDate) whereConditions.push(`checkInDate <= '${endDate}'`);
-      if (status) whereConditions.push(`status = '${status}'`);
-      
-      const whereClause = whereConditions.length > 0 
-        ? `WHERE ${whereConditions.join(' AND ')}`
-        : '';
+      // 使用 Drizzle ORM 查詢
+      let query = db.select({
+        id: bookings.id,
+        guestName: bookings.guestName,
+        guestEmail: bookings.guestEmail,
+        guestPhone: bookings.guestPhone,
+        roomTypeId: bookings.roomTypeId,
+        checkInDate: bookings.checkInDate,
+        checkOutDate: bookings.checkOutDate,
+        numberOfGuests: bookings.numberOfGuests,
+        totalPrice: bookings.totalPrice,
+        status: bookings.status,
+        createdAt: bookings.createdAt,
+        roomTypeName: roomTypes.name,
+      })
+      .from(bookings)
+      .leftJoin(roomTypes, eq(bookings.roomTypeId, roomTypes.id))
+      .orderBy(desc(bookings.createdAt));
 
-      // 查詢訂單數據
-      const result = await db.execute(sql.raw(`
-        SELECT 
-          b.id,
-          b.guestName,
-          b.guestEmail,
-          b.guestPhone,
-          b.roomTypeId,
-          b.checkInDate,
-          b.checkOutDate,
-          b.numberOfGuests,
-          b.totalPrice,
-          b.status,
-          b.createdAt,
-          rt.name as roomTypeName
-        FROM bookings b
-        LEFT JOIN roomTypes rt ON b.roomTypeId = rt.id
-        ${whereClause}
-        ORDER BY b.createdAt DESC
-      `));
-
-      const bookingData = (result as any).rows || result as any[];
+      const bookingData = await query;
 
       // 創建 Excel 工作簿
       const workbook = new ExcelJS.Workbook();
@@ -82,20 +79,31 @@ export const dataExportRouter = router({
         fgColor: { argb: "FFD9D9D9" },
       };
 
+      // 狀態翻譯
+      const statusMap: Record<string, string> = {
+        pending: "待確認",
+        confirmed: "已確認",
+        pending_payment: "待付款",
+        paid: "已付款",
+        cash_on_site: "現場付款",
+        completed: "已完成",
+        cancelled: "已取消",
+      };
+
       // 添加數據行
       bookingData.forEach((booking: any) => {
         worksheet.addRow({
           id: booking.id,
           guestName: booking.guestName,
           guestPhone: booking.guestPhone,
-          guestEmail: booking.guestEmail,
+          guestEmail: booking.guestEmail || "",
           roomTypeName: booking.roomTypeName || "未知",
-          checkInDate: booking.checkInDate,
-          checkOutDate: booking.checkOutDate,
+          checkInDate: booking.checkInDate ? new Date(booking.checkInDate).toLocaleDateString("zh-TW") : "",
+          checkOutDate: booking.checkOutDate ? new Date(booking.checkOutDate).toLocaleDateString("zh-TW") : "",
           numberOfGuests: booking.numberOfGuests,
           totalPrice: booking.totalPrice,
-          status: booking.status,
-          createdAt: new Date(booking.createdAt).toLocaleString("zh-TW"),
+          status: statusMap[booking.status] || booking.status,
+          createdAt: booking.createdAt ? new Date(booking.createdAt).toLocaleString("zh-TW") : "",
         });
       });
 
@@ -121,30 +129,34 @@ export const dataExportRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const { startDate, endDate } = input;
       const db = await getDb();
       if (!db) throw new Error('數據庫連接失敗');
 
-      // 構建 WHERE 子句
-      const whereConditions: string[] = ["status = '已付款'"];
-      if (startDate) whereConditions.push(`checkInDate >= '${startDate}'`);
-      if (endDate) whereConditions.push(`checkInDate <= '${endDate}'`);
+      // 使用 Drizzle ORM 查詢已付款的訂單
+      const allBookings = await db.select({
+        roomTypeId: bookings.roomTypeId,
+        totalPrice: bookings.totalPrice,
+        roomTypeName: roomTypes.name,
+      })
+      .from(bookings)
+      .leftJoin(roomTypes, eq(bookings.roomTypeId, roomTypes.id))
+      .where(eq(bookings.status, 'paid'));
+
+      // 按房型統計
+      const revenueByRoomType: Record<string, { count: number; revenue: number; name: string }> = {};
       
-      const whereClause = `WHERE ${whereConditions.join(' AND ')}`;
-
-      // 查詢營收數據（按房型統計）
-      const result = await db.execute(sql.raw(`
-        SELECT 
-          rt.name as roomTypeName,
-          COUNT(*) as bookingCount,
-          SUM(b.totalPrice) as totalRevenue
-        FROM bookings b
-        LEFT JOIN roomTypes rt ON b.roomTypeId = rt.id
-        ${whereClause}
-        GROUP BY b.roomTypeId, rt.name
-      `));
-
-      const revenueData = (result as any).rows || result as any[];
+      allBookings.forEach((booking: any) => {
+        const roomTypeId = booking.roomTypeId?.toString() || 'unknown';
+        if (!revenueByRoomType[roomTypeId]) {
+          revenueByRoomType[roomTypeId] = {
+            count: 0,
+            revenue: 0,
+            name: booking.roomTypeName || '未知',
+          };
+        }
+        revenueByRoomType[roomTypeId].count++;
+        revenueByRoomType[roomTypeId].revenue += Number(booking.totalPrice) || 0;
+      });
 
       // 創建 Excel 工作簿
       const workbook = new ExcelJS.Workbook();
@@ -169,18 +181,15 @@ export const dataExportRouter = router({
       let totalBookings = 0;
       let totalRevenue = 0;
 
-      revenueData.forEach((item: any) => {
-        const revenue = Number(item.totalRevenue) || 0;
-        const count = Number(item.bookingCount) || 0;
-        
+      Object.values(revenueByRoomType).forEach((item) => {
         worksheet.addRow({
-          roomTypeName: item.roomTypeName || "未知",
-          bookingCount: count,
-          totalRevenue: revenue,
+          roomTypeName: item.name,
+          bookingCount: item.count,
+          totalRevenue: item.revenue,
         });
 
-        totalBookings += count;
-        totalRevenue += revenue;
+        totalBookings += item.count;
+        totalRevenue += item.revenue;
       });
 
       // 添加總計行
