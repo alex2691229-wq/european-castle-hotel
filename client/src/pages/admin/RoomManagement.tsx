@@ -1,5 +1,4 @@
-import { useState, useRef } from "react";
-import { trpc } from "@/lib/trpc";
+import { useState, useRef, memo } from "react";import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,8 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2, Edit2, Upload, X, AlertCircle, ChevronUp, ChevronDown } from "lucide-react";
 
-export default function RoomManagement() {
-  const [editingId, setEditingId] = useState<number | null>(null);
+function RoomManagement() {  const [editingId, setEditingId] = useState<number | null>(null);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -728,3 +726,5 @@ export default function RoomManagement() {
     </div>
   );
 }
+
+export default memo(RoomManagement);
