@@ -38,13 +38,30 @@ export function TrackingModal({ isOpen, onClose }: TrackingModalProps) {
       action: 'BOOKING_TRACK_SEARCH',
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+    // Call the actual API to fetch booking information
+    const result = await fetchBookingFromAuditLogs(phone, orderId);
 
+    if (result) {
+      setMessage({
+        type: 'success',
+        text: `✓ 訂單 #{orderId} 已找到！狀態：待確認 (客戶電話：${phone})`,
+      });
+    } else {
+      setMessage({
+        type: 'error',
+        text: '查詢失敗：無法在系統中找到該訂單記錄，請確認訂單編號和電話號碼是否正確',
+      });
+    }
+  } catch (error) {
+    console.error('Tracking error:', error);
     setMessage({
-      type: 'success',
-      text: `✓ 訂單 ${orderId} 已找到！狀態：待確認（客戶電話：${phone}）`,
+      type: 'error',
+      text: '系統錯誤：查詢過程中發生了問題，請稍後再試',
     });
+  } finally {
     setIsLoading(false);
+  }IsLoading(false);
   };
 
   if (!isOpen) return null;
@@ -137,5 +154,43 @@ export function TrackingModal({ isOpen, onClose }: TrackingModalProps) {
         </form>
       </div>
     </div>
+
+      // Helper function to fetch booking information from audit logs API
+  const fetchBookingFromAuditLogs = async (
+    phone: string,
+    orderId: string
+  ) => {
+    try {
+      // Make API call to the backend trackBooking endpoint
+      const response = await fetch('/api/routers/bookings/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phone.trim(),
+          orderId: orderId.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        console.warn('API returned error status:', response.status);
+        return null;
+      }
+
+      const booking = await response.json();
+      
+      // Expected response format from backend:
+      // { id, status, phone, checkInDate, checkOutDate, guestName, ...other fields }
+      if (booking && booking.id) {
+        return booking;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error fetching booking from audit logs:', error);
+      return null;
+    }
+  };
   );
 }
