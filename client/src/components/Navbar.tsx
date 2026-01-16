@@ -56,17 +56,19 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right Side Actions */}
+{/* Right Side Actions */}
           <div className="hidden lg:flex items-center space-x-4">
-            <Link href="/booking">
-              
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setShowTrackingModal(true)}
               className="font-semibold"
             >
               🔍 追蹤訂房
             </Button>
+            
+            
+<Link href="/booking">
+  
 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
               立即訂房
             </Button>
