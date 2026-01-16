@@ -10,7 +10,7 @@ export default function Navbar() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
-    const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
 
   const navLinks = [
     { href: "/", label: "首頁" },
@@ -19,8 +19,6 @@ export default function Navbar() {
     { href: "/news", label: "最新消息" },
     { href: "/location", label: "交通資訊" },
     { href: "/contact", label: "聯絡我們" },
-        { href: "/booking-tracking", label: "📋 追蹤訂單" },
-     // Force redeploy - enable track booking button v2
   ];
 
   return (
@@ -56,7 +54,7 @@ export default function Navbar() {
             ))}
           </div>
 
-{/* Right Side Actions */}
+          {/* Right Side Actions */}
           <div className="hidden lg:flex items-center space-x-4">
             <Button
               variant="outline"
@@ -65,14 +63,12 @@ export default function Navbar() {
             >
               🔍 追蹤訂房
             </Button>
-            
-            
-<Link href="/booking">
-  
-<Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-              立即訂房
-            </Button>
-          </Link>         
+            <Link href="/booking">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+                立即訂房
+              </Button>
+            </Link>
+
             {isAuthenticated ? (
               <>
                 {user?.role === 'admin' && (
@@ -109,42 +105,52 @@ export default function Navbar() {
           <div className="lg:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-4">
               {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${
-                  location === link.href ? "text-primary" : "text-foreground"
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${
+                    location === link.href ? "text-primary" : "text-foreground"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
               ))}
-              
+
+              <Button
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={() => {
+                  setShowTrackingModal(true);
+                  setMobileMenuOpen(false);
+                }}
+              >
+                🔍 追蹤訂房
+              </Button>
+
               <Link href="/booking">
-                <Button 
+                <Button
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   立即訂房
                 </Button>
               </Link>
-              
+
               {isAuthenticated ? (
                 <>
                   {user?.role === 'admin' && (
-                  <Link href="/admin">
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      管理後台
-                    </Button>
-                  </Link>
+                    <Link href="/admin">
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        管理後台
+                      </Button>
+                    </Link>
                   )}
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="w-full"
                     onClick={() => {
                       logout();
@@ -155,18 +161,9 @@ export default function Navbar() {
                   </Button>
                 </>
               ) : (
-                        <Link href="/booking-tracking">
-              <button
-                variant="ghost"
-                className="w-full"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                追蹤訂單
-              </button>
-            </Link>
                 <Link href="/login">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="w-full"
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -175,15 +172,13 @@ export default function Navbar() {
                 </Link>
               )}
             </div>
-            // Force redeploy - trigger build
           </div>
         )}
       </div>
-      <TrackingModal 
+      <TrackingModal
         isOpen={showTrackingModal}
         onClose={() => setShowTrackingModal(false)}
       />
-
     </nav>
   );
 }
