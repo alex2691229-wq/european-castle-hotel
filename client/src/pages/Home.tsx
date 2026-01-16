@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Sparkles, Bed, Car, Wifi, Coffee, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { TrackingModal } from "@/components/TrackingModal";
 
 export default function Home() {
   const { data: roomTypes, isLoading: roomsLoading } = trpc.roomTypes.list.useQuery();
@@ -10,6 +11,7 @@ export default function Home() {
   const { data: homeConfig } = trpc.homeConfig.get.useQuery();
   const { data: featuredServices } = trpc.featuredServices.list.useQuery();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [heroImages, setHeroImages] = useState<string[]>([
     "/hotel_exterior_night.webp",
     "/hotel_exterior_day.webp",
@@ -85,12 +87,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
             <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-3 flex justify-end">
+            <div className="container mx-auto px-4 py-3 flex justify-end">
           <button
-            onClick={() => window.location.href = '/booking-tracking'}
+            onClick={() => setIsTrackingOpen(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
           >
-            追蹤訂單
+            查詢訂單
           </button>
         </div>
       </div>
@@ -430,6 +432,12 @@ export default function Home() {
           </button>
         </div>
       </section>
+
+      {/* Tracking Modal */}
+      <TrackingModal 
+        isOpen={isTrackingOpen} 
+        onClose={() => setIsTrackingOpen(false)} 
+      />
     </div>
   );
 }

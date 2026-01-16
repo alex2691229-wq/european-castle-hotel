@@ -340,9 +340,8 @@ export const appRouter = router({
         }
         
         // Send notification email to admin
-        const adminEmail = = 'jason88488848@gmail.com';  // 测試用 email
-        if (342
-           ) {
+        const adminEmail = 'jason88488848@gmail.com';  // 测試用 email
+        if (adminEmail) {
           const adminEmailHtml = generateAdminNotificationEmail(
             input.guestName,
             input.guestEmail || '未提供',
@@ -1290,9 +1289,9 @@ ${roomsContext}
       }))
       .mutation(async ({ input }) => {
         // 移除資料庫中的關閉記錄
-      await db.deleteRoomBlockage(input.roomTypeId, input.dates);
-      return { success: true, message: `已開啟房型 ${input.roomTypeId} 的 ${input.dates.length} 個日期` };
-    }),
+        await db.deleteRoomBlockage(input.roomTypeId, input.dates);
+        return { success: true, message: `已開啟房型 ${input.roomTypeId} 的 ${input.dates.length} 個日期` };
+      }),
     // 取得房間關閉狀態
     getBlockedDates: publicProcedure
       .input(z.object({ roomTypeId: z.number() }))
