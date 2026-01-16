@@ -67,12 +67,10 @@ export default function Navbar() {
             >
               🔍 追蹤訂房
             </Button>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-                65
-                
-              </Button>
-            </Link>
-            
+<Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+              立即訂房
+            </Button>
+          </Link>         
             {isAuthenticated ? (
               <>
                 {user?.role === 'admin' && (
