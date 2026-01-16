@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { TrackingModal } from "./TrackingModal";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -9,6 +10,7 @@ export default function Navbar() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
+    const [showTrackingModal, setShowTrackingModal] = useState(false);
 
   const navLinks = [
     { href: "/", label: "首頁" },
@@ -57,8 +59,17 @@ export default function Navbar() {
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center space-x-4">
             <Link href="/booking">
+              
+            <Button 
+              variant="outline"
+              onClick={() => setShowTrackingModal(true)}
+              className="font-semibold"
+            >
+              🔍 追蹤訂房
+            </Button>
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-                立即訂房
+                65
+                
               </Button>
             </Link>
             
@@ -168,6 +179,11 @@ export default function Navbar() {
           </div>
         )}
       </div>
+      <TrackingModal 
+        isOpen={showTrackingModal}
+        onClose={() => setShowTrackingModal(false)}
+      />
+
     </nav>
   );
 }
