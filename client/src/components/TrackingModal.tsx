@@ -64,6 +64,37 @@ export function TrackingModal({ isOpen, onClose }: TrackingModalProps) {
   }IsLoading(false);
   };
 
+    // Helper function to fetch booking information from audit logs API
+  const fetchBookingFromAuditLogs = async (
+    phone: string,
+    orderId: string
+  ): Promise<any | null> => {
+    try {
+      // Make API call to the backend trackBooking endpoint
+      const response = await fetch('/api/routers/bookings/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phone.trim(),
+          orderId: orderId.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        console.warn('API returned error status:', response.status);
+        return null;
+      }
+
+      const booking = await response.json();
+      return booking && booking.id ? booking : null;
+    } catch (error) {
+      console.error('Error fetching booking:', error);
+      return null;
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
