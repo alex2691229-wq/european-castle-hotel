@@ -70,22 +70,3 @@ async function startServer() {
 }
 
 startServer().catch(console.error);
-// 新增追蹤訂單查詢功能
-app.post("/api/bookings/track", async (req, res) => {
-  const { orderId, phone } = req.body;
-  try {
-    // 這裡我們假設你的資料表名稱是 bookingsTable
-    const result = await db.select().from(bookingsTable)
-      .where(and(
-        eq(bookingsTable.id, orderId), 
-        eq(bookingsTable.phone, phone)
-      )).limit(1);
-
-    if (result.length === 0) {
-      return res.status(404).json({ message: "查無此訂單，請確認資料" });
-    }
-    res.json(result[0]);
-  } catch (error) {
-    res.status(500).json({ message: "伺服器忙碌中" });
-  }
-});

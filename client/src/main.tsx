@@ -1,4 +1,4 @@
-import { trpc } from "@/lib/trpc";
+import { trpc, getBaseUrl } from "@/lib/trpc";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
@@ -20,9 +20,7 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   // Only redirect to login when accessing admin pages
   if (window.location.pathname.startsWith('/admin')) {
-    if (window.location.pathname.startsWith("/admin")) {
     window.location.href = getLoginUrl();
-  }
   }
 };
 
@@ -45,7 +43,8 @@ queryClient.getMutationCache().subscribe(event => {
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-url: `https://j4lgdbyk5e-tcqganzzma-uk.a.run.app/api/trpc`,      transformer: superjson,
+      url: `${getBaseUrl()}/api/trpc`,
+      transformer: superjson,
       fetch(input, init) {
         return globalThis.fetch(input, {
           ...(init ?? {}),
