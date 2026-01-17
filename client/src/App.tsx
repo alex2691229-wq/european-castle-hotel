@@ -67,19 +67,14 @@ function Router() {
 
 function App() {
   return (
-    <div data-version="final-debug-101">
-      <div style={{ backgroundColor: 'red', color: 'white', padding: '5px', textAlign: 'center' }}>
-        DEBUG: 核心版本 101 已載入
-      </div>
-      <ErrorBoundary>
-        <ThemeProvider defaultTheme="dark">
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </ThemeProvider>
-      </ErrorBoundary>
-    </div>
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="dark">
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
