@@ -1,5 +1,4 @@
 import { createTRPCReact } from "@trpc/react-query";
-import type { AppRouter } from "../../../server/routers";
 
 // 修復後的 API 連線設定
 export const getBaseUrl = () => {
@@ -11,5 +10,5 @@ export const getBaseUrl = () => {
   return "https://j4lgdbyk5e-tcqganzzma-uk.a.run.app";
 };
 
-export const trpc = createTRPCReact<AppRouter>();
+export const trpc = createTRPCReact<any>();
 export const API_URL = getBaseUrl();
