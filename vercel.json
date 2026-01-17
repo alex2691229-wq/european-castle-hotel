@@ -6,6 +6,10 @@
       "destination": "https://j4lgdbyk5e-tcqganzzma-uk.a.run.app/api/$1"
     },
     {
+      "source": "/admin/(.*)",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
