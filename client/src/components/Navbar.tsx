@@ -1,34 +1,39 @@
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Search, Calendar } from "lucide-react";
 
 export default function Navbar() {
   return (
-    <nav className="fixed top-0 w-full z-50 bg-black/90 border-b border-[#d4af37]/30 h-20 flex items-center backdrop-blur-md">
-      <div className="container mx-auto px-4 flex justify-between items-center w-full">
-        {/* Logo */}
+    <nav className="fixed top-0 w-full z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800">
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+        {/* Logo - 確保文字一定顯示 */}
         <Link href="/">
-          <a className="text-2xl font-bold text-[#d4af37] cursor-pointer hover:opacity-80 transition-opacity">
+          <div className="text-xl md:text-2xl font-bold text-[#d4af37] cursor-pointer">
             歐堡商務汽車旅館
-          </a>
+          </div>
         </Link>
 
-        {/* 導覽選單 */}
-        <div className="hidden md:flex gap-8 items-center">
-          <Link href="/rooms"><a className="text-gray-200 hover:text-[#d4af37] transition-colors cursor-pointer text-sm font-medium">房型介紹</a></Link>
-          <Link href="/facilities"><a className="text-gray-200 hover:text-[#d4af37] transition-colors cursor-pointer text-sm font-medium">設施服務</a></Link>
-          <Link href="/transportation"><a className="text-gray-200 hover:text-[#d4af37] transition-colors cursor-pointer text-sm font-medium">交通資訊</a></Link>
+        {/* 中間導航 - 強制取消隱藏條件 */}
+        <div className="hidden lg:flex items-center gap-6">
+          <Link href="/rooms"><a className="text-zinc-300 hover:text-[#d4af37] transition-colors cursor-pointer">房型介紹</a></Link>
+          <Link href="/facilities"><a className="text-zinc-300 hover:text-[#d4af37] transition-colors cursor-pointer">設施服務</a></Link>
+          <Link href="/transportation"><a className="text-zinc-300 hover:text-[#d4af37] transition-colors cursor-pointer">交通資訊</a></Link>
+          <Link href="/news"><a className="text-zinc-300 hover:text-[#d4af37] transition-colors cursor-pointer">最新消息</a></Link>
         </div>
 
-        {/* 右側按鈕 */}
-        <div className="flex gap-4 items-center">
+        {/* 右側按鈕組 */}
+        <div className="flex items-center gap-3">
           <Link href="/booking-tracking">
-            <a className="text-[#d4af37] border border-[#d4af37] px-4 py-2 rounded-md hover:bg-[#d4af37] hover:text-black transition-all text-sm font-bold">
-              查詢訂單
-            </a>
+            <Button variant="outline" className="border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all">
+              <Search className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">查詢訂單</span>
+            </Button>
           </Link>
           <Link href="/booking">
-            <a className="bg-[#d4af37] text-black px-5 py-2 rounded-md font-bold hover:bg-[#b8962d] transition-all text-sm">
+            <Button className="bg-[#d4af37] hover:bg-[#b8962e] text-black font-bold">
+              <Calendar className="w-4 h-4 mr-2" />
               立即訂房
-            </a>
+            </Button>
           </Link>
         </div>
       </div>
