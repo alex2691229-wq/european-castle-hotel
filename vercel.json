@@ -1,5 +1,10 @@
 {
+  "version": 2,
   "rewrites": [
+    {
+      "source": "/(css|js|img|assets)/(.*)",
+      "destination": "/$1/$2"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

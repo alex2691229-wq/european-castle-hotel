@@ -7,6 +7,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+
+    <style>
+      /* 強制全域背景與字體顏色 */
+      body { background-color: #09090b !important; color: #fafafa !important; }
+
+      /* 強制導航欄顯示 */
+      nav { display: flex !important; visibility: visible !important; background: rgba(9, 9, 11, 0.9) !important; }
+
+      /* 強制按鈕與金色字體現形 */
+      .text-primary, [class*="text-[#d4af37]"] { color: #d4af37 !important; }
+      .bg-primary, [class*="bg-[#d4af37]"] { background-color: #d4af37 !important; color: #000 !important; }
+
+      /* 確保所有連結可見 */
+      a, button { opacity: 1 !important; visibility: visible !important; display: inline-flex !important; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
