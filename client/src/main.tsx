@@ -1,4 +1,5 @@
 import { trpc, getBaseUrl } from "@/lib/trpc";
+import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
@@ -6,8 +7,6 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
-
-const UNAUTHED_ERR_MSG = "UNAUTHORIZED";
 
 const queryClient = new QueryClient();
 
@@ -63,3 +62,24 @@ createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </trpc.Provider>
 );
+// 加上錯誤邊界保護與 Console 偵錯
+const container = document.getElementById("root");
+
+if (!container) {
+  console.error("找不到 root 節點！");
+} else {
+  try {
+    createRoot(container).render(
+      <React.Suspense fallback={<div>正在載入歐堡旅館系統...</div>}>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <App />
+          </QueryClientProvider>
+        </trpc.Provider>
+      </React.Suspense>
+    );
+  } catch (err) {
+    console.error("渲染過程發生錯誤:", err);
+    container.innerHTML = `<div style="padding:20px; color:red;">系統載入失敗，請檢查網路連線。</div>`;
+  }
+}
