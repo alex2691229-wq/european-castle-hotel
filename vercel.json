@@ -2,8 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/(css|js|img|assets)/(.*)",
-      "destination": "/$1/$2"
+      "source": "/api/(.*)",
+      "destination": "https://j4lgdbyk5e-tcqganzzma-uk.a.run.app/api/$1"
     },
     {
       "source": "/(.*)",
