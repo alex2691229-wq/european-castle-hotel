@@ -7,8 +7,13 @@ export const getLoginUrl = () => {
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
   const state = btoa(redirectUri);
 
-  const url = new URL(`${oauthPortalUrl}/app-auth`);
-  url.searchParams.set("appId", appId);
+  let url;
+  try {
+    url = new URL(`${oauthPortalUrl}/app-auth` || '', window.location.origin);
+  } catch (e) {
+    console.error("URL 解析失敗的標記位:", `${oauthPortalUrl}/app-auth`);
+    url = { href: '' } as any; // 提供一個空對象防止崩潰
+  }  url.searchParams.set("appId", appId);
   url.searchParams.set("redirectUri", redirectUri);
   url.searchParams.set("state", state);
   url.searchParams.set("type", "signIn");
