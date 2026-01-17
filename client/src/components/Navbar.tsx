@@ -1,33 +1,47 @@
 import { Link } from "wouter";
 
 export default function Navbar() {
+  const gold = "#d4af37";
+  const black = "#000000";
+
   return (
-    <nav className="fixed top-0 w-full z-50 bg-black/95 border-b border-[#d4af37]/30 h-20 flex items-center backdrop-blur-md">
-      <div className="container mx-auto px-4 flex justify-between items-center">
+    <nav style={{ 
+      position: 'fixed', top: 0, width: '100%', zIndex: 50, 
+      backgroundColor: 'rgba(0,0,0,0.95)', borderBottom: `1px solid ${gold}44`, 
+      height: '80px', display: 'flex', alignItems: 'center' 
+    }}>
+      <div style={{ 
+        width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '0 20px', 
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center' 
+      }}>
         {/* Logo */}
         <Link href="/">
-          <a className="text-2xl font-bold text-[#d4af37] hover:opacity-80 transition-opacity cursor-pointer">
+          <a style={{ color: gold, fontSize: '24px', fontWeight: 'bold', textDecoration: 'none' }}>
             歐堡商務汽車旅館
           </a>
         </Link>
 
-        {/* 導覽連結 - 確保這些連結能對應到 App.tsx 的路徑 */}
-        <div className="hidden md:flex gap-8 items-center">
-          <Link href="/rooms"><a className="text-gray-200 hover:text-[#d4af37] transition-colors cursor-pointer text-sm font-medium">房型介紹</a></Link>
-          <Link href="/facilities"><a className="text-gray-200 hover:text-[#d4af37] transition-colors cursor-pointer text-sm font-medium">設施服務</a></Link>
-          <Link href="/transportation"><a className="text-gray-200 hover:text-[#d4af37] transition-colors cursor-pointer text-sm font-medium">交通資訊</a></Link>
-          <Link href="/news"><a className="text-gray-200 hover:text-[#d4af37] transition-colors cursor-pointer text-sm font-medium">最新消息</a></Link>
-        </div>
-
-        {/* 右側按鈕區 */}
-        <div className="flex gap-4 items-center">
+        {/* 導覽連結 - 桌面版 */}
+        <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+          <Link href="/rooms"><a style={{ color: '#ccc', textDecoration: 'none', fontSize: '14px' }}>房型介紹</a></Link>
+          <Link href="/facilities"><a style={{ color: '#ccc', textDecoration: 'none', fontSize: '14px' }}>設施服務</a></Link>
+          
+          {/* 查詢訂單按鈕 (空心金框) */}
           <Link href="/booking-tracking">
-            <a className="text-[#d4af37] border border-[#d4af37] px-4 py-2 rounded-md hover:bg-[#d4af37] hover:text-black transition-all text-xs font-bold">
+            <a style={{ 
+              color: gold, border: `1px solid ${gold}`, padding: '8px 16px', 
+              borderRadius: '6px', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold' 
+            }}>
               查詢訂單
             </a>
           </Link>
+
+          {/* 立即訂房按鈕 (實心金底) */}
           <Link href="/booking">
-            <a className="bg-[#d4af37] text-black px-5 py-2 rounded-md font-bold hover:bg-[#b8962d] transition-all text-xs">
+            <a style={{ 
+              backgroundColor: gold, color: black, padding: '8px 20px', 
+              borderRadius: '6px', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold' 
+            }}>
               立即訂房
             </a>
           </Link>
