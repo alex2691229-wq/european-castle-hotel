@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary: #d4af37;
-  --color-primary-foreground: #000000;
+@layer base {
+  a, button {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
 }
 
-/* 確保所有按鈕至少有個顏色邊框 */
-button {
-  border-color: #d4af37 !important;
+:root {
+  background-color: #000;
+  color: #fff;
 }
