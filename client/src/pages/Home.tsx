@@ -143,12 +143,11 @@ export default function Home() {
                 >
                   立即訂房
                 </button>
-                <button 
-                  onClick={() => window.location.href = '/rooms'}
-                  className="px-8 py-3 border-2 border-white text-white hover:bg-white/10 transition-colors rounded font-semibold"
-                >
-                  探索客房
-                </button>
+                <Link href="/rooms">
+                  <a className="px-8 py-3 border-2 border-white text-white hover:bg-white/10 transition-colors rounded font-semibold">
+                    探索客房
+                  </a>
+                </Link>
               </div>
             </div>
           </div>
