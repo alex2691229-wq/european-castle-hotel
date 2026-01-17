@@ -20,6 +20,11 @@ export default function Navbar() {
 
         {/* 右側按鈕 */}
         <div className="flex gap-2 md:gap-4 items-center shrink-0">
+          <Link href="/login">
+            <a className="text-gray-300 hover:text-[#d4af37] transition-colors text-xs md:text-sm font-medium">
+              管理員登入
+            </a>
+          </Link>
           <Link href="/booking-tracking">
             <a className="text-[#d4af37] border border-[#d4af37] px-2 py-1 md:px-4 md:py-2 rounded-md font-bold text-xs md:text-sm">
               查詢訂單
