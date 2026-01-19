@@ -31,8 +31,10 @@ import {
   InsertFeaturedService
 } from '../drizzle/schema.js';
 import { ENV } from './_core/env.js';
+import { ensureDatabaseInitialized } from './_core/db-init.js';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let initPromise: Promise<void> | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
@@ -60,6 +62,13 @@ export async function getDb() {
         ssl: true,
       });
       console.log('[Database] Connected successfully');
+      
+      // 觸發資料庫初始化（非阻塞）
+      if (!initPromise) {
+        initPromise = ensureDatabaseInitialized().catch(err => {
+          console.error('[Database] Initialization error:', err);
+        });
+      }
     } catch (error) {
       console.error("[Database] Failed to connect:", error instanceof Error ? error.message : error);
       _db = null;
