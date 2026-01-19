@@ -57,6 +57,7 @@ export async function getDb() {
       // 不要在 URL 中添加 ssl=true
       _db = drizzle(dbUrl, {
         mode: 'default',
+        ssl: true,
       });
       console.log('[Database] Connected successfully');
     } catch (error) {
