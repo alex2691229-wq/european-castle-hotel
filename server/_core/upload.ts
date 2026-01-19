@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
-import { uploadToImgur } from './imgur';
+import { uploadToCloudinary, initializeCloudinary } from './cloudinary';
 
 /**
  * POST /api/upload 路由處理器
- * 接收檔案並上傳到 Imgur
+ * 接收檔案並上傳到 Cloudinary
  */
 export async function handleUpload(req: Request, res: Response) {
   try {
+    // 初始化 Cloudinary（如果還沒初始化）
+    initializeCloudinary();
+
     // 檢查是否有檔案
     if (!req.file) {
       return res.status(400).json({
@@ -15,13 +18,12 @@ export async function handleUpload(req: Request, res: Response) {
       });
     }
 
-    // 檢查 Imgur Client ID
-    const clientId = process.env.IMGUR_CLIENT_ID;
-    if (!clientId) {
-      console.error('[Upload] IMGUR_CLIENT_ID not configured');
+    // 檢查 Cloudinary 配置
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error('[Upload] Cloudinary credentials not configured');
       return res.status(500).json({
         success: false,
-        error: 'Imgur Client ID not configured',
+        error: 'Cloudinary credentials not configured',
       });
     }
 
@@ -34,28 +36,28 @@ export async function handleUpload(req: Request, res: Response) {
       });
     }
 
-    // 檢查檔案大小（最大 5MB）
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // 檢查檔案大小（最大 10MB）
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (req.file.size > maxSize) {
       return res.status(400).json({
         success: false,
-        error: 'File size exceeds 5MB limit',
+        error: 'File size exceeds 10MB limit',
       });
     }
 
     console.log(`[Upload] Uploading file: ${req.file.originalname} (${req.file.size} bytes)`);
 
-    // 上傳到 Imgur
-    const result = await uploadToImgur(req.file.buffer, clientId);
+    // 上傳到 Cloudinary
+    const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
 
-    console.log(`[Upload] Successfully uploaded to Imgur: ${result.url}`);
+    console.log(`[Upload] Successfully uploaded to Cloudinary: ${result.url}`);
 
     // 返回成功響應
     return res.json({
       success: true,
       data: {
         url: result.url,
-        deleteHash: result.deleteHash,
+        publicId: result.publicId,
         filename: req.file.originalname,
       },
     });
