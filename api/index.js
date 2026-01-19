@@ -107,6 +107,122 @@ var init_websocket = __esm({
   }
 });
 
+// vite.config.ts
+var vite_config_exports = {};
+__export(vite_config_exports, {
+  default: () => vite_config_default
+});
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { defineConfig } from "vite";
+import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+var plugins, vite_config_default;
+var init_vite_config = __esm({
+  "vite.config.ts"() {
+    "use strict";
+    plugins = [react(), tailwindcss(), vitePluginManusRuntime()];
+    vite_config_default = defineConfig({
+      plugins,
+      resolve: {
+        alias: {
+          "@": path.resolve(import.meta.dirname, "client", "src"),
+          "@shared": path.resolve(import.meta.dirname, "shared"),
+          "@assets": path.resolve(import.meta.dirname, "attached_assets")
+        }
+      },
+      envDir: path.resolve(import.meta.dirname),
+      root: path.resolve(import.meta.dirname, "client"),
+      publicDir: path.resolve(import.meta.dirname, "client", "public"),
+      build: {
+        outDir: path.resolve(import.meta.dirname, "dist/public"),
+        emptyOutDir: true
+      },
+      server: {
+        host: true,
+        allowedHosts: [
+          ".manuspre.computer",
+          ".manus.computer",
+          ".manus-asia.computer",
+          ".manuscomputer.ai",
+          ".manusvm.computer",
+          "localhost",
+          "127.0.0.1"
+        ],
+        fs: {
+          strict: true,
+          deny: ["**/.*"]
+        }
+      }
+    });
+  }
+});
+
+// server/_core/vite.ts
+var vite_exports = {};
+__export(vite_exports, {
+  serveStatic: () => serveStatic,
+  setupVite: () => setupVite
+});
+import express from "express";
+import fs from "fs";
+import { nanoid } from "nanoid";
+import path2 from "path";
+async function setupVite(app, server) {
+  const { createServer: createViteServer } = await import("vite");
+  const viteConfig = (await Promise.resolve().then(() => (init_vite_config(), vite_config_exports))).default;
+  const serverOptions = {
+    middlewareMode: true,
+    hmr: { server },
+    allowedHosts: true
+  };
+  const vite = await createViteServer({
+    ...viteConfig,
+    configFile: false,
+    server: serverOptions,
+    appType: "custom"
+  });
+  app.use(vite.middlewares);
+  app.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+    try {
+      const clientTemplate = path2.resolve(
+        import.meta.dirname,
+        "../..",
+        "client",
+        "index.html"
+      );
+      let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      template = template.replace(
+        `src="/src/main.tsx"`,
+        `src="/src/main.tsx?v=${nanoid()}"`
+      );
+      const page = await vite.transformIndexHtml(url, template);
+      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      next(e);
+    }
+  });
+}
+function serveStatic(app) {
+  const distPath = process.env.NODE_ENV === "development" ? path2.resolve(import.meta.dirname, "../..", "dist", "public") : path2.resolve(import.meta.dirname, "public");
+  if (!fs.existsSync(distPath)) {
+    console.error(
+      `Could not find the build directory: ${distPath}, make sure to build the client first`
+    );
+  }
+  app.use(express.static(distPath));
+  app.use("*", (_req, res) => {
+    res.sendFile(path2.resolve(distPath, "index.html"));
+  });
+}
+var init_vite = __esm({
+  "server/_core/vite.ts"() {
+    "use strict";
+  }
+});
+
 // server/_core/index.ts
 import "dotenv/config";
 import express2 from "express";
@@ -4446,104 +4562,8 @@ async function createContext(opts) {
   };
 }
 
-// server/_core/vite.ts
-import express from "express";
-import fs from "fs";
-import { nanoid } from "nanoid";
-import path2 from "path";
-import { createServer as createViteServer } from "vite";
-
-// vite.config.ts
-import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
-import path from "path";
-import { defineConfig } from "vite";
-import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
-var plugins = [react(), tailwindcss(), vitePluginManusRuntime()];
-var vite_config_default = defineConfig({
-  plugins,
-  resolve: {
-    alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets")
-    }
-  },
-  envDir: path.resolve(import.meta.dirname),
-  root: path.resolve(import.meta.dirname, "client"),
-  publicDir: path.resolve(import.meta.dirname, "client", "public"),
-  build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
-    emptyOutDir: true
-  },
-  server: {
-    host: true,
-    allowedHosts: [
-      ".manuspre.computer",
-      ".manus.computer",
-      ".manus-asia.computer",
-      ".manuscomputer.ai",
-      ".manusvm.computer",
-      "localhost",
-      "127.0.0.1"
-    ],
-    fs: {
-      strict: true,
-      deny: ["**/.*"]
-    }
-  }
-});
-
-// server/_core/vite.ts
-async function setupVite(app, server) {
-  const serverOptions = {
-    middlewareMode: true,
-    hmr: { server },
-    allowedHosts: true
-  };
-  const vite = await createViteServer({
-    ...vite_config_default,
-    configFile: false,
-    server: serverOptions,
-    appType: "custom"
-  });
-  app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
-    try {
-      const clientTemplate = path2.resolve(
-        import.meta.dirname,
-        "../..",
-        "client",
-        "index.html"
-      );
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`
-      );
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e);
-      next(e);
-    }
-  });
-}
-function serveStatic(app) {
-  const distPath = process.env.NODE_ENV === "development" ? path2.resolve(import.meta.dirname, "../..", "dist", "public") : path2.resolve(import.meta.dirname, "public");
-  if (!fs.existsSync(distPath)) {
-    console.error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
-    );
-  }
-  app.use(express.static(distPath));
-  app.use("*", (_req, res) => {
-    res.sendFile(path2.resolve(distPath, "index.html"));
-  });
-}
-
 // server/_core/index.ts
+init_vite();
 init_websocket();
 
 // server/schedulers/reminder-scheduler.ts
@@ -5046,7 +5066,13 @@ async function startServer() {
   wsManager.initialize(server);
   initializeSchedulers();
   if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
+    try {
+      const { setupVite: setupVite2 } = await Promise.resolve().then(() => (init_vite(), vite_exports));
+      await setupVite2(app, server);
+    } catch (error) {
+      console.warn("[Server] Failed to setup Vite in development mode:", error);
+      serveStatic(app);
+    }
   } else {
     serveStatic(app);
   }
@@ -5060,19 +5086,4 @@ async function startServer() {
     console.log(`[Scheduler] \u81EA\u52D5\u63D0\u9192\u8ABF\u5EA6\u5668\u5DF2\u555F\u52D5`);
   });
 }
-// 全域錯誤捕捉 - 用於診斷 Vercel 環境的 500 錯誤
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('[Global Error] Unhandled Rejection:', reason);
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('[Global Error] Uncaught Exception:', error);
-});
-
-startServer().catch((error) => {
-  console.error('[StartServer] Fatal Error:', error);
-  if (error instanceof Error) {
-    console.error('[StartServer] Error Message:', error.message);
-    console.error('[StartServer] Error Stack:', error.stack);
-  }
-});
+startServer().catch(console.error);

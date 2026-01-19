@@ -3,10 +3,13 @@ import fs from "fs";
 import { type Server } from "http";
 import { nanoid } from "nanoid";
 import path from "path";
-import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
+// 此檔案仅在開發模式中使用，不應在生產環境中被打包
 
 export async function setupVite(app: Express, server: Server) {
+  // 動態導入 vite 以避免在生產環境中被打包
+  const { createServer: createViteServer } = await import("vite");
+  const viteConfig = (await import("../../vite.config")).default;
+  
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },

@@ -7,7 +7,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./vite";
 import { wsManager } from "../websocket";
 import { initializeSchedulers } from "../schedulers/reminder-scheduler";
 import { handleUpload } from "./upload";
@@ -146,7 +146,13 @@ async function startServer() {
   initializeSchedulers();
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
+    try {
+      const { setupVite } = await import("./vite");
+      await setupVite(app, server);
+    } catch (error) {
+      console.warn("[Server] Failed to setup Vite in development mode:", error);
+      serveStatic(app);
+    }
   } else {
     serveStatic(app);
   }
