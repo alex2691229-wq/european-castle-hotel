@@ -15,6 +15,7 @@ import { bookingRemindersRouter } from "./routers.booking-reminders";
 import { dataExportRouter } from "./routers.data-export";
 import { autoRemindersRouter } from "./routers.auto-reminders";
 import { startBookingCalendarSync, stopBookingCalendarSync, manualSyncBookingCalendar } from './_core/booking-ical-sync';
+import { eq } from 'drizzle-orm';
 
 
 // Admin-only procedure
@@ -1316,6 +1317,61 @@ ${roomsContext}
         }
         return blockedDates;
       }),
+  }),
+
+  // 儀表板數據
+  dashboard: router({
+    getStats: protectedProcedure.query(async () => {
+      try {
+        const allBookings = await db.getAllBookings();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // 今日入住
+        const todayCheckIns = allBookings.filter((b: any) => {
+          const checkInDate = new Date(b.checkInDate);
+          checkInDate.setHours(0, 0, 0, 0);
+          return checkInDate.getTime() === today.getTime() && b.status === 'confirmed';
+        }).length;
+        
+        // 待確認訂單
+        const pendingBookings = allBookings.filter((b: any) => b.status === 'pending').length;
+        
+        // 已確認訂單
+        const confirmedBookings = allBookings.filter((b: any) => b.status === 'confirmed').length;
+        
+        // 本月營收
+        const monthStart = new Date();
+        monthStart.setDate(1);
+        monthStart.setHours(0, 0, 0, 0);
+        const monthEnd = new Date(monthStart);
+        monthEnd.setMonth(monthEnd.getMonth() + 1);
+        
+        const monthRevenue = allBookings
+          .filter((b: any) => {
+            const createdDate = new Date(b.createdAt);
+            return createdDate >= monthStart && createdDate < monthEnd && b.status === 'confirmed';
+          })
+          .reduce((sum: number, b: any) => sum + (b.totalPrice || 0), 0);
+        
+        return {
+          todayCheckIns,
+          pendingBookings,
+          confirmedBookings,
+          monthRevenue: Math.round(monthRevenue),
+        };
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+        return {
+          todayCheckIns: 0,
+          pendingBookings: 0,
+          confirmedBookings: 0,
+          monthRevenue: 0,
+        };
+      }
+    }),
   }),
 
   // Booking.com iCal 同步

@@ -95,12 +95,9 @@ export default function Admin() {
           <TabsContent value="rooms" className="space-y-4">
             <div className="bg-slate-900 rounded-lg shadow">
               <Tabs defaultValue="room-management" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
+                <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
                   <TabsTrigger value="room-management" className="rounded-none">
                     房型列表
-                  </TabsTrigger>
-                  <TabsTrigger value="batch-update" className="rounded-none">
-                    批量更新
                   </TabsTrigger>
                   <TabsTrigger value="calendar-management" className="rounded-none">
                     可銷售房間管理
@@ -113,10 +110,6 @@ export default function Admin() {
                 <div className="p-6">
                   <TabsContent value="room-management" className="space-y-4 mt-0">
                     <RoomManagement />
-                  </TabsContent>
-
-                  <TabsContent value="batch-update" className="space-y-4 mt-0">
-                    <RoomBatchUpdate />
                   </TabsContent>
 
                   <TabsContent value="calendar-management" className="space-y-4 mt-0">
