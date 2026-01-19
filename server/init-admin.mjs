@@ -29,7 +29,7 @@ async function initAdmin() {
     }
     
     // 創建默認管理員帳號
-    const passwordHash = await bcrypt.hash('admin123456', 10);
+    const passwordHash = await bcrypt.hash('123456', 10);
     
     await db.insert(users).values({
       username: 'admin',
@@ -42,7 +42,7 @@ async function initAdmin() {
     
     console.log('✓ 已創建默認管理員帳號');
     console.log('  用戶名: admin');
-    console.log('  密碼: admin123456');
+    console.log('  密碼: 123456');
     console.log('  ⚠️  請在首次登入後修改密碼！');
     
   } catch (error) {
