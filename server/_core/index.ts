@@ -33,15 +33,11 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  // CORS 設定 - 允許 Vercel 前端訪問
+  // CORS 設定 - 允許所有訪問
   app.use((req, res, next) => {
-    const allowedOrigins = [
-      'https://european-castle-hotel.vercel.app',
-      'http://localhost:3000',
-      'http://localhost:5173'
-    ];
     const origin = req.headers.origin;
-    if (allowedOrigins.includes(origin)) {
+    // 允許所有來源，確保連接正常
+    if (origin) {
       res.header('Access-Control-Allow-Origin', origin);
     }
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
@@ -54,7 +50,7 @@ async function startServer() {
       next();
     }
   });
-  // Configure body parser with larger size limit for file uploads
+  // 配置身體解析器，支持較大的檔案上傳
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
