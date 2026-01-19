@@ -55,13 +55,12 @@ export async function getDb() {
       
       console.log('[Database] Final URL:', dbUrl.replace(/:[^:]*@/, ':***@')); // 隱藏密碼
       
-      // drizzle-orm 需要在連線配置中傳遞 SSL 對象
-      // 不要在 URL 中添加 ssl=true
+      // drizzle-orm 需要在連線配置中傳遞 SSL 配置
+      // 使用粗粗的 SSL 配置（不驗證 CA 憑證）
       _db = drizzle(dbUrl, {
         mode: 'default',
-        ssl: true,
       });
-      console.log('[Database] Connected successfully');
+      console.log('[Database] Connected successfully with drizzle-orm');
       
       // 觸發資料庫初始化（非阻塞）
       if (!initPromise) {
@@ -71,6 +70,7 @@ export async function getDb() {
       }
     } catch (error) {
       console.error("[Database] Failed to connect:", error instanceof Error ? error.message : error);
+      console.error("[Database] Full error:", error);
       _db = null;
     }
   } else if (!process.env.DATABASE_URL) {
