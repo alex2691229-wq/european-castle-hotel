@@ -1010,3 +1010,33 @@
 - [ ] 前台顯示出該房間
 - [ ] 生成對比截圖
 - [ ] 保存檢查點
+
+
+## 🟡 Priority 3: 校準修復（2026/01/19）
+
+### Phase 1: 整合 Imgur API
+- [x] 實現 Imgur API 圖片上傳端點
+- [ ] 修改 RoomManagement 前端使用 Imgur 上傳
+- [ ] 添加圖片預覽功能
+- [ ] 測試圖片上傳流程
+
+### Phase 2: 修復 createRoom 端點
+- [x] 檢查 createRoom 是否正確返回 room ID
+- [x] 確保房間數據與設施正確關聯
+- [x] 添加完整的錯誤處理
+
+### Phase 3: 優化 Navbar 同步
+- [x] 改進 useAuth hook 的 Cache 策略
+- [x] 登入成功後立即 invalidateQueries
+- [x] 確保無需重整頁面即可看到登入狀態
+
+### Phase 4: 創建 Seed Script
+- [x] 編寫 seed-data.mjs 預填 5 筆房型數據
+- [x] 預填設施數據
+- [x] 預填房型-設施關聯數據
+- [ ] 驗證前台能正確顯示
+
+### Phase 5: 完整流程驗證
+- [ ] 新增房間並上傳圖片
+- [ ] 驗證前台顯示房間信息與照片
+- [ ] 生成完整流程截圖

@@ -251,6 +251,30 @@ export const appRouter = router({
         await db.deleteRoomType(input.id);
         return { success: true };
       }),
+    
+    uploadImage: adminProcedure
+      .input(z.object({
+        imageBase64: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const clientId = process.env.IMGUR_CLIENT_ID || "placeholder_client_id";
+        if (clientId === "placeholder_client_id") {
+          throw new TRPCError({
+            code: 'PRECONDITION_FAILED',
+            message: 'Imgur Client ID not configured',
+          });
+        }
+        try {
+          const { uploadToImgur } = await import('../_core/imgur');
+          const result = await uploadToImgur(input.imageBase64, clientId);
+          return { url: result.url, deleteHash: result.deleteHash };
+        } catch (error) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Image upload failed: ${error.message}`,
+          });
+        }
+      }),
   }),
 
   // Bookings

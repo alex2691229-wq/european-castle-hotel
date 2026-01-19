@@ -14,13 +14,17 @@ export function useAuth(options?: UseAuthOptions) {
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: false,
+    retry: 2,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    staleTime: 0,
+    gcTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const logoutMutation = trpc.auth.logout.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       utils.auth.me.setData(undefined, null);
+      await utils.auth.me.invalidate();
     },
   });
 
@@ -76,9 +80,13 @@ export function useAuth(options?: UseAuthOptions) {
     state.user,
   ]);
 
+  const refetch = useCallback(async () => {
+    return await meQuery.refetch();
+  }, [meQuery]);
+
   return {
     ...state,
-    refresh: () => meQuery.refetch(),
+    refresh: refetch,
     logout,
   };
 }
