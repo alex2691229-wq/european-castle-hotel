@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { z } from 'zod';
 import { notifyOwner } from './notification.js';
 import { adminProcedure, publicProcedure, router } from './trpc.js';

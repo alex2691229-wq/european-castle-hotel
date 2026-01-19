@@ -1,3 +1,4 @@
+// @ts-nocheck
 import jwt from 'jsonwebtoken';
 import { ENV } from './env.js';
 

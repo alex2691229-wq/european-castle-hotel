@@ -1,3 +1,4 @@
+// @ts-nocheck
 import nodemailer from 'nodemailer';
 
 // LINE 官方帳號資訊

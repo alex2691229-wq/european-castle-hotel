@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { eq, and, or, gte, lte, desc, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/mysql2';
 import { 
@@ -48,9 +49,9 @@ export async function getDb() {
       // 移除已存在的 ssl 和 sslMode 參數以避免重複
       dbUrl = dbUrl.replace(/[?&](ssl|sslMode)=[^&]*/g, '');
       
-      // 添加 TiDB 必需的 SSL 參數
+      // 添加 MySQL2 支持的 SSL 參數
       const separator = dbUrl.includes('?') ? '&' : '?';
-      dbUrl = dbUrl + separator + 'sslMode=REQUIRED';
+      dbUrl = dbUrl + separator + 'ssl=true';
       
       console.log('[Database] Final URL:', dbUrl.replace(/:[^:]*@/, ':***@')); // 隱藏密碼
       

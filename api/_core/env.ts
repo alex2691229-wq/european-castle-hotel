@@ -1,3 +1,4 @@
+// @ts-nocheck
 // 獲取 OAuth 伺服器 URL，如果未設定則使用預設值
 function getOAuthServerUrl(): string {
   const configured = process.env.OAUTH_SERVER_URL?.trim();

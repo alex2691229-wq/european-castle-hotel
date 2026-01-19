@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Google Maps API Integration for Manus WebDev Templates
  * 

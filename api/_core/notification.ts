@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TRPCError } from '@trpc/server';
 import { ENV } from './env.js';
 

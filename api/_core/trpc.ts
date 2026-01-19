@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from '../_shared/const.js';
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';

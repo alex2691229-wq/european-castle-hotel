@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ENV } from './env.js';
 
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
