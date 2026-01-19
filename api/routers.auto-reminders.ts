@@ -8,7 +8,7 @@ import {
   sendPaymentOverdueReminders,
   sendCheckOutThankYouEmails,
   runAllAutoReminders,
-} from './auto-reminder-scheduler.js';
+} from './schedulers/reminder-scheduler.js';
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
