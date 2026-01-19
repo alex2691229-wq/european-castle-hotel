@@ -27,6 +27,21 @@
     box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
   }
 
+  /* 金色文字 */
+  .text-gold {
+    color: #d4af37;
+  }
+
+  /* 金色背景 */
+  .bg-gold {
+    background-color: #d4af37;
+  }
+
+  /* 金色邊框 */
+  .border-gold {
+    border-color: #d4af37;
+  }
+
   /* 金色漸層文字 */
   .text-gold-gradient {
     background: linear-gradient(135deg, #d4af37, #b8860b);
