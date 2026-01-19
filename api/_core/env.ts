@@ -9,14 +9,25 @@ function getOAuthServerUrl(): string {
   // 在 Vercel 環境中使用當前網址
   if (process.env.VERCEL_URL) {
     const url = `https://${process.env.VERCEL_URL}`;
-    console.warn(`[ENV] OAUTH_SERVER_URL not configured, using Vercel URL: ${url}`);
+    console.log(`[ENV] OAUTH_SERVER_URL not configured, using Vercel URL: ${url}`);
     return url;
   }
   
   // 在本地開發環境中使用 localhost
   const localUrl = 'http://localhost:3000';
-  console.warn(`[ENV] OAUTH_SERVER_URL not configured, using localhost: ${localUrl}`);
+  console.log(`[ENV] OAUTH_SERVER_URL not configured, using localhost: ${localUrl}`);
   return localUrl;
+}
+
+// 診斷環境變數
+if (process.env.NODE_ENV === "production") {
+  const forgeUrl = process.env.BUILT_IN_FORGE_API_URL;
+  const forgeKey = process.env.BUILT_IN_FORGE_API_KEY;
+  if (!forgeUrl || !forgeKey) {
+    console.warn('[ENV] Manus storage credentials missing:');
+    console.warn('  - BUILT_IN_FORGE_API_URL:', forgeUrl ? '✓ set' : '✗ missing');
+    console.warn('  - BUILT_IN_FORGE_API_KEY:', forgeKey ? '✓ set' : '✗ missing');
+  }
 }
 
 export const ENV = {

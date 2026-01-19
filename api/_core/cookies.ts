@@ -10,16 +10,20 @@ function isIpAddress(host: string) {
 }
 
 function isSecureRequest(req: Request) {
-  if (req.protocol === "https") return true;
-
+  // Vercel 使用 x-forwarded-proto 頭部
   const forwardedProto = req.headers["x-forwarded-proto"];
-  if (!forwardedProto) return false;
+  if (forwardedProto) {
+    const protoList = Array.isArray(forwardedProto)
+      ? forwardedProto
+      : forwardedProto.split(",");
+    return protoList.some(proto => proto.trim().toLowerCase() === "https");
+  }
 
-  const protoList = Array.isArray(forwardedProto)
-    ? forwardedProto
-    : forwardedProto.split(",");
-
-  return protoList.some(proto => proto.trim().toLowerCase() === "https");
+  // 本地開發環境
+  if (req.protocol === "https") return true;
+  
+  // 默認為 true（安全優先）
+  return true;
 }
 
 export function getSessionCookieOptions(
@@ -40,10 +44,12 @@ export function getSessionCookieOptions(
   //       ? hostname
   //       : undefined;
 
+  const secure = isSecureRequest(req);
+  
   return {
     httpOnly: true,
     path: "/",
-    sameSite: "none",
-    secure: isSecureRequest(req),
+    sameSite: secure ? "none" : "lax",
+    secure: secure,
   };
 }
