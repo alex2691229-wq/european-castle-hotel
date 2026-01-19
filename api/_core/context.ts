@@ -2,7 +2,7 @@ import type { CreateExpressContextOptions } from "@trpc/server/adapters/express"
 import type { User } from '../../drizzle/schema.js';
 import { sdk } from './sdk.js';
 import { verify } from './jwt.js';
-import { COOKIE_NAME } from "../_shared/const";
+import { COOKIE_NAME } from "@shared/const";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
