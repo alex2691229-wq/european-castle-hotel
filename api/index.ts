@@ -1,20 +1,15 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import express from 'express';
-import { createServer } from 'http';
-import net from 'net';
+import path from 'path';
+import fs from 'fs';
 import multer from 'multer';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { registerOAuthRoutes } from '../server/_core/oauth';
 import { appRouter } from '../server/routers';
 import { createContext } from '../server/_core/context';
-import { serveStatic } from '../server/_core/vite';
-import { wsManager } from '../server/websocket';
-import { initializeSchedulers } from '../server/schedulers/reminder-scheduler';
 import { handleUpload } from '../server/_core/upload';
 import { getDb } from '../server/db';
 import bcrypt from 'bcrypt';
 import { sign } from '../server/_core/jwt';
-import { users } from '../drizzle/schema';
 import { registerInitRoutes } from '../server/_core/init-api';
 
 const app = express();
@@ -121,8 +116,21 @@ app.use(
   })
 );
 
-// 靜態檔案服務
-serveStatic(app);
+// 靜態檔案服務 - 在 Vercel 中，dist/public 會被複製到根目錄
+const publicPath = path.join(process.cwd(), 'dist', 'public');
+if (fs.existsSync(publicPath)) {
+  app.use(express.static(publicPath));
+  
+  // 所有其他路由都返回 index.html（SPA 路由）
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+  });
+} else {
+  console.warn(`[Server] Public directory not found at ${publicPath}`);
+  app.get('*', (req, res) => {
+    res.status(404).json({ error: 'Public directory not found' });
+  });
+}
 
-// 導出 Vercel Serverless Function
+// 導出 Express 應用作為 Vercel Serverless Function
 export default app;
