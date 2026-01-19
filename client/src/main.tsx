@@ -1,8 +1,7 @@
 import { trpc, getBaseUrl } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from '@/const';
+import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchStreamLink, TRPCClientError } from "@trpc/client";
-import React from "react";
+import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
@@ -43,7 +42,7 @@ queryClient.getMutationCache().subscribe(event => {
 
 const trpcClient = trpc.createClient({
   links: [
-    httpBatchStreamLink({
+    httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
       fetch(input, init) {
@@ -56,6 +55,14 @@ const trpcClient = trpc.createClient({
   ],
 });
 
+createRoot(document.getElementById("root")!).render(
+  <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </trpc.Provider>
+);
+// 加上錯誤邊界保護與 Console 偵錯
 const container = document.getElementById("root");
 
 if (!container) {

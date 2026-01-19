@@ -1,40 +1,36 @@
 import { useState } from "react";
+import { trpc } from "../lib/trpc";
 
 export default function Login() {
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: () => {
+      console.log("登入成功，跳轉到後台");
+      window.location.href = "/admin";
+    },
+    onError: (error) => {
+      console.error("登入失敗:", error);
+      setError(error.message || "登入失敗，請檢查帳號密碼");
+      setLoading(false);
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     
+    console.log("提交登入表單:", { username, password: "***" });
+    
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "登入失敗，請檢查帳號密碼");
-        setLoading(false);
-        return;
-      }
-
-      // 登入成功，跳轉到後台
-      console.log("登入成功:", data.user);
-      window.location.href = "/admin";
+      await loginMutation.mutateAsync({ username, password });
     } catch (err) {
       console.error("登入錯誤:", err);
-      setError("登入失敗，請稍後重試");
       setLoading(false);
     }
   };
