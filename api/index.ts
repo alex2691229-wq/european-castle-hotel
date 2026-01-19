@@ -52,105 +52,70 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// 診斷路由
+app.get('/api/health/db', async (req, res) => {
+  console.log('[HEALTH] Diagnostics requested');
+  console.log('[HEALTH] DATABASE_URL exists:', !!process.env.DATABASE_URL);
+  console.log('[HEALTH] BUILT_IN_FORGE_API_URL exists:', !!process.env.BUILT_IN_FORGE_API_URL);
+  console.log('[HEALTH] BUILT_IN_FORGE_API_KEY exists:', !!process.env.BUILT_IN_FORGE_API_KEY);
+  
+  try {
+    const db = getDb();
+    res.json({
+      status: db ? 'ok' : 'error',
+      env: {
+        databaseUrl: !!process.env.DATABASE_URL,
+        forgeApiUrl: !!process.env.BUILT_IN_FORGE_API_URL,
+        forgeApiKey: !!process.env.BUILT_IN_FORGE_API_KEY
+      }
+    });
+  } catch (error) {
+    console.error('[HEALTH] Error:', error);
+    res.json({ status: 'error', message: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
 // 配置 multer
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// 初始化路由
-try {
-  // 檔案上傳路由
-  app.post('/api/upload', upload.single('file'), handleUpload);
-
-  // OAuth callback
-  registerOAuthRoutes(app);
-
-  // Initialize routes
-  registerInitRoutes(app);
-
-  // 登入路由
-  app.post('/api/login', async (req, res) => {
-    try {
-      const { username, password } = req.body;
-
-      if (!username || !password) {
-        return res.status(400).json({ error: 'Missing username or password' });
-      }
-
-      const db = await getDb();
-      if (!db) {
-        console.error('[Login] Database not connected');
-        return res.status(500).json({ error: 'Database connection failed' });
-      }
-
-      const user = await db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.username, username),
-      });
-
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid username or password' });
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: 'Invalid username or password' });
-      }
-
-      const token = sign({ userId: user.id, username: user.username, role: user.role });
-
-      res.json({
-        success: true,
-        token,
-        user: {
-          id: user.id,
-          username: user.username,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        }
-      });
-    } catch (error) {
-      console.error('[Login] Error:', error);
-      res.status(500).json({ error: 'Login failed' });
-    }
-  });
-
-  // tRPC API
-  app.use(
-    '/api/trpc',
-    createExpressMiddleware({
-      router: appRouter,
-      createContext: createContext,
-    })
-  );
-
-  // 靜態檔案服務
-  const publicPath = path.join(process.cwd(), 'dist', 'public');
-  if (fs.existsSync(publicPath)) {
-    app.use(express.static(publicPath));
-    
-    // 所有其他路由都返回 index.html（SPA 路由）
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(publicPath, 'index.html'));
-    });
-  } else {
-    console.warn(`[Server] Public directory not found at ${publicPath}`);
-    app.get('*', (req, res) => {
-      res.status(404).json({ error: 'Public directory not found' });
-    });
+// 上傳路由
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
   }
-} catch (error) {
-  console.error('[API] Initialization error:', error);
-  
-  // 提供基本的錯誤路由
-  app.use((req, res) => {
-    res.status(500).json({ 
-      error: 'API initialization failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
-  });
+
+  try {
+    const result = await handleUpload(req.file);
+    res.json(result);
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Upload failed' });
+  }
+});
+
+// 初始化路由
+registerInitRoutes(app);
+
+// OAuth 路由
+registerOAuthRoutes(app);
+
+// tRPC 路由
+app.use(
+  '/api/trpc',
+  createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  })
+);
+
+// 靜態檔案服務
+const publicDir = path.join(process.cwd(), 'public');
+if (fs.existsSync(publicDir)) {
+  app.use('/api', express.static(publicDir));
 }
 
-// 導出 Express 應用作為 Vercel Serverless Function
+// 導出 Express 應用
 export default app;
