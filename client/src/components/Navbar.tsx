@@ -30,6 +30,11 @@ export default function Navbar() {
           </Link>
         </div>
 
+        {/* 版本標記 */}
+        <div className="text-[#d4af37]/50 text-xs hidden lg:block mr-4">
+          v2.0-Verified
+        </div>
+
         {/* 右侧按鈕 */}
         <div className="flex gap-2 md:gap-4 items-center shrink-0">
           <Link href="/login">
