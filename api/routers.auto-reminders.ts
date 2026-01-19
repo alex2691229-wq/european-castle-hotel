@@ -1,13 +1,10 @@
 import { router, protectedProcedure } from './_core/trpc.js';
 import { TRPCError } from '@trpc/server';
 import {
-  getTomorrowCheckInBookings,
-  getOverdue24HoursPaymentBookings,
-  getTodayCheckOutBookings,
-  sendCheckInReminders,
-  sendPaymentOverdueReminders,
-  sendCheckOutThankYouEmails,
-  runAllAutoReminders,
+  scheduleConfirmationReminders,
+  schedulePaymentReminders,
+  scheduleCheckInReminders,
+  initializeSchedulers,
 } from './schedulers/reminder-scheduler.js';
 
 // Admin-only procedure
