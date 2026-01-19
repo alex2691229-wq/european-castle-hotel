@@ -321,8 +321,7 @@ export const appRouter = router({
         // Send confirmation email to guest
         if (input.guestEmail) {
           // Get base URL from request headers or use default
-const baseUrl = process.env.API_URL || process.env.VERCEL_URL || 'http://localhost:3000';
-          const guestEmailHtml = generateBookingConfirmationEmail(
+const baseUrl = process.env.API_URL || 'http://localhost:3000';          const guestEmailHtml = generateBookingConfirmationEmail(
             input.guestName,
             roomType?.name || '房型',
             checkInDate,
