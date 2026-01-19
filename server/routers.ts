@@ -320,8 +320,7 @@ export const appRouter = router({
         // Send confirmation email to guest
         if (input.guestEmail) {
           // Get base URL from request headers or use default
-    const baseUrl = 'https://j4lgdbyk5e-tcqganzzma-uk.a.run.app';          
-          const guestEmailHtml = generateBookingConfirmationEmail(
+const baseUrl = process.env.API_URL || 'http://localhost:3000';          const guestEmailHtml = generateBookingConfirmationEmail(
             input.guestName,
             roomType?.name || '房型',
             checkInDate,
