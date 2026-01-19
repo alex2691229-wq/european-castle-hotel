@@ -1,9 +1,9 @@
 import "dotenv/config";
 import express from 'express';
-import { createServer } from 'http.js';
-import net from 'net.js';
+import { createServer } from 'http';
+import net from 'net';
 import multer from 'multer';
-import { createExpressMiddleware } from '@trpc/server/adapters/express.js';
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { registerOAuthRoutes } from './oauth.js';
 import { appRouter } from '../routers.js';
 import { createContext } from './context.js';

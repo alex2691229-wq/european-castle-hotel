@@ -1,4 +1,4 @@
-import axios from 'axios.js';
+import axios from 'axios';
 
 /**
  * Imgur 圖片上傳工具

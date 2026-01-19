@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from 'cloudinary.js';
+import { v2 as cloudinary } from 'cloudinary';
 
 /**
  * 初始化 Cloudinary

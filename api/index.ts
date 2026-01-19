@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
-import { createExpressMiddleware } from '@trpc/server/adapters/express.js';
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
 
 // 直接導入本地複製的檔案
 import { registerOAuthRoutes } from './_core/oauth.js';

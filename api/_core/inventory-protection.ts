@@ -19,7 +19,7 @@ const HARD_LOCK_MULTIPLIER = 1; // 1 unit per booking
 
 import * as db from '../db.js';
 import { logAuditAction } from './audit-logs.js';
-import crypto from 'crypto.js';
+import crypto from 'crypto';
 
 /**
  * Check available inventory with real-time count

@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken.js';
+import jwt from 'jsonwebtoken';
 import { ENV } from './env.js';
 
 export interface JWTPayload {

@@ -1,4 +1,4 @@
-import ical from 'ical.js';
+import ical from 'ical';
 import * as db from '../db.js';
 
 /**

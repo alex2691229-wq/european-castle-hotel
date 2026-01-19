@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer.js';
+import nodemailer from 'nodemailer';
 
 // LINE 官方帳號資訊
 const LINE_ID = '@castle6359577';

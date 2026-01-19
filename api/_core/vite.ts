@@ -1,7 +1,7 @@
 import express, { type Express } from 'express';
 import fs from 'fs';
-import { type Server } from 'http.js';
-import { nanoid } from 'nanoid.js';
+import { type Server } from 'http';
+import { nanoid } from 'nanoid';
 import path from 'path';
 // 此檔案仅在開發模式中使用，不應在生產環境中被打包
 
