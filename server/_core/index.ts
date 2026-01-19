@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import cookieParser from 'cookie-parser';
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -9,6 +10,9 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { wsManager } from "../websocket";
 import { initializeSchedulers } from "../schedulers/reminder-scheduler";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { getUserByUsername } from "../db";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -57,14 +61,80 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  app.use(cookieParser());
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // REST API /api/login endpoint
+  app.post('/api/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: '帳號和密碼不能為空' });
+      }
+      
+      // Get user from database
+      const user = await getUserByUsername(username);
+      
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ error: '帳號或密碼錯誤' });
+      }
+      
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: '帳號或密碼錯誤' });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user.id, username: user.username, role: user.role },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '7d' }
+      );
+      
+      // Set cookie
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      // Return success response
+      res.json({
+        success: true,
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          role: user.role
+        }
+      });
+    } catch (error) {
+      console.error('[Login Error]', error);
+      res.status(500).json({ error: '登入失敗' });
+    }
+  });
   // tRPC API
   app.use(
     "/api/trpc",
     createExpressMiddleware({
       router: appRouter,
       createContext,
+      onError: ({ error, path, input, type, ctx }) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[TRPC Error]', {
+            path,
+            type,
+            error: error.message,
+            input,
+          });
+        }
+      },
     })
   );
   // Initialize WebSocket server

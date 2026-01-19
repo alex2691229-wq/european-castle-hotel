@@ -967,3 +967,41 @@
 ## Deployment Status (2026/01/15 - 20:30)
 ✅ Fixed Root Directory configuration in Vercel
 ✅ All Radix UI dependencies added to client/package.json
+
+
+## 🔴 REST API 登入系統修復（2026/01/19 - 用戶需求）
+
+### Phase 1: 更新 admin 用戶密碼
+- [x] 更新 admin 用戶密碼為 123456
+- [x] 驗證密碼更新成功
+
+### Phase 2: 建立 REST API /api/login 端點
+- [x] 創建 /api/login 端點（POST）
+- [x] 實現帳號密碼驗證邏輯
+- [x] 實現 JWT Token 生成
+- [x] 實現 Cookie 設置
+
+### Phase 3: 修復前端登入頁面
+- [x] 改用 REST API 而不是 TRPC
+- [x] 實現登入表單提交
+- [x] 實現錯誤提示
+- [x] 實現成功後跳轉到 /admin
+
+### Phase 4: 修復 Navbar 導航
+- [x] 確保登入按鈕指向 /login
+- [x] 確保登入後顯示用戶信息
+- [x] 確保登出功能正常
+
+### Phase 5: 沙盒環境自動化測試
+- [x] 模擬登入請求（admin / 123456）
+- [x] 驗證 Token 獲取成功
+- [x] 驗證後台訪問正常
+
+### Phase 6: 更新首頁標題
+- [x] 更新首頁標題為「歐堡飯店 - 數據連通版」
+- [x] 驗證標題顯示正確
+
+### Phase 7: Git 提交和 Vercel 部署
+- [ ] 執行 git push --force
+- [ ] 驗證 Vercel 部署成功
+- [ ] 驗證生產環境登入功能正常

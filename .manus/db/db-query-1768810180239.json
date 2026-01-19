@@ -1,0 +1,66 @@
+{
+  "query": "SELECT id, username, name, role, status FROM users LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, username, name, role, status FROM users LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "username": "",
+      "name": "Jason C",
+      "role": "admin",
+      "status": "active"
+    },
+    {
+      "id": "211351",
+      "username": "jason",
+      "name": "Jason",
+      "role": "admin",
+      "status": "active"
+    },
+    {
+      "id": "211496",
+      "username": "NULL",
+      "name": "汽車旅館 歐堡",
+      "role": "user",
+      "status": "active"
+    },
+    {
+      "id": "300089",
+      "username": "admin",
+      "name": "管理員",
+      "role": "admin",
+      "status": "active"
+    },
+    {
+      "id": "300096",
+      "username": "testuser",
+      "name": "Test User",
+      "role": "user",
+      "status": "active"
+    },
+    {
+      "id": "360001",
+      "username": "NULL",
+      "name": "漢昌 周",
+      "role": "user",
+      "status": "active"
+    },
+    {
+      "id": "390026",
+      "username": "testuser_1768440550659",
+      "name": "Test User",
+      "role": "user",
+      "status": "active"
+    },
+    {
+      "id": "390031",
+      "username": "testuser_1768440667164",
+      "name": "Test User",
+      "role": "user",
+      "status": "active"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\trole\tstatus\n1\t\tJason C\tadmin\tactive\n211351\tjason\tJason\tadmin\tactive\n211496\tNULL\t汽車旅館 歐堡\tuser\tactive\n300089\tadmin\t管理員\tadmin\tactive\n300096\ttestuser\tTest User\tuser\tactive\n360001\tNULL\t漢昌 周\tuser\tactive\n390026\ttestuser_1768440550659\tTest User\tuser\tactive\n390031\ttestuser_1768440667164\tTest User\tuser\tactive\n",
+  "stderr": "",
+  "execution_time_ms": 1558
+}
