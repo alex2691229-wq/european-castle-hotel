@@ -3,6 +3,12 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "dist/public",
+  "functions": {
+    "api/**": {
+      "runtime": "nodejs20.x",
+      "handler": "dist/index.js"
+    }
+  },
   "env": {
     "NODE_ENV": "production",
     "PORT": "3000"
@@ -10,7 +16,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "destination": "dist/index.js"
     },
     {
       "source": "/(.*)",
