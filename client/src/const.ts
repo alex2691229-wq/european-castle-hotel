@@ -1,4 +1,7 @@
-export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
+// 本地定義常數（避免 @shared 路徑問題）
+export const COOKIE_NAME = "auth_token";
+export const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+export const UNAUTHED_ERR_MSG = "UNAUTHORIZED";
 
 // Generate login URL at runtime so redirect URI reflects the current origin.
 export const getLoginUrl = () => {
@@ -13,7 +16,8 @@ export const getLoginUrl = () => {
   } catch (e) {
     console.error("URL 解析失敗的標記位:", `${oauthPortalUrl}/app-auth`);
     url = { href: '' } as any; // 提供一個空對象防止崩潰
-  }  url.searchParams.set("appId", appId);
+  }
+  url.searchParams.set("appId", appId);
   url.searchParams.set("redirectUri", redirectUri);
   url.searchParams.set("state", state);
   url.searchParams.set("type", "signIn");
