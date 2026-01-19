@@ -22,8 +22,12 @@ export async function createContext(
     // 如果 SDK 驗證失敗，嘗試驗證本地 JWT token
     try {
       const token = opts.req.cookies[COOKIE_NAME];
+      console.log(`[AUTH] Cookie name: ${COOKIE_NAME}, Token exists: ${!!token}`);
+      
       if (token) {
         const payload = verify(token);
+        console.log(`[AUTH] JWT verified successfully for user: ${payload.username}`);
+        
         // 將 JWT payload 轉換為 User 對象
         user = {
           id: payload.id,
@@ -37,9 +41,12 @@ export async function createContext(
           createdAt: new Date(),
           updatedAt: new Date(),
         } as User;
+      } else {
+        console.log(`[AUTH] No token found in cookies`);
       }
     } catch (jwtError) {
       // JWT 驗證也失敗，用戶未認證
+      console.log(`[AUTH] JWT verification failed:`, jwtError instanceof Error ? jwtError.message : jwtError);
       user = null;
     }
   }

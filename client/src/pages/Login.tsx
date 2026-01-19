@@ -1,43 +1,55 @@
 // DEPLOY_SYNC_ID: Production-v2.1
 import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [, setLocation] = useLocation();
+  const utils = trpc.useUtils();
+
+  // 使用 TRPC 登入 mutation
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: async (data) => {
+      // 登入成功 - 清除錯誤
+      setError("");
+      
+      // 儲存用戶信息到 localStorage（備用）
+      if (data.user) {
+        localStorage.setItem("auth_user", JSON.stringify(data.user));
+      }
+      
+      // 刷新 auth.me 查詢，確保 Navbar 更新
+      console.log("✅ 登入成功，刷新認證狀態");
+      await utils.auth.me.invalidate();
+      
+      // 自動跳轉到後台
+      setTimeout(() => {
+        console.log("✅ 跳轉到 /admin");
+        setLocation("/admin");
+      }, 500);
+    },
+    onError: (error) => {
+      // 登入失敗
+      const errorMessage = error.message || "登入失敗，請檢查帳號密碼";
+      setError(errorMessage);
+      console.error("❌ 登入錯誤:", errorMessage);
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "登入失敗");
-        setLoading(false);
-        return;
-      }
-
-      // 登入成功，儲存 token 並跳轉
-      localStorage.setItem("auth_token", data.token);
-      window.location.href = "/admin";
-    } catch (err) {
-      console.error("登入錯誤:", err);
-      setError("登入失敗，請檢查帳號密碼");
-      setLoading(false);
+    if (!username || !password) {
+      setError("請輸入帳號和密碼");
+      return;
     }
+
+    // 調用 TRPC 登入
+    loginMutation.mutate({ username, password });
   };
 
   const handleGoogleLogin = () => {
@@ -75,7 +87,7 @@ export default function Login() {
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 placeholder="請輸入帳號"
-                disabled={loading}
+                disabled={loginMutation.isPending}
               />
             </div>
 
@@ -92,17 +104,17 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 placeholder="請輸入密碼"
-                disabled={loading}
+                disabled={loginMutation.isPending}
               />
             </div>
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loginMutation.isPending}
             className="w-full py-3 px-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "登入中..." : "登入"}
+            {loginMutation.isPending ? "登入中..." : "登入"}
           </button>
         </form>
 
