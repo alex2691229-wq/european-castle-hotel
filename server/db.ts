@@ -1114,8 +1114,9 @@ export async function checkMaxSalesQuantity(
   }
 
   return true;
+}
 
-  // 房間控制系統 - RoomBlockage 函數
+// 房間控制系統 - RoomBlockage 函數
 type RoomBlockage = {
   id: number;
   roomTypeId: number;
@@ -1160,7 +1161,6 @@ export async function getBlockedDatesInRange(
   startDate: Date,
   endDate: Date
 ): Promise<RoomBlockage[]> {
-  // TODO: 取得範圍內的關閉日期
+  // TODO: 取得範團內的關閉日期
   return [];
-}
 }
