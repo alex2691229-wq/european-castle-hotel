@@ -28,8 +28,8 @@ export default defineConfig({
     host: true,
     hmr: {
       protocol: 'wss',
-      host: 'localhost',
-      port: 5173,
+      host: typeof process !== 'undefined' && process.env.VITE_HMR_HOST ? process.env.VITE_HMR_HOST : 'localhost',
+      port: typeof process !== 'undefined' && process.env.VITE_HMR_PORT ? parseInt(process.env.VITE_HMR_PORT) : 5173,
     },
     allowedHosts: [
       ".manuspre.computer",
