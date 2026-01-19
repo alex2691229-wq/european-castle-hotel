@@ -44,7 +44,7 @@ export async function getDb() {
   return _db;
 }
 
-export async function upsertUser(user: InsertUser): Promise<void> {
+export async function upsertUser(user: InsertUser): Promise<number> {
   // Support both openId (OAuth) and username (password) authentication
   if (!user.openId && !user.username) {
     throw new Error("Either openId or username is required for upsert");
@@ -53,7 +53,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot upsert user: database not available");
-    return;
+    throw new Error("Database not available");
   }
 
   try {
@@ -107,9 +107,29 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
+    const result = await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
+    
+    // 如果是新插入，返回 insertId；如果是更新，查詢並返回用戶 ID
+    if (result[0].insertId) {
+      return Number(result[0].insertId);
+    }
+    
+    // 如果是更新，根據 username 或 openId 查詢用戶 ID
+    let userId: number | null = null;
+    if (user.username) {
+      const existingUser = await getUserByUsername(user.username);
+      userId = existingUser?.id ?? null;
+    } else if (user.openId) {
+      const existingUser = await getUserByOpenId(user.openId);
+      userId = existingUser?.id ?? null;
+    }
+    
+    if (!userId) {
+      throw new Error("Failed to get user ID after upsert");
+    }
+    return userId;
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -158,6 +178,14 @@ export async function createUser(data: InsertUser): Promise<number> {
   }
   
   return newUser[0].id;
+}
+
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.select().from(users).where(eq(users.id, id));
+  return result[0] || null;
 }
 
 export async function getAllUsers() {

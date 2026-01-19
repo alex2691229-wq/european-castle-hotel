@@ -118,7 +118,7 @@ export const appRouter = router({
         const passwordHash = await bcrypt.hash(input.password, 10);
         
         // 創建新用戶
-        await db.upsertUser({
+        const userId = await db.upsertUser({
           username: input.username,
           passwordHash,
           name: input.name,
@@ -126,7 +126,13 @@ export const appRouter = router({
           loginMethod: 'password',
         });
         
-        return { success: true };
+        // 返回新建用戶信息
+        const newUser = await db.getUserById(userId);
+        return { 
+          success: true,
+          user: newUser,
+          message: `成功新增管理員帳號：${input.username}`
+        };
       }),
     
     updateAdmin: adminProcedure
