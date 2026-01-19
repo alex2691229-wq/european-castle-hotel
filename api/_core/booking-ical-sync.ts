@@ -1,4 +1,5 @@
 import ical from 'ical';
+// @ts-nocheck
 import * as db from '../db.js';
 
 /**

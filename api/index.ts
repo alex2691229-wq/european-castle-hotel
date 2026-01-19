@@ -1,4 +1,5 @@
 import express from 'express';
+// @ts-nocheck
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';

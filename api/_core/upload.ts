@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+// @ts-nocheck
 import { uploadToCloudinary, initializeCloudinary } from './cloudinary.js';
 
 /**

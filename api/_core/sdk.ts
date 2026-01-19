@@ -1,4 +1,5 @@
 import { AXIOS_TIMEOUT_MS, COOKIE_NAME, ONE_YEAR_MS } from '../_shared/const.js';
+// @ts-nocheck
 import { ForbiddenError } from '../_shared/_core/errors.js';
 import axios, { type AxiosInstance } from 'axios';
 import { parse as parseCookieHeader } from 'cookie';

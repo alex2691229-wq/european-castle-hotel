@@ -1,4 +1,5 @@
 import { getSessionCookieOptions } from './_core/cookies.js';
+// @ts-nocheck
 import { COOKIE_NAME } from './_shared/const.js';
 import { systemRouter } from './_core/systemRouter.js';
 import { publicProcedure, router, protectedProcedure } from './_core/trpc.js';

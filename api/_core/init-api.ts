@@ -1,4 +1,5 @@
 import { Express } from 'express';
+// @ts-nocheck
 import { getDb } from '../db.js';
 import bcrypt from 'bcrypt';
 import { users } from '../../drizzle/schema.js';

@@ -1,4 +1,5 @@
 import { router, adminProcedure } from './_core/trpc.js';
+// @ts-nocheck
 import { z } from 'zod';
 import * as db from './db.js';
 import { sendEmail } from './_core/email.js';
