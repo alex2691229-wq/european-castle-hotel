@@ -1,7 +1,10 @@
 {
   "version": 2,
+  "env": {
+    "NODE_ENV": "production"
+  },
   "builds": [
-    { "src": "api/index.js", "use": "@vercel/node" },
+    { "src": "api/index.js", "use": "@vercel/node", "config": { "includeFiles": "api/**", "excludeFiles": "node_modules/**" } },
     { "src": "dist/public/**", "use": "@vercel/static" }
   ],
   "rewrites": [
