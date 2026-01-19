@@ -307,7 +307,13 @@ var _db = null;
 async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      let dbUrl = process.env.DATABASE_URL;
+      if (dbUrl && !dbUrl.includes("ssl")) {
+        const separator = dbUrl.includes("?") ? "&" : "?";
+        dbUrl = dbUrl + separator + "ssl=true";
+      }
+      _db = drizzle(dbUrl);
+      console.log("[Database] Connected successfully with SSL");
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -5054,4 +5060,19 @@ async function startServer() {
     console.log(`[Scheduler] \u81EA\u52D5\u63D0\u9192\u8ABF\u5EA6\u5668\u5DF2\u555F\u52D5`);
   });
 }
-startServer().catch(console.error);
+// 全域錯誤捕捉 - 用於診斷 Vercel 環境的 500 錯誤
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Global Error] Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('[Global Error] Uncaught Exception:', error);
+});
+
+startServer().catch((error) => {
+  console.error('[StartServer] Fatal Error:', error);
+  if (error instanceof Error) {
+    console.error('[StartServer] Error Message:', error.message);
+    console.error('[StartServer] Error Stack:', error.stack);
+  }
+});

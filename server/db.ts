@@ -35,7 +35,14 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      let dbUrl = process.env.DATABASE_URL;
+      // 添加 TiDB SSL 配置（如果還沒有）
+      if (dbUrl && !dbUrl.includes('ssl')) {
+        const separator = dbUrl.includes('?') ? '&' : '?';
+        dbUrl = dbUrl + separator + 'ssl=true';
+      }
+      _db = drizzle(dbUrl);
+      console.log('[Database] Connected successfully with SSL');
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
