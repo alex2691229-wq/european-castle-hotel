@@ -1,5 +1,5 @@
-import { WebSocketServer, WebSocket } from 'ws';
-import { Server } from 'http';
+import { WebSocketServer, WebSocket } from 'ws.js';
+import { Server } from 'http.js';
 
 // 事件類型定義
 export interface RoomAvailabilityEvent {

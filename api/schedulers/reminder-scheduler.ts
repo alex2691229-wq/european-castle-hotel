@@ -1,11 +1,4 @@
 import cron from 'node-cron';
-<<<<<<< Updated upstream
-import * as db from '../db';
-import { sendEmail } from '../_core/email';
-=======
-import * as db from '../db.js';
-import { sendEmail } from '../_core/email.js';
->>>>>>> Stashed changes
 
 // 提醒郵件模板
 function generatePendingConfirmationReminder(guestName: string, bookingId: number, checkInDate: Date): string {

@@ -1,18 +1,10 @@
-<<<<<<< Updated upstream
-import { router, protectedProcedure } from "./_core/trpc";
-import { TRPCError } from "@trpc/server";
-import { z } from "zod";
-import { getDb } from "./db";
-import { bookings, roomTypes } from "../drizzle/schema";
-=======
 import { router, protectedProcedure } from './_core/trpc.js';
-import { TRPCError } from "@trpc/server";
-import { z } from "zod";
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 import { getDb } from './db.js';
 import { bookings, roomTypes } from '../drizzle/schema.js';
->>>>>>> Stashed changes
-import { sql, eq, and, gte, lte, desc } from "drizzle-orm";
-import ExcelJS from "exceljs";
+import { sql, eq, and, gte, lte, desc } from 'drizzle-orm';
+import ExcelJS from 'exceljs';
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {

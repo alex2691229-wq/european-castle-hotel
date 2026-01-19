@@ -52,8 +52,8 @@ CREATE INDEX idx_audit_admin ON audit_logs(admin_id);
 CREATE INDEX idx_audit_entity ON audit_logs(entity_type, entity_id);
 */
 
-import * as db from '../db.js';
-import crypto from 'crypto';
+import * as db from '../db.js.js';
+import crypto from 'crypto.js';
 
 export async function logAuditAction(
   adminId: string,

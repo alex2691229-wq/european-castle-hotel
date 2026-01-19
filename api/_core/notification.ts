@@ -1,5 +1,5 @@
-import { TRPCError } from "@trpc/server";
-import { ENV } from './env.js';
+import { TRPCError } from '@trpc/server';
+import { ENV } from './env.js.js';
 
 export type NotificationPayload = {
   title: string;

@@ -1,19 +1,19 @@
-import { AXIOS_TIMEOUT_MS, COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
-import { ForbiddenError } from "@shared/_core/errors";
-import axios, { type AxiosInstance } from "axios";
-import { parse as parseCookieHeader } from "cookie";
-import type { Request } from "express";
-import { SignJWT, jwtVerify } from "jose";
-import type { User } from '../../drizzle/schema.js';
-import * as db from '../db.js';
-import { ENV } from './env.js';
+import { AXIOS_TIMEOUT_MS, COOKIE_NAME, ONE_YEAR_MS } from '@shared/const.js';
+import { ForbiddenError } from '@shared/_core/errors.js';
+import axios, { type AxiosInstance } from 'axios.js';
+import { parse as parseCookieHeader } from 'cookie.js';
+import type { Request } from 'express';
+import { SignJWT, jwtVerify } from 'jose.js';
+import type { User } from '../../drizzle/schema.js.js';
+import * as db from '../db.js.js';
+import { ENV } from './env.js.js';
 import type {
   ExchangeTokenRequest,
   ExchangeTokenResponse,
   GetUserInfoResponse,
   GetUserInfoWithJwtRequest,
   GetUserInfoWithJwtResponse,
-} from './types/manusTypes.js';
+} from './types/manusTypes.js.js';
 // Utility function
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;

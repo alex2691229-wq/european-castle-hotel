@@ -1,4 +1,4 @@
-import { ENV } from './env.js';
+import { ENV } from './env.js.js';
 
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
 

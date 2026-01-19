@@ -1,9 +1,5 @@
-<<<<<<< Updated upstream
-import { router, protectedProcedure } from "./_core/trpc";
-=======
 import { router, protectedProcedure } from './_core/trpc.js';
->>>>>>> Stashed changes
-import { TRPCError } from "@trpc/server";
+import { TRPCError } from '@trpc/server';
 import {
   getTomorrowCheckInBookings,
   getOverdue24HoursPaymentBookings,
@@ -12,11 +8,7 @@ import {
   sendPaymentOverdueReminders,
   sendCheckOutThankYouEmails,
   runAllAutoReminders,
-<<<<<<< Updated upstream
-} from "./auto-reminder-scheduler";
-=======
 } from './auto-reminder-scheduler.js';
->>>>>>> Stashed changes
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
