@@ -35,12 +35,22 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      let dbUrl = process.env.DATABASE_URL;
+      let dbUrl = process.env.DATABASE_URL.trim();
+      
+      // 修復 mysql:// 重複嵌套問題
+      const mysqlMatches = dbUrl.match(/mysql:\/\//g) || [];
+      if (mysqlMatches.length > 1) {
+        dbUrl = dbUrl.replace(/mysql:\/\//g, '');
+        dbUrl = 'mysql://' + dbUrl;
+        console.warn('[Database] Fixed duplicate mysql:// in URL');
+      }
+      
       // 添加 TiDB SSL 配置（如果還沒有）
       if (dbUrl && !dbUrl.includes('ssl')) {
         const separator = dbUrl.includes('?') ? '&' : '?';
         dbUrl = dbUrl + separator + 'ssl=true';
       }
+      
       _db = drizzle(dbUrl);
       console.log('[Database] Connected successfully with SSL');
     } catch (error) {
