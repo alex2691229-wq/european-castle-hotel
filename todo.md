@@ -1040,3 +1040,27 @@
 - [ ] 新增房間並上傳圖片
 - [ ] 驗證前台顯示房間信息與照片
 - [ ] 生成完整流程截圖
+
+
+## 🔵 Priority 4: Imgur 整合（2026/01/19 - 正式決定）
+
+### Phase 1: 建立 POST /api/upload 路由
+- [x] 建立後端 POST /api/upload 路由
+- [x] 接收檔案並轉發至 Imgur API
+- [x] 使用環境變數 IMGUR_CLIENT_ID
+- [x] 返回 Imgur URL 和 deleteHash
+
+### Phase 2: 修改前端組件
+- [x] 修改 RoomManagement 組件的圖片上傳
+- [x] 調用 POST /api/upload 獲取 URL
+- [x] 添加上傳狀態提示
+- [x] 將 URL 儲存到房間 images 欄位
+
+### Phase 3: 修復前台渲染
+- [x] 確保前台首頁正確解析 images URL
+- [x] 修複【設施服務】和【房型展示】的圖片顯示
+- [x] 驗證圖片正確加載
+
+### Phase 4: 完整流程驗證
+- [ ] 截圖展示選擇照片 -> 上傳成功 -> 獲取網址 -> 存入房間數據
+- [ ] 驗證前台顯示房間圖片

@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import multer from "multer";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -9,6 +10,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { wsManager } from "../websocket";
 import { initializeSchedulers } from "../schedulers/reminder-scheduler";
+import { handleUpload } from "./upload";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -62,6 +64,15 @@ async function startServer() {
       timestamp: new Date().toISOString()
     });
   });
+  
+  // 配置 multer 用於檔案上傳
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  });
+  
+  // 檔案上傳路由
+  app.post('/api/upload', upload.single('file'), handleUpload);
   
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
