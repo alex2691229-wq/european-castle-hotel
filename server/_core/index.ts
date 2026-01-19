@@ -11,6 +11,10 @@ import { serveStatic, setupVite } from "./vite";
 import { wsManager } from "../websocket";
 import { initializeSchedulers } from "../schedulers/reminder-scheduler";
 import { handleUpload } from "./upload";
+import { getDb } from "../db";
+import bcrypt from "bcrypt";
+import { sign } from "./jwt";
+import { users } from "../../drizzle/schema";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -77,31 +81,50 @@ async function startServer() {
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   
-  // 暴力登入路由 - 簡單驗證 admin / 123456
+  // 登入路由 - 查詢 TiDB 資料庫
   app.post('/api/login', async (req, res) => {
     try {
       const { username, password } = req.body;
       
-      // 簡單驗證
-      if (username === 'admin' && password === '123456') {
-        const token = 'simple-token-' + Date.now();
-        res.json({
-          success: true,
-          token,
-          user: {
-            id: 1,
-            username: 'admin',
-            name: '管理員',
-            email: 'admin@example.com',
-            role: 'admin'
-          }
-        });
-      } else {
-        res.status(401).json({ error: '帳號或密碼錯誤' });
+      if (!username || !password) {
+        return res.status(400).json({ error: 'Missing username or password' });
       }
+      
+      const db = await getDb();
+      if (!db) {
+        console.error('[Login] Database not connected');
+        return res.status(500).json({ error: 'Database connection failed' });
+      }
+      
+      const user = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.username, username),
+      });
+      
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+      }
+      
+      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+      }
+      
+      const token = sign({ userId: user.id, username: user.username, role: user.role });
+      
+      res.json({
+        success: true,
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      });
     } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: '登入失敗' });
+      console.error('[Login] Error:', error);
+      res.status(500).json({ error: 'Login failed' });
     }
   });
   
