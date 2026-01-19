@@ -1,4 +1,6 @@
 import cron from 'node-cron';
+import * as db from '../db.js';
+import { sendEmail, generateBookingConfirmationEmail, generateAdminNotificationEmail } from '../_core/email.js';
 
 // 提醒郵件模板
 function generatePendingConfirmationReminder(guestName: string, bookingId: number, checkInDate: Date): string {
