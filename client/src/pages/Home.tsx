@@ -13,8 +13,8 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [heroImages, setHeroImages] = useState<string[]>([
-    "https://j4lgdbyk5e-tcqganzzma-uk.a.run.app/hotel_exterior_night.webp",
-    "https://j4lgdbyk5e-tcqganzzma-uk.a.run.app/hotel_exterior_day.webp",
+"${import.meta.env.VITE_API_URL}/hotel_exterior_night.webp",    "https://17
+    "${import.meta.env.VITE_API_URL}/hotel_exterior_day.webp",
   ]);
 
   // 從資料庫更新輪播圖片
