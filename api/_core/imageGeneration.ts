@@ -15,8 +15,13 @@
  *     }]
  *   });
  */
+<<<<<<< Updated upstream
 import { storagePut } from "../storage";
 import { ENV } from "./env";
+=======
+import { storagePut } from '../storage.js';
+import { ENV } from './env.js';
+>>>>>>> Stashed changes
 
 export type GenerateImageOptions = {
   prompt: string;

@@ -1,7 +1,11 @@
 // Preconfigured storage helpers for Manus WebDev templates
 // Uses the Biz-provided storage proxy (Authorization: Bearer <token>)
 
+<<<<<<< Updated upstream
 import { ENV } from './_core/env';
+=======
+import { ENV } from './_core/env.js';
+>>>>>>> Stashed changes
 
 type StorageConfig = { baseUrl: string; apiKey: string };
 

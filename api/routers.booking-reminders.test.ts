@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+<<<<<<< Updated upstream
 import * as db from './db';
 import { sendEmail } from './_core/email';
 import { bookingRemindersRouter } from './routers.booking-reminders';
+=======
+import * as db from './db.js';
+import { sendEmail } from './_core/email.js';
+import { bookingRemindersRouter } from './routers.booking-reminders.js';
+>>>>>>> Stashed changes
 
 // Mock dependencies
 vi.mock('./db');

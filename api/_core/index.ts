@@ -4,18 +4,18 @@ import { createServer } from "http";
 import net from "net";
 import multer from "multer";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerOAuthRoutes } from "./oauth";
-import { appRouter } from "../routers";
-import { createContext } from "./context";
-import { serveStatic } from "./vite";
-import { wsManager } from "../websocket";
-import { initializeSchedulers } from "../schedulers/reminder-scheduler";
-import { handleUpload } from "./upload";
-import { getDb } from "../db";
+import { registerOAuthRoutes } from './oauth.js';
+import { appRouter } from '../routers.js';
+import { createContext } from './context.js';
+import { serveStatic } from './vite.js';
+import { wsManager } from '../websocket.js';
+import { initializeSchedulers } from '../schedulers/reminder-scheduler.js';
+import { handleUpload } from './upload.js';
+import { getDb } from '../db.js';
 import bcrypt from "bcrypt";
-import { sign } from "./jwt";
-import { users } from "../../drizzle/schema";
-import { registerInitRoutes } from "./init-api";
+import { sign } from './jwt.js';
+import { users } from '../../drizzle/schema.js';
+import { registerInitRoutes } from './init-api.js';
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {

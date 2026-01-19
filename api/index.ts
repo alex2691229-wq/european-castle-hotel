@@ -5,14 +5,14 @@ import multer from 'multer';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 
 // 直接導入本地複製的檔案
-import { registerOAuthRoutes } from './_core/oauth';
-import { appRouter } from './routers';
-import { createContext } from './_core/context';
-import { handleUpload } from './_core/upload';
-import { getDb } from './db';
+import { registerOAuthRoutes } from './_core/oauth.js.js';
+import { appRouter } from './routers.js.js';
+import { createContext } from './_core/context.js.js';
+import { handleUpload } from './_core/upload.js.js';
+import { getDb } from './db.js.js';
 import bcrypt from 'bcrypt';
-import { sign } from './_core/jwt';
-import { registerInitRoutes } from './_core/init-api';
+import { sign } from './_core/jwt.js.js';
+import { registerInitRoutes } from './_core/init-api.js.js';
 
 const app = express();
 

@@ -1,7 +1,7 @@
 import { Express } from 'express';
-import { getDb } from '../db';
+import { getDb } from '../db.js';
 import bcrypt from 'bcrypt';
-import { users } from '../../drizzle/schema';
+import { users } from '../../drizzle/schema.js';
 import { eq } from 'drizzle-orm';
 
 export async function registerInitRoutes(app: Express) {

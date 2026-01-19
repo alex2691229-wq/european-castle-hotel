@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { uploadToCloudinary, initializeCloudinary } from './cloudinary';
+import { uploadToCloudinary, initializeCloudinary } from './cloudinary.js';
 
 /**
  * POST /api/upload 路由處理器

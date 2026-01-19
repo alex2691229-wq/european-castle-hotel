@@ -1,20 +1,20 @@
-import { getSessionCookieOptions } from "./_core/cookies";
+import { getSessionCookieOptions } from './_core/cookies.js';
 import { COOKIE_NAME } from "@shared/const";
-import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import { systemRouter } from './_core/systemRouter.js';
+import { publicProcedure, router, protectedProcedure } from './_core/trpc.js';
 import { z } from "zod";
-import * as db from "./db";
+import * as db from './db.js';
 import { TRPCError } from "@trpc/server";
-import { notifyOwner } from "./_core/notification";
-import { sendEmail, generateBookingConfirmationEmail, generateAdminNotificationEmail, generateBookingConfirmedEmail, generatePaymentInstructionEmail, generatePaymentConfirmedEmail, generateBookingCompletedEmail, generateBookingCancelledEmail } from "./_core/email";
-import { storagePut } from "./storage";
-import { invokeLLM } from "./_core/llm";
+import { notifyOwner } from './_core/notification.js';
+import { sendEmail, generateBookingConfirmationEmail, generateAdminNotificationEmail, generateBookingConfirmedEmail, generatePaymentInstructionEmail, generatePaymentConfirmedEmail, generateBookingCompletedEmail, generateBookingCancelledEmail } from './_core/email.js';
+import { storagePut } from './storage.js';
+import { invokeLLM } from './_core/llm.js';
 import bcrypt from "bcrypt";
-import { sign } from "./_core/jwt";
-import { bookingRemindersRouter } from "./routers.booking-reminders";
-import { dataExportRouter } from "./routers.data-export";
-import { autoRemindersRouter } from "./routers.auto-reminders";
-import { startBookingCalendarSync, stopBookingCalendarSync, manualSyncBookingCalendar } from './_core/booking-ical-sync';
+import { sign } from './_core/jwt.js';
+import { bookingRemindersRouter } from './routers.booking-reminders.js';
+import { dataExportRouter } from './routers.data-export.js';
+import { autoRemindersRouter } from './routers.auto-reminders.js';
+import { startBookingCalendarSync, stopBookingCalendarSync, manualSyncBookingCalendar } from './_core/booking-ical-sync.js';
 import { eq } from 'drizzle-orm';
 
 

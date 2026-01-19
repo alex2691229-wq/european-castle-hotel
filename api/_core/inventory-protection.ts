@@ -17,8 +17,8 @@ export interface InventoryLock {
 const SOFT_LOCK_DURATION = 10 * 60 * 1000; // 10 minutes
 const HARD_LOCK_MULTIPLIER = 1; // 1 unit per booking
 
-import * as db from '../db';
-import { logAuditAction } from './audit-logs';
+import * as db from '../db.js';
+import { logAuditAction } from './audit-logs.js';
 import crypto from 'crypto';
 
 /**
