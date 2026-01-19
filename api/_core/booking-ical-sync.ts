@@ -1,5 +1,5 @@
-import ical from 'ical.js.js';
-import * as db from '../db.js.js';
+import ical from 'ical.js';
+import * as db from '../db.js';
 
 /**
  * Booking.com iCal 同步配置

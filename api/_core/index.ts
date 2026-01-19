@@ -4,18 +4,18 @@ import { createServer } from 'http.js';
 import net from 'net.js';
 import multer from 'multer';
 import { createExpressMiddleware } from '@trpc/server/adapters/express.js';
-import { registerOAuthRoutes } from './oauth.js.js';
-import { appRouter } from '../routers.js.js';
-import { createContext } from './context.js.js';
-import { serveStatic } from './vite.js.js';
-import { wsManager } from '../websocket.js.js';
-import { initializeSchedulers } from '../schedulers/reminder-scheduler.js.js';
-import { handleUpload } from './upload.js.js';
-import { getDb } from '../db.js.js';
+import { registerOAuthRoutes } from './oauth.js';
+import { appRouter } from '../routers.js';
+import { createContext } from './context.js';
+import { serveStatic } from './vite.js';
+import { wsManager } from '../websocket.js';
+import { initializeSchedulers } from '../schedulers/reminder-scheduler.js';
+import { handleUpload } from './upload.js';
+import { getDb } from '../db.js';
 import bcrypt from 'bcrypt';
-import { sign } from './jwt.js.js';
-import { users } from '../../drizzle/schema.js.js';
-import { registerInitRoutes } from './init-api.js.js';
+import { sign } from './jwt.js';
+import { users } from '../../drizzle/schema.js';
+import { registerInitRoutes } from './init-api.js';
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
