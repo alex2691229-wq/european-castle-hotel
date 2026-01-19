@@ -21,13 +21,24 @@ function getOAuthServerUrl(): string {
 
 // 診斷環境變數
 if (process.env.NODE_ENV === "production") {
+  console.log('[ENV] === Production Environment Diagnostics ===');
+  console.log('[ENV] DATABASE_URL exists:', !!process.env.DATABASE_URL);
+  if (process.env.DATABASE_URL) {
+    const masked = process.env.DATABASE_URL.replace(/:[^:]*@/, ':***@');
+    console.log('[ENV] DATABASE_URL (masked):', masked);
+  }
+  
   const forgeUrl = process.env.BUILT_IN_FORGE_API_URL;
   const forgeKey = process.env.BUILT_IN_FORGE_API_KEY;
+  console.log('[ENV] BUILT_IN_FORGE_API_URL exists:', !!forgeUrl);
+  console.log('[ENV] BUILT_IN_FORGE_API_KEY exists:', !!forgeKey);
+  
   if (!forgeUrl || !forgeKey) {
     console.warn('[ENV] Manus storage credentials missing:');
     console.warn('  - BUILT_IN_FORGE_API_URL:', forgeUrl ? '✓ set' : '✗ missing');
     console.warn('  - BUILT_IN_FORGE_API_KEY:', forgeKey ? '✓ set' : '✗ missing');
   }
+  console.log('[ENV] === End Diagnostics ===');
 }
 
 export const ENV = {
