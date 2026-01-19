@@ -15,6 +15,7 @@ import { getDb } from "../db";
 import bcrypt from "bcrypt";
 import { sign } from "./jwt";
 import { users } from "../../drizzle/schema";
+import { registerInitRoutes } from "./init-api";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -80,6 +81,9 @@ async function startServer() {
   
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // Initialize routes
+  registerInitRoutes(app);
   
   // 登入路由 - 查詢 TiDB 資料庫
   app.post('/api/login', async (req, res) => {
