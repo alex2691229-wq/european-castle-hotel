@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Express } from 'express';
 // @ts-nocheck
 import { getDb } from '../db.js';

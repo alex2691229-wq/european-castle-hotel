@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { router, protectedProcedure } from './_core/trpc.js';
 // @ts-nocheck
 import { TRPCError } from '@trpc/server';

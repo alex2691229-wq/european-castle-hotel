@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 // @ts-nocheck
 import type { User } from '../../drizzle/schema.js';

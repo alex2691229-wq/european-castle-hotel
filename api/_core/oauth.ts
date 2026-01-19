@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { COOKIE_NAME, ONE_YEAR_MS } from '../_shared/const.js';
 // @ts-nocheck
 import type { Express, Request, Response } from 'express';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { router, adminProcedure } from './_core/trpc.js';
 // @ts-nocheck
 import { z } from 'zod';

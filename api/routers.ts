@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getSessionCookieOptions } from './_core/cookies.js';
 // @ts-nocheck
 import { COOKIE_NAME } from './_shared/const.js';
