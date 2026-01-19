@@ -42,31 +42,15 @@ async function startServer() {
     const allowedOrigins = [
       'https://european-castle-hotel.vercel.app',
       'http://localhost:3000',
-      'http://localhost:5173',
-      // 支持遠程開發環境
-      /\.manus\.computer$/,
-      /\.manus-asia\.computer$/,
-      /\.manuspre\.computer$/,
-      /\.manuscomputer\.ai$/,
-      /\.manusvm\.computer$/,
+      'http://localhost:5173'
     ];
     const origin = req.headers.origin;
-    
-    // 檢查是否匹配允許的源
-    const isAllowed = allowedOrigins.some(allowed => {
-      if (allowed instanceof RegExp) {
-        return allowed.test(origin);
-      }
-      return allowed === origin;
-    });
-    
-    if (isAllowed) {
+    if (allowedOrigins.includes(origin)) {
       res.header('Access-Control-Allow-Origin', origin);
     }
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Cookie');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400');
 
     if (req.method === 'OPTIONS') {
       res.sendStatus(200);
