@@ -1,4 +1,7 @@
 // @ts-nocheck
+// 確保環境變數診斷代碼執行
+import { ENV } from './_core/env.js';
+
 import express from 'express';
 // @ts-nocheck
 import path from 'path';
