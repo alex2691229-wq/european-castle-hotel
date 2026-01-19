@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { eq, and, or, gte, lte, desc, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/mysql2';
+
 import { 
   InsertUser, 
   users, 
@@ -50,14 +51,14 @@ export async function getDb() {
       // 移除已存在的 ssl 和 sslMode 參數以避免重複
       dbUrl = dbUrl.replace(/[?&](ssl|sslMode)=[^&]*/g, '');
       
-      // 添加 MySQL2 支持的 SSL 參數
-      const separator = dbUrl.includes('?') ? '&' : '?';
-      dbUrl = dbUrl + separator + 'ssl=true';
-      
       console.log('[Database] Final URL:', dbUrl.replace(/:[^:]*@/, ':***@')); // 隱藏密碼
       
-      _db = drizzle(dbUrl);
-      console.log('[Database] Connected successfully with SSL');
+      // drizzle-orm 需要在連線配置中傳遞 SSL 對象
+      // 不要在 URL 中添加 ssl=true
+      _db = drizzle(dbUrl, {
+        mode: 'default',
+      });
+      console.log('[Database] Connected successfully');
     } catch (error) {
       console.error("[Database] Failed to connect:", error instanceof Error ? error.message : error);
       _db = null;
