@@ -53,6 +53,16 @@ async function startServer() {
   // 配置身體解析器，支持較大的檔案上傳
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  // Health Check 路由
+  app.get('/api/status', (req, res) => {
+    res.json({
+      env: process.env.NODE_ENV || 'development',
+      db: 'check_pending',
+      version: 'Production-v2.1',
+      timestamp: new Date().toISOString()
+    });
+  });
+  
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   

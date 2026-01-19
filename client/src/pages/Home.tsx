@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+// DEPLOY_SYNC_ID: Production-v2.1
 import { trpc } from "@/lib/trpc";
 import { Sparkles, Bed, Car, Wifi, Coffee, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -114,7 +115,7 @@ export default function Home() {
               <div className="inline-block">
                 <div className="h-px w-20 bg-primary mx-auto mb-6" />
                 <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-4 text-gold-gradient">
-                  歐堡商務汽車旅館 (Official-v2)
+                  歐堡商務汽車旅館 (Production-v2.1)
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground tracking-widest">
                   EUROPEAN CASTLE HOTEL
