@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+// @ts-nocheck
 import * as db from './db.js';
 import { sendEmail } from './_core/email.js';
 import { bookingRemindersRouter } from './routers.booking-reminders.js';

@@ -45,11 +45,14 @@ export async function getDb() {
         console.warn('[Database] Fixed duplicate mysql:// in URL');
       }
       
-      // 添加 TiDB SSL 配置（如果還沒有）
-      if (dbUrl && !dbUrl.includes('ssl')) {
-        const separator = dbUrl.includes('?') ? '&' : '?';
-        dbUrl = dbUrl + separator + 'ssl=true';
-      }
+      // 移除已存在的 ssl 和 sslMode 參數以避免重複
+      dbUrl = dbUrl.replace(/[?&](ssl|sslMode)=[^&]*/g, '');
+      
+      // 添加 TiDB 必需的 SSL 參數
+      const separator = dbUrl.includes('?') ? '&' : '?';
+      dbUrl = dbUrl + separator + 'sslMode=REQUIRED';
+      
+      console.log('[Database] Final URL:', dbUrl.replace(/:[^:]*@/, ':***@')); // 隱藏密碼
       
       _db = drizzle(dbUrl);
       console.log('[Database] Connected successfully with SSL');

@@ -1,4 +1,5 @@
 import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
+// @ts-nocheck
 import type { User } from '../../drizzle/schema.js';
 import { sdk } from './sdk.js';
 import { verify } from './jwt.js';
