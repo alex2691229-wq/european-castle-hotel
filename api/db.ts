@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { eq, and, or, gte, lte, desc, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/mysql2';
-import mysql from 'mysql2/promise';
 
 import { 
   InsertUser, 
@@ -56,20 +55,11 @@ export async function getDb() {
       
       console.log('[Database] Final URL:', dbUrl.replace(/:[^:]*@/, ':***@')); // 隱藏密碼
       
-      // 使用 mysql2 連線池而不是直接 URL
-      const connection = await mysql.createConnection({
-        host: process.env.TIDB_HOST || 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com',
-        user: process.env.TIDB_USER || '4LXYypEea3i7yhh.root',
-        password: process.env.TIDB_PASSWORD,
-        database: process.env.TIDB_DATABASE || 'test',
-        port: parseInt(process.env.TIDB_PORT || '4000'),
-        ssl: 'amazon',
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0,
+      // 使用 DATABASE_URL 連線，不指定 SSL 配置（drizzle-orm 會自動處理）
+      _db = drizzle(dbUrl, {
+        mode: 'default',
       });
-      _db = drizzle(connection, { mode: 'default' });
-      console.log('[Database] Connected successfully with mysql2 connection pool');
+      console.log('[Database] Connected successfully with drizzle-orm');
       
       // 觸發資料庫初始化（非阻塞）
       if (!initPromise) {
@@ -80,14 +70,7 @@ export async function getDb() {
     } catch (error) {
       console.error("[Database] Failed to connect:", error instanceof Error ? error.message : error);
       console.error("[Database] Full error:", error);
-      console.error("[Database] Attempting fallback with URL-based connection...");
-      try {
-        _db = drizzle(dbUrl, { mode: 'default' });
-        console.log('[Database] Fallback connection successful');
-      } catch (fallbackError) {
-        console.error("[Database] Fallback also failed:", fallbackError);
-        _db = null;
-      }
+      _db = null;
     }
   } else if (!process.env.DATABASE_URL) {
     console.error('[Database] DATABASE_URL environment variable is not set');
