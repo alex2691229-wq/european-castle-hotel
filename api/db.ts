@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { eq, and, or, gte, lte, desc, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
 
 import { 
   InsertUser, 
@@ -37,10 +38,16 @@ let _db: ReturnType<typeof drizzle> | null = null;
 let initPromise: Promise<void> | null = null;
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
-    console.log('[Database] DATABASE_URL exists, attempting connection...');
+       console.log('[Database] Attempting database connection...');
     try {
-      let dbUrl = process.env.DATABASE_URL.trim();
+      // 優先使用環境變數，如果沒有則使用新 TiDB 連線
+      let dbUrl = process.env.DATABASE_URL?.trim() || 'mysql://2p8ob8h7CK7Zznh.root:y4sK02wAdqgjyWMq@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl=true';
+      
+      if (!dbUrl) {
+        throw new Error('No database URL available');
+      }
+      
+      console.log('[Database] Using URL:', dbUrl.replace(/:[^:]*@/, ':***@'));
       
       // 修復 mysql:// 重複嵌套問題
       const mysqlMatches = dbUrl.match(/mysql:\/\//g) || [];
@@ -50,16 +57,48 @@ export async function getDb() {
         console.warn('[Database] Fixed duplicate mysql:// in URL');
       }
       
-      // 移除已存在的 ssl 和 sslMode 參數以避免重複
-      dbUrl = dbUrl.replace(/[?&](ssl|sslMode)=[^&]*/g, '');
+      // 確保 URL 包含 ssl=true
+      if (!dbUrl.includes('ssl=')) {
+        dbUrl = dbUrl + (dbUrl.includes('?') ? '&' : '?') + 'ssl=true';
+        console.log('[Database] Added ssl=true to URL');
+      }
       
       console.log('[Database] Final URL:', dbUrl.replace(/:[^:]*@/, ':***@')); // 隱藏密碼
       
-      // 使用 DATABASE_URL 連線，不指定 SSL 配置（drizzle-orm 會自動處理）
-      _db = drizzle(dbUrl, {
-        mode: 'default',
+      // 解析 URL 並使用 mysql2 連線池
+      const url = new URL(dbUrl);
+      const connectionConfig = {
+        host: url.hostname,
+        port: parseInt(url.port || '3306'),
+        user: url.username,
+        password: url.password,
+        database: url.pathname.slice(1),
+        ssl: url.searchParams.get('ssl') === 'true' ? { rejectUnauthorized: false } : false,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+      };
+      
+      console.log('[Database] Connection config:', {
+        host: connectionConfig.host,
+        port: connectionConfig.port,
+        user: connectionConfig.user,
+        database: connectionConfig.database,
+        ssl: connectionConfig.ssl ? 'enabled' : 'disabled',
       });
-      console.log('[Database] Connected successfully with drizzle-orm');
+      
+      // 使用 mysql2 連線池建立 drizzle-orm
+      const pool = mysql.createPool(connectionConfig);
+      _db = drizzle(pool);
+      console.log('[Database] Connected successfully with drizzle-orm (using mysql2 pool)');
+      
+      // 測試連線
+      try {
+        const result = await _db.execute(sql`SELECT 1 as test`);
+        console.log('[Database] Connection test successful:', result);
+      } catch (testError) {
+        console.warn('[Database] Connection test failed:', testError);
+      }
       
       // 觸發資料庫初始化（非阻塞）
       if (!initPromise) {

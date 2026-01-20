@@ -6,9 +6,10 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is required to run drizzle commands");
 }
 
-// 移除 ssl=true 參數（drizzle-kit 使用 ssl 配置對象）
-// 移除 ssl=true 參數（drizzle-kit 使用 ssl 配置對象）
-const cleanUrl = connectionString.replace(/[?&]ssl=true/g, '');
+// 確保 URL 包含 ssl=true
+const cleanUrl = connectionString.includes('ssl=') 
+  ? connectionString 
+  : connectionString + (connectionString.includes('?') ? '&' : '?') + 'ssl=true';
 
 export default defineConfig<Config>({
   schema: "./drizzle/schema.ts",
@@ -16,8 +17,6 @@ export default defineConfig<Config>({
   dialect: "mysql",
   dbCredentials: {
     url: cleanUrl,
-    ssl: {
-      rejectUnauthorized: false,
-    },
   },
+  casing: "snake_case",
 });

@@ -1083,3 +1083,67 @@
 - [ ] 本地執行 npm run build 確認無錯誤
 - [ ] 推送到 GitHub
 - [ ] 在 Vercel 中驗證編譯成功
+
+
+---
+
+## 🔴 完全重寫項目 - hotel-v2（2026/01/20 - 新開始）
+
+### Phase 1: 初始化新項目
+- [ ] 配置新 TiDB 資料庫連線（使用 mysql2 驅動）
+- [ ] 創建資料庫表（users、room_types、bookings、news、services、home_config）
+- [ ] 初始化管理員帳號（admin/123456）
+- [ ] 簡化技術棧（移除 drizzle-orm，使用 mysql2）
+
+### Phase 2: 前台頁面開發
+- [ ] 首頁（精選房型、設施服務、最新消息）
+- [ ] 房型介紹頁面
+- [ ] 設施服務頁面
+- [ ] 線上訂房頁面
+- [ ] 首頁圖片正確顯示
+- [ ] 導航菜單
+- [ ] 頁腳
+
+### Phase 3: 後台功能開發
+- [ ] 管理員登入（admin/123456）
+- [ ] 儀表板（統計數據）
+- [ ] 房型管理（新增、編輯、刪除）
+- [ ] 訂單管理（查看、確認、更新狀態）
+- [ ] 內容管理（新聞、設施、首頁配置）
+- [ ] 圖片上傳功能
+
+### Phase 4: 測試和部署
+- [ ] 本地測試所有功能
+- [ ] 部署到 Vercel
+- [ ] 驗證 Vercel 部署中的所有功能
+
+
+---
+
+## 🟢 修復數據庫連線 - 成功（2026/01/20）
+
+### Phase 1: 診斷問題
+- [x] 確定根本原因：drizzle-orm SSL 配置不正確
+- [x] 分析 mysql2 與 TiDB SSL 兼容性
+
+### Phase 2: 修復 drizzle-orm 配置
+- [x] 修改 api/db.ts 使用 mysql2 連線池
+- [x] 配置正確的 SSL 對象 { rejectUnauthorized: false }
+- [x] 修改 drizzle.config.ts 確保 ssl=true 參數
+
+### Phase 3: 配置新 TiDB 資料庫
+- [x] 設置新 TiDB 連線字符串
+- [x] 測試連線成功
+- [x] 驗證 SSL 連線正常工作
+
+### Phase 4: 本地測試
+- [x] 本地編譯成功
+- [x] 開發伺服器正在運行
+- [x] 數據庫連線測試通過
+- [x] API /api/health/db 返回 "connected"
+
+### Phase 5: 部署到 Vercel
+- [ ] 保存檢查點
+- [ ] 推送到 GitHub
+- [ ] Vercel 自動部署
+- [ ] 驗證 Vercel 部署中的所有功能
