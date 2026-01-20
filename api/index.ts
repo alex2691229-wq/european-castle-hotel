@@ -1,25 +1,10 @@
-// @ts-nocheck
-// 確保環境變數診斷代碼執行
-import { ENV } from './_core/env.js';
-
-import express from 'express';
-// @ts-nocheck
+import express, { Express, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
-import multer from 'multer';
-import { createExpressMiddleware } from '@trpc/server/adapters/express';
 
-// 直接導入本地複製的檔案
-import { registerOAuthRoutes } from './_core/oauth.js';
-import { appRouter } from './routers.js';
-import { createContext } from './_core/context.js';
-import { handleUpload } from './_core/upload.js';
-import { getDb } from './db.js';
-import bcrypt from 'bcrypt';
-import { sign } from './_core/jwt.js';
-import { registerInitRoutes } from './_core/init-api.js';
+import { getDb, getAllRoomTypes } from './db.js';
 
-const app = express();
+const app: Express = express();
 
 // CORS 設定
 app.use((req, res, next) => {
@@ -43,79 +28,73 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Health Check 路由
-app.get('/api/status', (req, res) => {
+app.get('/api/status', (req: Request, res: Response) => {
   res.json({
     env: process.env.NODE_ENV || 'development',
     db: 'check_pending',
-    version: 'Production-v2.1',
+    version: 'Production-v2.1-Clean',
     timestamp: new Date().toISOString()
   });
 });
 
-// 診斷路由
-app.get('/api/health/db', async (req, res) => {
-  console.log('[HEALTH] Diagnostics requested');
-  console.log('[HEALTH] DATABASE_URL exists:', !!process.env.DATABASE_URL);
-  console.log('[HEALTH] BUILT_IN_FORGE_API_URL exists:', !!process.env.BUILT_IN_FORGE_API_URL);
-  console.log('[HEALTH] BUILT_IN_FORGE_API_KEY exists:', !!process.env.BUILT_IN_FORGE_API_KEY);
-  
+// 數據庫連線健康檢查
+app.get('/api/health/db', async (req: Request, res: Response) => {
   try {
-    const db = getDb();
+    console.log('[HEALTH] Database connection check...');
+    const db = await getDb();
+    
+    if (!db) {
+      return res.json({
+        status: 'error',
+        message: 'Database not initialized'
+      });
+    }
+
     res.json({
-      status: db ? 'ok' : 'error',
-      env: {
-        databaseUrl: !!process.env.DATABASE_URL,
-        forgeApiUrl: !!process.env.BUILT_IN_FORGE_API_URL,
-        forgeApiKey: !!process.env.BUILT_IN_FORGE_API_KEY
-      }
+      status: 'connected',
+      message: 'Database connection successful',
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('[HEALTH] Error:', error);
-    res.json({ status: 'error', message: error instanceof Error ? error.message : 'Unknown error' });
+    console.error('[HEALTH] Database error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// 配置 multer
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 },
-});
-
-// 上傳路由
-app.post('/api/upload', upload.single('file'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
+// 獲取所有房型（用於首頁顯示）
+app.get('/api/room-types', async (req: Request, res: Response) => {
   try {
-    const result = await handleUpload(req.file);
-    res.json(result);
+    const roomTypes = await getAllRoomTypes();
+    res.json({
+      success: true,
+      data: roomTypes
+    });
   } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Upload failed' });
+    console.error('[API] Error fetching room types:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch room types'
+    });
   }
 });
 
-// 初始化路由
-registerInitRoutes(app);
-
-// OAuth 路由
-registerOAuthRoutes(app);
-
-// tRPC 路由
-app.use(
-  '/api/trpc',
-  createExpressMiddleware({
-    router: appRouter,
-    createContext,
-  })
-);
-
-// 靜態檔案服務
-const publicDir = path.join(process.cwd(), 'public');
+// 靜態文件服務
+const publicDir = path.join(process.cwd(), 'dist', 'public');
 if (fs.existsSync(publicDir)) {
-  app.use('/api', express.static(publicDir));
+  app.use(express.static(publicDir));
+  
+  // SPA 路由回退
+  app.get('*', (req: Request, res: Response) => {
+    const indexPath = path.join(publicDir, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ error: 'Not found' });
+    }
+  });
 }
 
-// 導出 Express 應用
 export default app;
