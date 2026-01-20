@@ -1180,3 +1180,12 @@
 - [ ] Vercel 自動部署
 - [ ] 驗證 Vercel 部署中的登入功能
 - [ ] 測試所有核心功能
+
+
+## 修復 Vercel 部署中的資料庫連線（第二次嘗試）
+
+- [x] 發現 Vercel 仍然使用舊的 TiDB 資料庫（gateway03.us-east-1）
+- [x] 修改 api/db.ts 完全移除環境變數依賴
+- [x] 使用硬編碼的新 TiDB 連線（gateway01.ap-northeast-1）
+- [x] 本地編譯成功
+- [ ] 推送到 GitHub 並等待 Vercel 自動部署
