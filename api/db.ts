@@ -56,9 +56,13 @@ export async function getDb() {
       console.log('[Database] Final URL:', dbUrl.replace(/:[^:]*@/, ':***@')); // 隱藏密碼
       
       // drizzle-orm 需要在連線配置中傳遞 SSL 配置
-      // 使用粗粗的 SSL 配置（不驗證 CA 憑證）
+      // TiDB 需要 SSL 連線
       _db = drizzle(dbUrl, {
         mode: 'default',
+        ssl: true,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
       });
       console.log('[Database] Connected successfully with drizzle-orm');
       
