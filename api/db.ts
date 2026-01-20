@@ -40,8 +40,13 @@ let initPromise: Promise<void> | null = null;
 export async function getDb() {
        console.log('[Database] Attempting database connection...');
     try {
-      // 優先使用環境變數，如果沒有則使用新 TiDB 連線
-      let dbUrl = process.env.DATABASE_URL?.trim() || 'mysql://2p8ob8h7CK7Zznh.root:y4sK02wAdqgjyWMq@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl=true';
+      // 優先使用新 TiDB 連線，備選使用環境變數
+      let dbUrl = 'mysql://2p8ob8h7CK7Zznh.root:y4sK02wAdqgjyWMq@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl=true';
+      
+      // 如果環境變數是新連線，也可以使用
+      if (process.env.DATABASE_URL?.includes('gateway01.ap-northeast-1')) {
+        dbUrl = process.env.DATABASE_URL.trim();
+      }
       
       if (!dbUrl) {
         throw new Error('No database URL available');

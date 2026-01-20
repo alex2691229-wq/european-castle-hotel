@@ -1,72 +1,64 @@
-import mysql from 'mysql2/promise.js';
-import bcrypt from 'bcrypt';
+import mysql from 'mysql2/promise';
+import fs from 'fs';
+import path from 'path';
 
-const connectionConfig = {
-  host: 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com',
-  port: 4000,
-  user: '4LXYypEea3i7yhh.root',
-  password: 'LJo4Cx7ChbIbRJUy',
-  database: 'test',
-  ssl: {
-    rejectUnauthorized: false,
-  },
-};
+const databaseUrl = process.env.DATABASE_URL || 'mysql://2p8ob8h7CK7Zznh.root:y4sK02wAdqgjyWMq@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test';
 
-async function initializeDatabase() {
-  let connection;
-  try {
-    connection = await mysql.createConnection(connectionConfig);
-    console.log('[Init] Connected to TiDB');
+console.log('Starting database initialization...');
+console.log('URL:', databaseUrl.replace(/:[^:]*@/, ':***@'));
 
-    // 創建 users 表
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        openId VARCHAR(255),
-        username VARCHAR(255) UNIQUE,
-        passwordHash VARCHAR(255),
-        name VARCHAR(255),
-        email VARCHAR(255),
-        loginMethod VARCHAR(50),
-        role ENUM('user', 'admin') DEFAULT 'user',
-        status ENUM('active', 'inactive') DEFAULT 'active',
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        lastSignedIn TIMESTAMP
-      )
-    `);
-    console.log('[Init] users table created or already exists');
+try {
+  const url = new URL(databaseUrl);
+  const config = {
+    host: url.hostname,
+    port: parseInt(url.port || '3306'),
+    user: url.username,
+    password: url.password,
+    database: url.pathname.slice(1),
+    ssl: { rejectUnauthorized: false },
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  };
 
-    // 檢查 admin 帳號是否存在
-    const [rows] = await connection.execute(
-      'SELECT id FROM users WHERE username = ?',
-      ['admin']
-    );
+  const connection = await mysql.createConnection(config);
+  console.log('✓ Connected to database');
 
-    if (rows.length > 0) {
-      console.log('[Init] Admin account already exists');
-      return;
-    }
+  // 讀取所有 SQL 遷移文件
+  const drizzleDir = path.join(process.cwd(), 'drizzle');
+  const sqlFiles = fs.readdirSync(drizzleDir)
+    .filter(f => f.endsWith('.sql'))
+    .sort();
 
-    // 創建 admin 帳號
-    const passwordHash = await bcrypt.hash('123456', 10);
-    await connection.execute(
-      `INSERT INTO users (username, passwordHash, name, role, status, loginMethod) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      ['admin', passwordHash, '管理員', 'admin', 'active', 'password']
-    );
-    console.log('[Init] Admin account created successfully');
-    console.log('[Init] Username: admin');
-    console.log('[Init] Password: 123456');
+  console.log(`Found ${sqlFiles.length} migration files`);
 
-  } catch (error) {
-    console.error('[Init] Error:', error.message);
-    process.exit(1);
-  } finally {
-    if (connection) {
-      await connection.end();
+  for (const file of sqlFiles) {
+    const filePath = path.join(drizzleDir, file);
+    const sql = fs.readFileSync(filePath, 'utf-8');
+    
+    // 分割多個 SQL 語句
+    const statements = sql.split('-->').map(s => s.trim()).filter(s => s);
+    
+    for (const statement of statements) {
+      if (statement) {
+        try {
+          console.log(`Executing: ${file} - ${statement.substring(0, 50)}...`);
+          await connection.query(statement);
+        } catch (err) {
+          // 忽略 "table already exists" 錯誤
+          if (err.code === 'ER_TABLE_EXISTS_ERROR' || err.code === 'ER_DUP_KEYNAME') {
+            console.log(`  ⚠ Skipped (already exists)`);
+          } else {
+            console.error(`  ✗ Error: ${err.message}`);
+          }
+        }
+      }
     }
   }
-}
 
-initializeDatabase();
+  console.log('✓ Database initialization completed');
+  await connection.end();
+} catch (error) {
+  console.error('✗ Initialization failed:', error.message);
+  process.exit(1);
+}

@@ -1147,3 +1147,36 @@
 - [ ] 推送到 GitHub
 - [ ] Vercel 自動部署
 - [ ] 驗證 Vercel 部署中的所有功能
+
+
+## 🟢 數據庫遷移到新 TiDB（2026/01/20 - 完成）
+
+### Phase 1: 診斷問題
+- [x] 確認 Vercel 部署失敗原因（舊 TiDB 連線問題）
+- [x] 確認新 TiDB 資料庫連線信息
+
+### Phase 2: 修復 drizzle-orm 配置
+- [x] 修復 api/db.ts 中的 SSL 配置
+- [x] 修復 drizzle.config.ts 中的 SSL 配置
+- [x] 本地測試連線成功
+
+### Phase 3: 初始化新 TiDB 資料庫
+- [x] 創建 init-db.mjs 腳本運行所有遷移
+- [x] 創建 fix-schema.mjs 腳本修復表結構
+- [x] 創建 create-tables.mjs 腳本創建缺失的表
+- [x] 創建 seed-admin.mjs 腳本添加初始數據
+
+### Phase 4: 驗證數據庫連線
+- [x] 本地測試數據庫連線成功
+- [x] 添加初始管理員帳號（admin / 123456）
+- [x] 添加初始房型數據（3 個房型）
+
+### Phase 5: 修改代碼優先使用新連線
+- [x] 修改 api/db.ts 優先使用新 TiDB 連線（gateway01.ap-northeast-1）
+- [x] 本地編譯成功
+
+### 下一步
+- [ ] 推送到 GitHub
+- [ ] Vercel 自動部署
+- [ ] 驗證 Vercel 部署中的登入功能
+- [ ] 測試所有核心功能
