@@ -58,10 +58,32 @@ async function initializeDatabase() {
       throw new Error('DATABASE_URL environment variable is not set');
     }
 
+    console.log('[Database] Raw DATABASE_URL:', dbUrl.replace(/:[^:]*@/, ':***@'));
+    
+    // Check for mysql:// prefix
+    if (!dbUrl.startsWith('mysql://')) {
+      throw new Error('DATABASE_URL must start with mysql://');
+    }
+    
+    // Check for duplicate mysql:// prefix
+    const mysqlMatches = dbUrl.match(/mysql:\/\//g) || [];
+    if (mysqlMatches.length > 1) {
+      console.error('[Database] ERROR: Duplicate mysql:// prefix detected!');
+      console.error('[Database] Found', mysqlMatches.length, 'occurrences of mysql://');
+      throw new Error('Duplicate mysql:// prefix in DATABASE_URL');
+    }
+
     console.log('[Database] Connecting to:', dbUrl.replace(/:[^:]*@/, ':***@'));
 
-    // 解析 URL
+    // Parse URL
     const url = new URL(dbUrl);
+    
+    console.log('[Database] Parsed URL components:');
+    console.log('[Database]   Protocol:', url.protocol);
+    console.log('[Database]   Hostname:', url.hostname);
+    console.log('[Database]   Port:', url.port || '3306');
+    console.log('[Database]   Username:', url.username);
+    console.log('[Database]   Database:', url.pathname.slice(1));
     
     const connectionConfig = {
       host: url.hostname,
@@ -86,7 +108,7 @@ async function initializeDatabase() {
     const pool = mysql.createPool(connectionConfig);
     _db = drizzle(pool);
 
-    // 測試連線
+    // Test connection
     try {
       const result = await _db.execute(sql`SELECT 1 as test`);
       console.log('[Database] Connection test successful');

@@ -1,10 +1,19 @@
 import express, { Express, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
+import { sql } from 'drizzle-orm';
 
 import { getDb, getAllRoomTypes } from './db.js';
 
 const app: Express = express();
+
+// 記錄環境變數（用於調試）
+console.log('[APP] Environment check:');
+console.log('[APP] DATABASE_URL exists:', !!process.env.DATABASE_URL);
+if (process.env.DATABASE_URL) {
+  const maskedUrl = process.env.DATABASE_URL.replace(/:[^:]*@/, ':***@');
+  console.log('[APP] DATABASE_URL (masked):', maskedUrl);
+}
 
 // CORS 設定
 app.use((req, res, next) => {
@@ -44,17 +53,29 @@ app.get('/api/health/db', async (req: Request, res: Response) => {
     const db = await getDb();
     
     if (!db) {
-      return res.json({
+      return res.status(500).json({
         status: 'error',
         message: 'Database not initialized'
       });
     }
 
-    res.json({
-      status: 'connected',
-      message: 'Database connection successful',
-      timestamp: new Date().toISOString()
-    });
+    // 真正執行 SELECT 1 查詢來驗證連線
+    try {
+      const result = await db.execute(sql`SELECT 1 as test`);
+      console.log('[HEALTH] Database SELECT 1 test passed:', result);
+      
+      res.json({
+        status: 'connected',
+        message: 'Database connection successful',
+        timestamp: new Date().toISOString()
+      });
+    } catch (queryError) {
+      console.error('[HEALTH] SELECT 1 query failed:', queryError);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Database query failed: ' + (queryError instanceof Error ? queryError.message : 'Unknown error')
+      });
+    }
   } catch (error) {
     console.error('[HEALTH] Database error:', error);
     res.status(500).json({
