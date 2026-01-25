@@ -235,3 +235,11 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 添加 /api/debug-seed 路由到 api/index.ts
 - [x] 刪除獨立的 debug-seed.ts 和 upload-test.ts
 - [x] 本地編譯驗證成功
+
+
+## 🟢 Vercel Functions 配置修復 - 完成
+
+- [x] 修改 vercel.json - 添加 functions 配置
+- [x] 配置 /api/(.*) 路由映射到 /api/index.ts
+- [x] 驗證 api/index.ts 使用 export default
+- [x] 本地編譯驗證成功
