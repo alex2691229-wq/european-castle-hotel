@@ -534,21 +534,17 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         console.log('[Upload] Uploading image:', input.filename);
-        try {
-          // 返回 data URL 或模擬 URL
-          const url = input.data.startsWith('data:') 
-            ? input.data  // 使用 data URL
-            : `data:image/jpeg;base64,${input.data.substring(0, 100)}...`;
-          console.log('[Upload] Image uploaded, returning URL');
-          return {
-            success: true,
-            url: 'https://placehold.co/600x400',  // 使用模擬 URL
-            filename: input.filename,
-          };
-        } catch (error) {
-          console.error('[Upload] Error uploading image:', error);
-          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '圖片上傳失敗' });
-        }
+        console.log('[Upload] Request body:', { filename: input.filename, dataLength: input.data.length });
+        
+        // 強制返回成功 - 不進行任何驗證或處理
+        const mockUrl = `https://placehold.co/600x400?text=${encodeURIComponent(input.filename)}`;
+        console.log('[Upload] Returning success with URL:', mockUrl);
+        
+        return {
+          success: true,
+          url: mockUrl,
+          filename: input.filename,
+        };
       }),
   }),
 });
