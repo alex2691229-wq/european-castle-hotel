@@ -26,7 +26,7 @@ function getSessionCookieOptions(req: any) {
 
 export const appRouter = router({
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.input(z.void()).query(opts => opts.ctx.user),
     
     logout: publicProcedure.mutation(({ ctx }) => {
       // 清除 cookie - 使用 Set-Cookie header
@@ -139,7 +139,7 @@ export const appRouter = router({
   }),
 
   roomTypes: router({
-    list: publicProcedure.query(async () => {
+    list: publicProcedure.input(z.void()).query(async () => {
       return await db.getAllRoomTypes();
     }),
     
@@ -205,13 +205,13 @@ export const appRouter = router({
   }),
 
   news: router({
-    list: publicProcedure.query(async () => {
+    list: publicProcedure.input(z.void()).query(async () => {
       return await db.getAllNews();
     }),
   }),
 
   facilities: router({
-    list: publicProcedure.query(async () => {
+    list: publicProcedure.input(z.void()).query(async () => {
       return await db.getAllFacilities();
     }),
   }),
@@ -258,7 +258,7 @@ export const appRouter = router({
   }),
 
   homeConfig: router({
-    get: publicProcedure.query(async () => {
+    get: publicProcedure.input(z.void()).query(async () => {
       console.log('[HomeConfig] Fetching home config...');
       try {
         return {
