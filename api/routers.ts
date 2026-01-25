@@ -95,18 +95,26 @@ export const appRouter = router({
       }),
   }),
 
-  // Room Types - 只保留 list 端點
+  // Room Types
   roomTypes: router({
     list: publicProcedure.query(async () => {
       return await db.getAllRoomTypes();
     }),
     
-    // TODO: 其他房型功能暫時註解，待後續添加
-    // listAll: adminProcedure.query(async () => { ... }),
-    // getById: publicProcedure.input(...).query(...),
-    // create: adminProcedure.input(...).mutation(...),
-    // update: adminProcedure.input(...).mutation(...),
-    // delete: adminProcedure.input(...).mutation(...),
+    getById: publicProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .query(async ({ input }) => {
+        console.log('[RoomTypes] Fetching room by ID:', input.id);
+        const room = await db.getRoomTypeById(input.id);
+        if (!room) {
+          console.log('[RoomTypes] Room not found:', input.id);
+          throw new TRPCError({ code: 'NOT_FOUND', message: '房型不存在' });
+        }
+        console.log('[RoomTypes] Room found:', room.name);
+        return room;
+      }),
   }),
 
   // TODO: 以下功能暫時註解，待後續添加
