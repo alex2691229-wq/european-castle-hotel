@@ -1,4 +1,5 @@
 import { createTRPCReact } from "@trpc/react-query";
+import type { AppRouter } from '../../../api/routers';
 
 // 安全的 API Base URL 配置
 export function getBaseUrl() {
@@ -7,5 +8,5 @@ export function getBaseUrl() {
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
-export const trpc = createTRPCReact<any>();
+export const trpc = createTRPCReact<AppRouter>();
 export const API_URL = getBaseUrl();
