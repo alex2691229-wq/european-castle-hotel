@@ -43,10 +43,7 @@ export function getDB() {
     return _db;
   }
   
-  // If initialization is in progress, wait for it
   if (initPromise) {
-    // This is synchronous, but we need async for proper error handling
-    // For now, return null and let the caller handle async initialization
     return null;
   }
 
@@ -71,29 +68,25 @@ async function initializeDatabase() {
 
     console.log('[Database] Initializing connection with URL:', databaseUrl.replace(/:[^:]*@/, ':****@'));
 
-    // Parse URL
-    const url = new URL(databaseUrl);
+    // Create connection pool with explicit SSL configuration
     const connectionConfig: any = {
-      host: url.hostname,
-      port: parseInt(url.port || '3306'),
-      user: url.username,
-      password: url.password,
-      database: url.pathname.slice(1),
+      uri: databaseUrl,
       ssl: {
         minVersion: 'TLSv1.2',
         rejectUnauthorized: true,
       },
+      connectTimeout: 10000,
+      enableKeepAlive: true,
       waitForConnections: true,
       connectionLimit: 1,
       queueLimit: 0,
     };
 
     console.log('[Database] Connection config:', {
-      host: connectionConfig.host,
-      port: connectionConfig.port,
-      user: connectionConfig.user,
-      database: connectionConfig.database,
       ssl: connectionConfig.ssl,
+      connectTimeout: connectionConfig.connectTimeout,
+      enableKeepAlive: connectionConfig.enableKeepAlive,
+      connectionLimit: connectionConfig.connectionLimit,
     });
 
     const pool = mysql.createPool(connectionConfig);
@@ -101,17 +94,29 @@ async function initializeDatabase() {
 
     // Test connection
     try {
+      console.log('[Database] Testing connection...');
       const result = await _db.execute(sql`SELECT 1 as test`);
       console.log('[Database] Connection test successful:', result);
     } catch (testError) {
-      console.error('[Database] Connection test failed:', testError instanceof Error ? testError.message : testError);
+      console.error('[Database] Connection test failed');
+      if (testError instanceof Error) {
+        console.error('[Database] Error code:', (testError as any).code);
+        console.error('[Database] Error message:', testError.message);
+        console.error('[Database] Error stack:', testError.stack);
+      } else {
+        console.error('[Database] Error:', testError);
+      }
       throw testError;
     }
 
   } catch (error) {
-    console.error('[Database] Failed to initialize:', error instanceof Error ? error.message : String(error));
-    if (error instanceof Error && error.stack) {
-      console.error('[Database] Stack trace:', error.stack);
+    console.error('[Database] Failed to initialize');
+    if (error instanceof Error) {
+      console.error('[Database] Error code:', (error as any).code);
+      console.error('[Database] Error message:', error.message);
+      console.error('[Database] Error stack:', error.stack);
+    } else {
+      console.error('[Database] Error:', error);
     }
     _db = null;
     throw error;
@@ -133,7 +138,13 @@ export async function ensureDB() {
   try {
     await initPromise;
   } catch (error) {
-    console.error('[Database] Initialization error:', error instanceof Error ? error.message : error);
+    console.error('[Database] Initialization error');
+    if (error instanceof Error) {
+      console.error('[Database] Error code:', (error as any).code);
+      console.error('[Database] Error message:', error.message);
+    } else {
+      console.error('[Database] Error:', error);
+    }
     // Reset promise so next call can retry
     initPromise = null;
     throw error;
@@ -266,5 +277,9 @@ export async function getAllBookings(): Promise<Booking[]> {
 
 // Initialize database on module load
 initPromise = initializeDatabase().catch(error => {
-  console.error('[Database] Initialization failed on module load:', error instanceof Error ? error.message : error);
+  console.error('[Database] Initialization failed on module load');
+  if (error instanceof Error) {
+    console.error('[Database] Error code:', (error as any).code);
+    console.error('[Database] Error message:', error.message);
+  }
 });
