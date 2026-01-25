@@ -298,26 +298,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // tRPC Handler - 支持批量請求的路由邏輯
+    // tRPC Handler - 使用官方 fetchRequestHandler
     if (req.url?.startsWith('/api/trpc')) {
-      const rawUrl = req.url || '';
-      let trpcPath = '';
+      console.log('[DEBUG] Request URL:', req.url);
+      console.log('[DEBUG] Request Method:', req.method);
       
-      if (rawUrl.includes('/api/trpc/')) {
-        trpcPath = rawUrl.split('/api/trpc/')[1].split('?')[0];
-      } else if (rawUrl.startsWith('/api/trpc?')) {
-        trpcPath = rawUrl.substring('/api/trpc'.length);
-      }
+      // 構建完整的請求 URL - 保留完整路徑
+      const fullUrl = `http://${req.headers.host || 'localhost'}${req.url}`;
+      console.log('[DEBUG] Full URL for fetchRequestHandler:', fullUrl);
       
-      console.log("[CRITICAL_DEBUG] Final Path to Router:", trpcPath);
-      
-      const newUrl = `http://${req.headers.host || 'localhost'}${trpcPath || '/'}`;
-      console.log('[TRPC Request] New URL for handler:', newUrl);
-      
-      // 使用 fetchRequestHandler
+      // 使用官方 fetchRequestHandler
       const response = await fetchRequestHandler({
-        endpoint: '/',
-        req: new Request(newUrl, {
+        endpoint: '/api/trpc',
+        req: new Request(fullUrl, {
           method: req.method,
           headers: req.headers as HeadersInit,
           body: req.method !== 'GET' && req.method !== 'HEAD' 
