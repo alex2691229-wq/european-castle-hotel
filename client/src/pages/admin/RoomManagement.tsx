@@ -24,11 +24,11 @@ function RoomManagement() {
   });
 
   const utils = trpc.useUtils();
-  const { data: rooms, isLoading } = trpc.roomTypes.listAll.useQuery();
+  const { data: rooms, isLoading } = trpc.roomTypes.list.useQuery();
   
   const createMutation = trpc.roomTypes.create.useMutation({
     onSuccess: () => {
-      utils.roomTypes.listAll.invalidate();
+      utils.roomTypes.list.invalidate();
       resetForm();
       toast.success('房型已成功創建 ✓');
     },
@@ -39,7 +39,7 @@ function RoomManagement() {
 
   const updateMutation = trpc.roomTypes.update.useMutation({
     onSuccess: () => {
-      utils.roomTypes.listAll.invalidate();
+      utils.roomTypes.list.invalidate();
       resetForm();
       toast.success('房型已成功更新 ✓');
     },
@@ -50,7 +50,7 @@ function RoomManagement() {
 
   const deleteMutation = trpc.roomTypes.delete.useMutation({
     onSuccess: () => {
-      utils.roomTypes.listAll.invalidate();
+      utils.roomTypes.list.invalidate();
       toast.success("房型已刪除");
     },
     onError: () => {

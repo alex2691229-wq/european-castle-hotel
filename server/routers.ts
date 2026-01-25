@@ -10,7 +10,7 @@ import { notifyOwner } from "./_core/notification";
 import { sendEmail, generateBookingConfirmationEmail, generateAdminNotificationEmail, generateBookingConfirmedEmail, generatePaymentInstructionEmail, generatePaymentConfirmedEmail, generateBookingCompletedEmail, generateBookingCancelledEmail } from "./_core/email";
 import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { sign } from "./_core/jwt";
 import { bookingRemindersRouter } from "./routers.booking-reminders";
 import { dataExportRouter } from "./routers.data-export";

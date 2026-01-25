@@ -13,7 +13,7 @@ import { wsManager } from "../websocket";
 import { initializeSchedulers } from "../schedulers/reminder-scheduler";
 import { handleUpload } from "./upload";
 import { getDb } from "../db";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { sign } from "./jwt";
 import { users } from "../../drizzle/schema";
 import { registerInitRoutes } from "./init-api";

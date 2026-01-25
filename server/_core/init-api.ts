@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import { getDb } from '../db';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { users } from '../../drizzle/schema';
 import { eq } from 'drizzle-orm';
 

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sql } from 'drizzle-orm';
-import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
+import { createHTTPHandler } from '@trpc/server/adapters/standalone';
 import bcryptjs from 'bcryptjs';
 
 import { getDB, getAllRoomTypes, seedFacilitiesIfEmpty, seedNewsIfEmpty, seedRoomTypesIfEmpty } from './db.js';
@@ -35,6 +35,17 @@ async function ensureSeeding() {
 // 初始化 seeding
 ensureSeeding().catch(error => {
   console.error('[Init] Seeding error:', error);
+});
+
+// 創建 tRPC HTTP handler
+const trpcHandler = createHTTPHandler({
+  router: appRouter,
+  createContext: async (opts) => {
+    return createContext({
+      req: opts.req,
+      res: opts.res,
+    });
+  },
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -298,30 +309,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // tRPC Handler
-    if (req.url?.includes('/api/trpc')) {
-      const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    // tRPC Handler - 路由所有 /api/trpc/* 請求到 tRPC handler
+    if (req.url?.startsWith('/api/trpc')) {
+      console.log('[tRPC] Incoming request:', req.method, req.url);
       
-      const response = await fetchRequestHandler({
-        endpoint: '/api/trpc',
-        req: new Request(url, {
-          method: req.method,
-          headers: req.headers as HeadersInit,
-          body: req.method !== 'GET' && req.method !== 'HEAD' 
-            ? JSON.stringify(req.body) 
-            : undefined,
-        }),
-        router: appRouter,
-        createContext: async () => createContext({ req, res }),
+      // 使用 tRPC HTTP handler
+      const response = await trpcHandler({
+        req: req as any,
+        res: res as any,
       });
 
-      res.status(response.status);
-      response.headers.forEach((value, key) => {
-        res.setHeader(key, value);
-      });
-      
-      const body = await response.text();
-      return res.send(body);
+      return response;
     }
 
     // Default 404

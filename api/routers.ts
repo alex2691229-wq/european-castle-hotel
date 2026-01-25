@@ -276,6 +276,5 @@ export const appRouter = router({
       }
     }),
   }),
-
-  }),
 });
+
