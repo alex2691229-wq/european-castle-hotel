@@ -64,3 +64,12 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [ ] /api/health/db 返回 "connected"
 - [ ] 首頁房型正常顯示
 - [ ] 無 TypeScript 報錯
+
+
+## 🟢 新功能需求 - 已完成
+
+- [x] 在首頁導航欄添加「最新消息」按鈕
+- [x] 創建 /news 頁面顯示最新消息
+- [x] 從數據庫讀取消息內容
+- [x] 本地測試驗證
+- [ ] 推送到 clean-start branch

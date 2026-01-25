@@ -47,6 +47,9 @@ export default function Navbar() {
           <Link href="/transportation">
             <a className="text-white hover:text-[#d4af37] cursor-pointer whitespace-nowrap text-sm transition-colors">交通資訊</a>
           </Link>
+          <Link href="/news">
+            <a className="text-white hover:text-[#d4af37] cursor-pointer whitespace-nowrap text-sm transition-colors">最新消息</a>
+          </Link>
         </div>
 
         {/* 版本標記 */}
