@@ -11,32 +11,40 @@ import { roomTypes, news, facilities, users } from '../drizzle/schema.js';
 
 // Seed data on startup
 let seedingPromise: Promise<void> | null = null;
-if (!seedingPromise) {
-  seedingPromise = Promise.all([
-    seedAdminAccount().catch(error => {
-      console.error('[Startup] Failed to seed admin account:', error);
-    }),
-    seedRoomTypesIfEmpty().catch(error => {
-      console.error('[Startup] Failed to seed room types:', error);
-    }),
-    seedFacilitiesIfEmpty().catch(error => {
-      console.error('[Startup] Failed to seed facilities:', error);
-    }),
-    seedNewsIfEmpty().catch(error => {
-      console.error('[Startup] Failed to seed news:', error);
-    }),
-  ]).then(() => {});
+
+async function ensureSeeding() {
+  if (!seedingPromise) {
+    seedingPromise = Promise.all([
+      seedAdminAccount().catch(error => {
+        console.error('[Startup] Failed to seed admin account:', error);
+      }),
+      seedRoomTypesIfEmpty().catch(error => {
+        console.error('[Startup] Failed to seed room types:', error);
+      }),
+      seedFacilitiesIfEmpty().catch(error => {
+        console.error('[Startup] Failed to seed facilities:', error);
+      }),
+      seedNewsIfEmpty().catch(error => {
+        console.error('[Startup] Failed to seed news:', error);
+      }),
+    ]).then(() => {});
+  }
+  return seedingPromise;
 }
+
+// 初始化 seeding
+ensureSeeding().catch(error => {
+  console.error('[Init] Seeding error:', error);
+});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Ensure seeding is complete
-  if (seedingPromise) {
-    try {
-      await seedingPromise;
-    } catch (error) {
-      console.error('[Handler] Seeding error:', error);
-    }
+  try {
+    await ensureSeeding();
+  } catch (error) {
+    console.error('[Handler] Seeding error:', error);
   }
+  
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');

@@ -251,3 +251,11 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 修改 rewrites 規則為正確格式
 - [x] 讓 Vercel 自動識別 /api 目錄
 - [x] 本地編譯驗證成功
+
+
+## 🟢 Admin 帳號和 Seeding 邏輯修復 - 完成
+
+- [x] 改進 api/index.ts 的 seeding 邏輯
+- [x] 確保 admin 帳號在應用啟動時創建
+- [x] 確保 /api/debug-seed 路由正確工作
+- [x] 本地編譯驗證成功
