@@ -1,5 +1,5 @@
-import { drizzle } from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
+import { drizzle, type MySql2Database } from 'drizzle-orm/mysql2';
 import { sql } from 'drizzle-orm';
 
 import { 
@@ -32,7 +32,7 @@ import {
 } from '../drizzle/schema.js';
 import { ENV } from './_core/env.js';
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: MySql2Database | null = null;
 let initPromise: Promise<void> | null = null;
 
 /**
@@ -322,7 +322,7 @@ export async function seedFacilitiesIfEmpty() {
       return;
     }
     
-    const defaultFacilities = [
+    const defaultFacilities: InsertFacility[] = [
       {
         name: '免費 Wi-Fi',
         nameEn: 'Free Wi-Fi',
@@ -397,7 +397,7 @@ export async function seedNewsIfEmpty() {
       return;
     }
     
-    const defaultNews = [
+    const defaultNews: InsertNews[] = [
       {
         title: '春季優惠活動',
         titleEn: 'Spring Promotion',
@@ -506,7 +506,7 @@ export async function seedRoomTypesIfEmpty() {
       return;
     }
     
-    const defaultRoomTypes = [
+    const defaultRoomTypes: InsertRoomType[] = [
       {
         name: '豪華套房',
         nameEn: 'Luxury Suite',
@@ -514,8 +514,8 @@ export async function seedRoomTypesIfEmpty() {
         descriptionEn: 'Spacious luxury suite with private garage and premium amenities',
         size: '50坪',
         capacity: 4,
-        price: '3500',
-        weekendPrice: '4500',
+        price: '3500.00',
+        weekendPrice: '4500.00',
         maxSalesQuantity: 5,
         images: null,
         amenities: JSON.stringify(['獨立車庫', '豪華衛浴', '高速 Wi-Fi', '液晶電視']),
@@ -529,8 +529,8 @@ export async function seedRoomTypesIfEmpty() {
         descriptionEn: 'Well-designed business room perfect for business travelers',
         size: '30坪',
         capacity: 2,
-        price: '2500',
-        weekendPrice: '3200',
+        price: '2500.00',
+        weekendPrice: '3200.00',
         maxSalesQuantity: 10,
         images: null,
         amenities: JSON.stringify(['獨立車庫', '工作區', '高速 Wi-Fi', '淋浴間']),
@@ -544,8 +544,8 @@ export async function seedRoomTypesIfEmpty() {
         descriptionEn: 'Comfortable and affordable standard room with basic amenities',
         size: '25坪',
         capacity: 2,
-        price: '1800',
-        weekendPrice: '2300',
+        price: '1800.00',
+        weekendPrice: '2300.00',
         maxSalesQuantity: 15,
         images: null,
         amenities: JSON.stringify(['獨立車庫', '基本設施', 'Wi-Fi', '浴室']),

@@ -162,3 +162,13 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 創建隱藏路由 /api/debug-seed 強制填充數據
 - [x] 收集完整的 Vercel 錯誤日誌
 - [x] 測試房型建立功能是否工作
+
+
+## 🟢 TypeScript 型別修復 - 完成
+
+- [x] 修正 drizzle 導入 - 添加 MySql2Database 型別
+- [x] 修正 seedNewsIfEmpty 的型別定義 - 使用 InsertNews[]
+- [x] 修正 seedFacilitiesIfEmpty 的型別定義 - 使用 InsertFacility[]
+- [x] 修正 seedRoomTypesIfEmpty 的型別定義 - 使用 InsertRoomType[]
+- [x] 修正 price 欄位格式 - 使用正確的 decimal 格式（如 '3500.00'）
+- [x] 本地編譯驗證 - 無 TypeScript 錯誤
