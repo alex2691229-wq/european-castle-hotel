@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useParams, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

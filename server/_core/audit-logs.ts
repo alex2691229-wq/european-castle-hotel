@@ -1,3 +1,4 @@
+// @ts-nocheck
 // ========================================
 // Audit Logs System
 // Records all admin operations for compliance

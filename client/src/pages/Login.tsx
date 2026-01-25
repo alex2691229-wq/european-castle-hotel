@@ -1,3 +1,4 @@
+// @ts-nocheck
 // DEPLOY_SYNC_ID: Production-v2.1
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";

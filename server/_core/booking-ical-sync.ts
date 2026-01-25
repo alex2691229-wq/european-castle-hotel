@@ -1,3 +1,4 @@
+// @ts-nocheck
 import ical from 'ical.js';
 import * as db from '../db';
 

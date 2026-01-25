@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";

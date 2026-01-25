@@ -41,67 +41,68 @@ export const appRouter = router({
         password: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
-        console.log('[Auth] Checking login for user:', input.username);
-        
-        // 從數據庫查詢用戶
-        const user = await db.getUserByUsername(input.username);
-        console.log('[Auth] User found in DB:', !!user);
-        
-        if (!user) {
-          console.log('[Auth] User not found:', input.username);
-          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
-        }
-        
-        if (user.role !== 'admin') {
-          console.log('[Auth] User is not admin, role:', user.role);
-          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
-        }
-        
-        // 驗證密碼
-        if (!user.passwordHash) {
-          console.log('[Auth] User has no password hash');
-          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
-        }
-        
-        console.log('[Auth] Comparing password for user:', input.username);
-        const passwordMatch = await bcrypt.compare(input.password, user.passwordHash);
-        console.log('[Auth] Password match result:', passwordMatch);
-        
-        if (!passwordMatch) {
-          console.log('[Auth] Password mismatch for user:', input.username);
-          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
-        }
-        
-        // 生成 JWT token
-        const token = sign({
-          id: user.id,
-          username: user.username,
-          name: user.name,
-          role: user.role,
-        });
-        
-        // 設置 cookie - 使用 Set-Cookie header（Vercel Serverless 兼容）
-        const isSecure = ctx.req.headers['x-forwarded-proto'] === 'https' || ctx.req.secure || true;
-        const cookieString = `${COOKIE_NAME}=${token}; Path=/; HttpOnly; ${isSecure ? 'Secure; ' : ''}SameSite=Strict; Max-Age=604800`;
-        ctx.res.setHeader('Set-Cookie', cookieString);
-        
-        console.log('[Auth] Login successful for user:', input.username);
-        return {
-          success: true,
-          user: {
+        try {
+          console.log('[Auth] Checking login for user:', input.username);
+          
+          // 從數據庫查詢用戶
+          const user = await db.getUserByUsername(input.username);
+          console.log('[Auth] User found in DB:', !!user);
+          
+          if (!user) {
+            console.log('[Auth] User not found:', input.username);
+            throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+          }
+          
+          if (user.role !== 'admin') {
+            console.log('[Auth] User is not admin, role:', user.role);
+            throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+          }
+          
+          // 驗證密碼
+          if (!user.passwordHash) {
+            console.log('[Auth] User has no password hash');
+            throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+          }
+          
+          console.log('[Auth] Comparing password for user:', input.username);
+          const passwordMatch = await bcrypt.compare(input.password, user.passwordHash);
+          console.log('[Auth] Password match result:', passwordMatch);
+          
+          if (!passwordMatch) {
+            console.log('[Auth] Password mismatch for user:', input.username);
+            throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+          }
+          
+          // 生成 JWT token
+          const token = sign({
             id: user.id,
             username: user.username,
             name: user.name,
             role: user.role,
-          },
-        };
-      } catch (error) {
-        console.error('[Auth] Login error:', error);
-        if (error instanceof TRPCError) {
-          throw error;
+          });
+          
+          // 設置 cookie - 使用 Set-Cookie header（Vercel Serverless 兼容）
+          const isSecure = ctx.req.headers['x-forwarded-proto'] === 'https' || ctx.req.secure || true;
+          const cookieString = `${COOKIE_NAME}=${token}; Path=/; HttpOnly; ${isSecure ? 'Secure; ' : ''}SameSite=Strict; Max-Age=604800`;
+          ctx.res.setHeader('Set-Cookie', cookieString);
+          
+          console.log('[Auth] Login successful for user:', input.username);
+          return {
+            success: true,
+            user: {
+              id: user.id,
+              username: user.username,
+              name: user.name,
+              role: user.role,
+            },
+          };
+        } catch (error) {
+          console.error('[Auth] Login error:', error);
+          if (error instanceof TRPCError) {
+            throw error;
+          }
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '登入失敗' });
         }
-        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '登入失敗' });
-      }
       }),
   }),
 
@@ -211,15 +212,4 @@ export const appRouter = router({
       }
     }),
   }),
-
-  // TODO: 以下功能暫時註解，待後續添加
-  // upload: router({ ... }),
-  // bookings: router({ ... }),
-  // availability: router({ ... }),
-  // admin: router({ ... }),
-  // contacts: router({ ... }),
-  // featuredServices: router({ ... }),
-  // users: router({ ... }),
-  // blockages: router({ ... }),
-  // bookingCalendar: router({ ... }),
 });
