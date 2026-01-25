@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
-    "build": "vite build || true",
+    "build": "vite build",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --skipLibCheck --noEmit 2>/dev/null || true",
     "format": "prettier --write .",

@@ -33,20 +33,30 @@ import {
 import { ENV } from './_core/env.js';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _dbInitialized = false;
 let initPromise: Promise<void> | null = null;
 
 export async function getDb() {
-  if (_db) {
+  if (_dbInitialized && _db) {
     return _db;
   }
 
   if (initPromise) {
     await initPromise;
+    if (!_db) {
+      throw new Error('Database initialization failed');
+    }
     return _db;
   }
 
   initPromise = initializeDatabase();
   await initPromise;
+  
+  if (!_db) {
+    throw new Error('Database initialization failed');
+  }
+  
+  _dbInitialized = true;
   return _db;
 }
 
@@ -106,7 +116,8 @@ async function initializeDatabase() {
     });
 
     const pool = mysql.createPool(connectionConfig);
-    _db = drizzle(pool);
+    _db = drizzle(pool) as ReturnType<typeof drizzle>;
+    _dbInitialized = true;
 
     // Test connection
     try {

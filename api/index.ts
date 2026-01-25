@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express, Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { sql } from 'drizzle-orm';
@@ -19,7 +19,7 @@ if (process.env.DATABASE_URL) {
 }
 
 // CORS 設定
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const origin = req.headers.origin;
   if (origin) {
     res.header('Access-Control-Allow-Origin', origin);
@@ -49,87 +49,65 @@ app.get('/api/status', (req: Request, res: Response) => {
   });
 });
 
-// 數據庫連線健康檢查
+// Database Health Check
 app.get('/api/health/db', async (req: Request, res: Response) => {
   try {
-    console.log('[HEALTH] Database connection check...');
     const db = await getDb();
-    
     if (!db) {
-      return res.status(500).json({
+      res.status(500).json({
         status: 'error',
         message: 'Database not initialized'
       });
+      return;
     }
 
-    // 真正執行 SELECT 1 查詢來驗證連線
-    try {
-      const result = await db.execute(sql`SELECT 1 as test`);
-      console.log('[HEALTH] Database SELECT 1 test passed:', result);
-      
-      res.json({
-        status: 'connected',
-        message: 'Database connection successful',
-        timestamp: new Date().toISOString()
-      });
-    } catch (queryError) {
-      console.error('[HEALTH] SELECT 1 query failed:', queryError);
-      return res.status(500).json({
-        status: 'error',
-        message: 'Database query failed: ' + (queryError instanceof Error ? queryError.message : 'Unknown error')
-      });
-    }
+    // Test connection
+    await db.execute(sql`SELECT 1 as test`);
+    
+    res.json({
+      status: 'connected',
+      message: 'Database connection successful',
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
-    console.error('[HEALTH] Database error:', error);
     res.status(500).json({
       status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Database connection failed',
+      timestamp: new Date().toISOString()
     });
   }
 });
 
-// 獲取所有房型（用於首頁顯示）
+// Room Types API
 app.get('/api/room-types', async (req: Request, res: Response) => {
   try {
     const roomTypes = await getAllRoomTypes();
-    res.json({
-      success: true,
-      data: roomTypes
-    });
+    res.json(roomTypes);
   } catch (error) {
-    console.error('[API] Error fetching room types:', error);
     res.status(500).json({
-      success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch room types'
     });
   }
 });
 
-// tRPC 路由 - 處理所有 /api/trpc/* 請求
-app.all('/api/trpc/:path*', async (req: Request, res: Response) => {
+// tRPC Handler
+app.all('/api/trpc/*', async (req: Request, res: Response) => {
+  console.log(`[tRPC] ${req.method} ${req.url}`);
+  
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  
   try {
-    console.log('[tRPC] Handling request:', req.method, req.url);
-    
-    // 構造完整的 URL 用於 tRPC
-    const protocol = req.headers['x-forwarded-proto'] || 'http';
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3000';
-    const pathWithQuery = req.url.startsWith('/api/trpc') ? req.url : `/api/trpc${req.url}`;
-    const fullUrl = `${protocol}://${host}${pathWithQuery}`;
-    
-    console.log('[tRPC] Full URL:', fullUrl);
-    
     const response = await fetchRequestHandler({
       endpoint: '/api/trpc',
-      req: {
-        ...req,
-        url: fullUrl,
-      } as any,
+      req: new Request(url, {
+        method: req.method,
+        headers: req.headers as HeadersInit,
+        body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined,
+      }),
       router: appRouter,
-      createContext: async () => {
-        return createContext({ req, res });
-      },
+      createContext: async () => createContext({ req, res }),
     });
-    
+
     res.status(response.status);
     response.headers.forEach((value, key) => {
       res.setHeader(key, value);
@@ -137,26 +115,25 @@ app.all('/api/trpc/:path*', async (req: Request, res: Response) => {
     res.send(await response.text());
   } catch (error) {
     console.error('[tRPC] Error:', error);
-    res.status(500).json({
+    res.status(500);
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({
       error: error instanceof Error ? error.message : 'Internal server error'
-    });
+    }));
   }
 });
 
-// 靜態文件服務
-const publicDir = path.join(process.cwd(), 'dist', 'public');
-if (fs.existsSync(publicDir)) {
-  app.use(express.static(publicDir));
-  
-  // SPA 路由回退
-  app.get('*', (req: Request, res: Response) => {
-    const indexPath = path.join(publicDir, 'index.html');
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      res.status(404).json({ error: 'Not found' });
-    }
-  });
-}
+// Static Files
+app.use(express.static(path.join(process.cwd(), 'dist/public')));
+
+// SPA Fallback
+app.get('*', (req: Request, res: Response) => {
+  const indexPath = path.join(process.cwd(), 'dist/public/index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({ error: 'Not found' });
+  }
+});
 
 export default app;

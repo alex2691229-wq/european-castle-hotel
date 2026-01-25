@@ -92,3 +92,14 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] pnpm build 成功，無 TypeScript 錯誤
 - [x] 本地測試成功（首頁、房型 API）
 - [ ] 部署到 Vercel
+
+
+## 修復編譯錯誤 - 已完成
+
+- [x] 移除 package.json 中的 || true
+- [x] 刪除 api/db-init-simple.ts
+- [x] 修復 api/db.ts 的 Null 檢查和型別
+- [x] 修復 api/index.ts 的 Express 型別
+- [x] pnpm build 成功，無 TypeScript 錯誤
+- [x] 本地測試成功（首頁、tRPC 端點）
+- [ ] 部署到 Vercel
