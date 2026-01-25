@@ -298,17 +298,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // tRPC Handler - 正確的路徑映射邏輯
+    // tRPC Handler - 精確的路由邏輯
     if (req.url?.startsWith('/api/trpc')) {
-      console.log('[TRPC Request] Full URL from Vercel:', req.url);
-      console.log('[TRPC Request] Method:', req.method);
+      const rawUrl = req.url || '';
+      const trpcPath = rawUrl.includes('/api/trpc/') ? rawUrl.split('/api/trpc/')[1].split('?')[0] : '';
+      console.log("[CRITICAL_DEBUG] Final Path to Router:", trpcPath);
       
-      // 關鍵修復：剝離 /api/trpc/ 前綴
-      const strippedPath = req.url.replace('/api/trpc/', '');
-      console.log('[TRPC Request Path]:', strippedPath);
-      
-      // 構建新的 URL，只包含剝離後的路徑
-      const newUrl = `http://${req.headers.host || 'localhost'}/${strippedPath}`;
+      // 構建新的 URL，只包含提取的路徑
+      const newUrl = `http://${req.headers.host || 'localhost'}/${trpcPath}`;
       console.log('[TRPC Request] New URL for handler:', newUrl);
       
       // 使用 fetchRequestHandler

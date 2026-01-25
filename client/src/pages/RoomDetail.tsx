@@ -1,3 +1,4 @@
+import React from 'react';
 // @ts-nocheck
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";

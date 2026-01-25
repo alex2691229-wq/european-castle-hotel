@@ -1,3 +1,4 @@
+import React from 'react';
 // @ts-nocheck
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";

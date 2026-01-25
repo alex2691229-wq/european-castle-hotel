@@ -1,3 +1,4 @@
+import React from 'react';
 // @ts-nocheck
 import { trpc, getBaseUrl } from "@/lib/trpc";
 import { UNAUTHED_ERR_MSG } from '@shared/const';

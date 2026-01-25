@@ -1,3 +1,4 @@
+import React from 'react';
 // @ts-nocheck
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";

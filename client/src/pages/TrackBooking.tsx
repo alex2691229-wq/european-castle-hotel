@@ -1,3 +1,4 @@
+import React from 'react';
 // @ts-nocheck
 'use client';
 

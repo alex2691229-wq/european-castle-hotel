@@ -1,3 +1,4 @@
+import React from 'react';
 // @ts-nocheck
 import { useState } from "react";
 import { Card } from "@/components/ui/card";

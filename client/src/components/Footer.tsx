@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link } from "wouter";
 import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
 

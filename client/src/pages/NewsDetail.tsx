@@ -1,3 +1,4 @@
+import React from 'react';
 // @ts-nocheck
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";

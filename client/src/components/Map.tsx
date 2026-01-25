@@ -1,3 +1,4 @@
+import React from 'react';
 /**
  * GOOGLE MAPS FRONTEND INTEGRATION - ESSENTIAL GUIDE
  *

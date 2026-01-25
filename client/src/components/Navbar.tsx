@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";

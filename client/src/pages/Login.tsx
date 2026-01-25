@@ -1,3 +1,4 @@
+import React from 'react';
 // @ts-nocheck
 // DEPLOY_SYNC_ID: Production-v2.1
 import { useState } from "react";
