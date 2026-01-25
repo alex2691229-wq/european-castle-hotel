@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sql } from 'drizzle-orm';
-import { createHTTPHandler } from '@trpc/server/adapters/standalone';
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 import bcryptjs from 'bcryptjs';
 
 import { getDB, getAllRoomTypes, seedFacilitiesIfEmpty, seedNewsIfEmpty, seedRoomTypesIfEmpty } from './db.js';
@@ -35,17 +35,6 @@ async function ensureSeeding() {
 // 初始化 seeding
 ensureSeeding().catch(error => {
   console.error('[Init] Seeding error:', error);
-});
-
-// 創建 tRPC HTTP handler
-const trpcHandler = createHTTPHandler({
-  router: appRouter,
-  createContext: async (opts) => {
-    return createContext({
-      req: opts.req,
-      res: opts.res,
-    });
-  },
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -309,17 +298,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // tRPC Handler - 路由所有 /api/trpc/* 請求到 tRPC handler
+    // tRPC Handler - 正確的路徑映射邏輯
     if (req.url?.startsWith('/api/trpc')) {
-      console.log('[tRPC] Incoming request:', req.method, req.url);
+      console.log('[TRPC Request] Full URL from Vercel:', req.url);
+      console.log('[TRPC Request] Method:', req.method);
       
-      // 使用 tRPC HTTP handler
-      const response = await trpcHandler({
-        req: req as any,
-        res: res as any,
+      // 關鍵修復：剝離 /api/trpc/ 前綴
+      const strippedPath = req.url.replace('/api/trpc/', '');
+      console.log('[TRPC Request Path]:', strippedPath);
+      
+      // 構建新的 URL，只包含剝離後的路徑
+      const newUrl = `http://${req.headers.host || 'localhost'}/${strippedPath}`;
+      console.log('[TRPC Request] New URL for handler:', newUrl);
+      
+      // 使用 fetchRequestHandler
+      const response = await fetchRequestHandler({
+        endpoint: '/',
+        req: new Request(newUrl, {
+          method: req.method,
+          headers: req.headers as HeadersInit,
+          body: req.method !== 'GET' && req.method !== 'HEAD' 
+            ? JSON.stringify(req.body) 
+            : undefined,
+        }),
+        router: appRouter,
+        createContext: async () => createContext({ req, res }),
       });
 
-      return response;
+      console.log('[TRPC Response] Status:', response.status);
+
+      // 設置響應狀態和頭部
+      res.status(response.status);
+      response.headers.forEach((value, key) => {
+        res.setHeader(key, value);
+      });
+      
+      // 發送響應體
+      const body = await response.text();
+      return res.send(body);
     }
 
     // Default 404
