@@ -209,7 +209,11 @@ export default function Booking() {
       // 導航到確認頁面
       navigate("/booking/confirmation");
     } catch (error: any) {
-      toast.error(error.message || "訂房失敗，請稍後再試");
+      console.error('[Booking] Error:', error);
+      const errorMsg = error?.message || JSON.stringify(error) || '訂房失敗，請稍後再試';
+      toast.error(errorMsg);
+      window.alert('預訂失敗：' + errorMsg);
+      // 不重定向 - 保持在當前頁面
     }
   };
 

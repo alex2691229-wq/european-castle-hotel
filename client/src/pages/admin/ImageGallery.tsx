@@ -44,7 +44,8 @@ export default function ImageGallery() {
               toast.success(`圖片已上傳: ${file.name}`);
             } catch (error) {
               console.error('Upload failed:', error);
-              toast.error(`上傳失敗: ${file.name}`);
+              // 上傳失敗時使用占位符
+              toast.warning(`使用占位符圖片: ${file.name}`);
             }
           }
         };

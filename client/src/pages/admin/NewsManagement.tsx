@@ -56,17 +56,29 @@ export default function NewsManagement() {
       const reader = new FileReader();
       reader.onload = async (event) => {
         const base64 = (event.target?.result as string).split(",")[1];
-        const result = await uploadMutation.mutateAsync({
-          filename: file.name,
-          data: base64,
-        });
-        setUploadedImage(result.url);
-        setFormData({ ...formData, image: result.url });
-        toast.success("圖片上傳成功");
+        try {
+          const result = await uploadMutation.mutateAsync({
+            filename: file.name,
+            data: base64,
+          });
+          setUploadedImage(result.url);
+          setFormData({ ...formData, image: result.url });
+          toast.success('圖片上傳成功');
+        } catch (uploadError) {
+          console.error('[NewsManagement] Upload error:', uploadError);
+          const placeholderUrl = 'https://placehold.co/600x400?text=Placeholder';
+          setUploadedImage(placeholderUrl);
+          setFormData({ ...formData, image: placeholderUrl });
+          toast.warning('使用占位符圖片，您可以稍後更新');
+        }
       };
       reader.readAsDataURL(file);
     } catch (error) {
-      toast.error("圖片上傳失敗，請重試");
+      console.error('[NewsManagement] File read error:', error);
+      const placeholderUrl = 'https://placehold.co/600x400?text=Placeholder';
+      setUploadedImage(placeholderUrl);
+      setFormData({ ...formData, image: placeholderUrl });
+      toast.warning('使用占位符圖片，您可以稍後更新');
     } finally {
       setIsUploading(false);
     }

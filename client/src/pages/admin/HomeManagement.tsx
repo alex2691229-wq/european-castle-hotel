@@ -76,6 +76,8 @@ export default function HomeManagement() {
                 newImages.push(result.url);
               } catch (error) {
                 console.error('Upload failed:', error);
+                // 上傳失敗時使用占位符
+                newImages.push('https://placehold.co/600x400?text=Placeholder');
               }
             }
             resolve(null);

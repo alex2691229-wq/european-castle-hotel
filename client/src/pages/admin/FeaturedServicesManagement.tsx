@@ -87,7 +87,12 @@ export default function FeaturedServicesManagement() {
             toast.success("圖片已上傳");
           } catch (error) {
             console.error('Upload failed:', error);
-            toast.error("圖片上傳失敗");
+            // 上傳失敗時使用占位符
+            const placeholderUrl = 'https://placehold.co/600x400?text=Placeholder';
+            if (editingId === serviceId) {
+              setEditingData({ ...editingData, image: placeholderUrl });
+            }
+            toast.warning('使用占位符圖片，您可以稍後更新');
           }
         }
       };
