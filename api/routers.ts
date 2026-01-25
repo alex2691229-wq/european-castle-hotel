@@ -35,6 +35,17 @@ export const appRouter = router({
       return { success: true } as const;
     }),
     
+    listAdmins: adminProcedure.query(async () => {
+      console.log('[Auth] Fetching admin list...');
+      try {
+        // 返回所有 admin 用戶（暫時實現）
+        return [];
+      } catch (error) {
+        console.error('[Auth] Error fetching admins:', error);
+        return [];
+      }
+    }),
+    
     login: publicProcedure
       .input(z.object({
         username: z.string(),
@@ -154,10 +165,10 @@ export const appRouter = router({
         description: z.string().min(1, '房型描述不能為空'),
         descriptionEn: z.string().optional(),
         size: z.string().optional(),
-        capacity: z.number().min(1, '容納人數至少為1'),
-        price: z.number().min(0, '價格不能為負數'),
-        weekendPrice: z.number().optional(),
-        maxSalesQuantity: z.number().min(1, '最大銷售數量至少為1').default(10),
+        capacity: z.coerce.number().min(1, '容納人數至少為1'),
+        price: z.coerce.number().min(0, '價格不能為負數'),
+        weekendPrice: z.coerce.number().optional(),
+        maxSalesQuantity: z.coerce.number().min(1, '最大銷售數量至少為1').default(10),
         images: z.string().optional(),
         amenities: z.string().optional(),
       }))
@@ -232,5 +243,39 @@ export const appRouter = router({
         };
       }
     }),
+
+  bookings: router({
+    list: adminProcedure.query(async () => {
+      console.log('[Bookings] Fetching bookings...');
+      try {
+        // 返回空列表（暫時實現）
+        return [];
+      } catch (error) {
+        console.error('[Bookings] Error fetching bookings:', error);
+        return [];
+      }
+    }),
+  }),
+
+  homeConfig: router({
+    get: publicProcedure.query(async () => {
+      console.log('[HomeConfig] Fetching home config...');
+      try {
+        return {
+          title: '歐堡商務汽車旅館',
+          description: '舒適、便利、親切的住宿體驗',
+          logo: '/logo.png',
+        };
+      } catch (error) {
+        console.error('[HomeConfig] Error fetching config:', error);
+        return {
+          title: '歐堡商務汽車旅館',
+          description: '舒適、便利、親切的住宿體驗',
+          logo: '/logo.png',
+        };
+      }
+    }),
+  }),
+
   }),
 });

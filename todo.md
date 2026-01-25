@@ -267,3 +267,12 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 如果 admin/123456 失敗，強制創建帳號
 - [x] 驗證 bcryptjs 密碼比較邏輯
 - [x] 本地編譯驗證成功
+
+
+## 🔴 全功能修復 - 儀表板完整功能 - 進行中
+
+- [x] 驗證 api/index.ts 的 tRPC 路由配置
+- [x] 修復房型創建驗證規則（z.coerce.number()）
+- [x] 添加缺失的路由（bookings、homeConfig、auth.listAdmins）
+- [ ] 修復 React 引用錯誤
+- [ ] 驗證儀表板完整功能
