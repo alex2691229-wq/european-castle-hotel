@@ -82,3 +82,13 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 實現 roomTypes.list 端點
 - [x] 確保型別安全（無 @ts-nocheck）
 - [ ] 部署驗證
+
+
+## 最小化修復 - 只保留基本功能 - 已完成
+
+- [x] 刪除舊的試驗文件（db-simple.ts, index-simple.ts）
+- [x] 註解掉所有非核心功能（News, Facilities, Bookings 等）
+- [x] 只保留 auth.login 和 roomTypes.list
+- [x] pnpm build 成功，無 TypeScript 錯誤
+- [x] 本地測試成功（首頁、房型 API）
+- [ ] 部署到 Vercel
