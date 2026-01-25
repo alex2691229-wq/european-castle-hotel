@@ -29,8 +29,9 @@ export const appRouter = router({
     me: publicProcedure.query(opts => opts.ctx.user),
     
     logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+      // 清除 cookie - 使用 Set-Cookie header
+      const cookieString = `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
+      ctx.res.setHeader('Set-Cookie', cookieString);
       return { success: true } as const;
     }),
     
@@ -79,9 +80,10 @@ export const appRouter = router({
           role: user.role,
         });
         
-        // 設置 cookie
-        const cookieOptions = getSessionCookieOptions(ctx.req);
-        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+        // 設置 cookie - 使用 Set-Cookie header（Vercel Serverless 兼容）
+        const isSecure = ctx.req.headers['x-forwarded-proto'] === 'https' || ctx.req.secure || true;
+        const cookieString = `${COOKIE_NAME}=${token}; Path=/; HttpOnly; ${isSecure ? 'Secure; ' : ''}SameSite=Strict; Max-Age=604800`;
+        ctx.res.setHeader('Set-Cookie', cookieString);
         
         return {
           success: true,
