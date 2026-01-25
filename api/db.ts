@@ -65,22 +65,26 @@ async function initializeDatabase() {
     const databaseUrl = process.env.DATABASE_URL;
     
     if (!databaseUrl) {
+      console.error('[Database] DATABASE_URL environment variable is not set');
       throw new Error('DATABASE_URL environment variable is not set');
     }
 
-    console.log('[Database] Initializing connection...');
+    console.log('[Database] Initializing connection with URL:', databaseUrl.replace(/:[^:]*@/, ':****@'));
 
     // Parse URL
     const url = new URL(databaseUrl);
-    const connectionConfig = {
+    const connectionConfig: any = {
       host: url.hostname,
       port: parseInt(url.port || '3306'),
       user: url.username,
       password: url.password,
       database: url.pathname.slice(1),
-      ssl: 'amazon',
+      ssl: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true,
+      },
       waitForConnections: true,
-      connectionLimit: 10,
+      connectionLimit: 1,
       queueLimit: 0,
     };
 
@@ -98,13 +102,17 @@ async function initializeDatabase() {
     // Test connection
     try {
       const result = await _db.execute(sql`SELECT 1 as test`);
-      console.log('[Database] Connection test successful');
+      console.log('[Database] Connection test successful:', result);
     } catch (testError) {
-      console.warn('[Database] Connection test warning:', testError);
+      console.error('[Database] Connection test failed:', testError instanceof Error ? testError.message : testError);
+      throw testError;
     }
 
   } catch (error) {
-    console.error('[Database] Failed to initialize:', error instanceof Error ? error.message : error);
+    console.error('[Database] Failed to initialize:', error instanceof Error ? error.message : String(error));
+    if (error instanceof Error && error.stack) {
+      console.error('[Database] Stack trace:', error.stack);
+    }
     _db = null;
     throw error;
   }
@@ -118,25 +126,23 @@ export async function ensureDB() {
     return _db;
   }
 
-  if (initPromise) {
-    await initPromise;
-    if (!_db) {
-      throw new Error('Database initialization failed');
-    }
-    return _db;
+  if (!initPromise) {
+    initPromise = initializeDatabase();
   }
 
-  initPromise = initializeDatabase();
-  await initPromise;
-  
-  if (!_db) {
-    throw new Error('Database initialization failed');
+  try {
+    await initPromise;
+  } catch (error) {
+    console.error('[Database] Initialization error:', error instanceof Error ? error.message : error);
+    // Reset promise so next call can retry
+    initPromise = null;
+    throw error;
   }
-  
+
   return _db;
 }
 
-// Room Types queries
+// Room Type queries
 export async function getAllRoomTypes(): Promise<RoomType[]> {
   const db = await ensureDB();
   if (!db) return [];
@@ -245,12 +251,6 @@ export async function createBooking(data: InsertBooking) {
   }
 }
 
-// Initialize database on module load
-initPromise = initializeDatabase().catch(error => {
-  console.error('[Database] Initialization failed:', error);
-});
-
-
 export async function getAllBookings(): Promise<Booking[]> {
   const db = await ensureDB();
   if (!db) return [];
@@ -263,3 +263,8 @@ export async function getAllBookings(): Promise<Booking[]> {
     return [];
   }
 }
+
+// Initialize database on module load
+initPromise = initializeDatabase().catch(error => {
+  console.error('[Database] Initialization failed on module load:', error instanceof Error ? error.message : error);
+});
