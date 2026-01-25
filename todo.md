@@ -172,3 +172,12 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 修正 seedRoomTypesIfEmpty 的型別定義 - 使用 InsertRoomType[]
 - [x] 修正 price 欄位格式 - 使用正確的 decimal 格式（如 '3500.00'）
 - [x] 本地編譯驗證 - 無 TypeScript 錯誤
+
+
+## 🟢 API 部署修復 - 完成
+
+- [x] 驗證 debug-seed.ts 文件位置 - 確認在 /api 目錄
+- [x] 修正 debug-seed.ts 的導入 - 添加 VercelRequest/VercelResponse
+- [x] 修正 upload-test.ts 的導入 - 確保完整
+- [x] 修改 vercel.json - 添加 functions 配置以支持獨立 API 路由
+- [x] 本地編譯驗證 - 無 TypeScript 錯誤
