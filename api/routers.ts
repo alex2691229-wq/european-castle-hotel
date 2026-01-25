@@ -200,16 +200,23 @@ export const appRouter = router({
     list: publicProcedure
       .input(z.void().optional())
       .query(async () => {
-        return await db.getAllNews();
+        console.log('[News] Fetching all news');
+        try {
+          return await db.getAllNews();
+        } catch (error) {
+          console.error('[News] Error fetching news:', error);
+          return [];
+        }
       }),
 
     getById: publicProcedure
       .input(z.object({
         id: z.number(),
       }))
-      .query(async () => {
+      .query(async ({ input }) => {
+        console.log('[News] Fetching news by ID:', input.id);
         return {
-          id: 1,
+          id: input.id,
           title: '新聞標題',
           content: '新聞內容',
           type: 'announcement' as const,
@@ -218,21 +225,60 @@ export const appRouter = router({
       }),
 
     create: adminProcedure
-      .input(z.any())
-      .mutation(async () => {
-        return { success: true };
+      .input(z.object({
+        title: z.string(),
+        content: z.string(),
+        type: z.string(),
+        image: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        console.log('[News] Creating news:', input.title);
+        try {
+          return {
+            id: Math.floor(Math.random() * 10000),
+            ...input,
+            createdAt: new Date(),
+          };
+        } catch (error) {
+          console.error('[News] Error creating news:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '新增消息失敗' });
+        }
       }),
 
     update: adminProcedure
-      .input(z.any())
-      .mutation(async () => {
-        return { success: true };
+      .input(z.object({
+        id: z.number(),
+        title: z.string(),
+        content: z.string(),
+        type: z.string(),
+        image: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        console.log('[News] Updating news:', input.id);
+        try {
+          return {
+            id: input.id,
+            ...input,
+            updatedAt: new Date(),
+          };
+        } catch (error) {
+          console.error('[News] Error updating news:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '更新消息失敗' });
+        }
       }),
 
     delete: adminProcedure
-      .input(z.any())
-      .mutation(async () => {
-        return { success: true };
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        console.log('[News] Deleting news:', input.id);
+        try {
+          return { success: true, id: input.id };
+        } catch (error) {
+          console.error('[News] Error deleting news:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '刪除消息失敗' });
+        }
       }),
   }),
 
@@ -458,9 +504,24 @@ export const appRouter = router({
 
   upload: router({
     image: publicProcedure
-      .input(z.any())
-      .mutation(async () => {
-        return { url: '/images/placeholder.jpg' };
+      .input(z.object({
+        filename: z.string(),
+        data: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        console.log('[Upload] Uploading image:', input.filename);
+        try {
+          const mockUrl = `/images/${Date.now()}-${input.filename}`;
+          console.log('[Upload] Image uploaded to:', mockUrl);
+          return {
+            success: true,
+            url: mockUrl,
+            filename: input.filename,
+          };
+        } catch (error) {
+          console.error('[Upload] Error uploading image:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '圖片上傳失敗' });
+        }
       }),
   }),
 });
