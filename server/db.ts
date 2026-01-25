@@ -580,6 +580,33 @@ export async function updateBookingStatus(id: number, status: "pending" | "confi
   }
 }
 
+export async function updateBooking(id: number, data: Partial<Booking>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // 更新訂單
+  await db.update(bookings).set(data).where(eq(bookings.id, id));
+  
+  // 如果更新了狀態，發送 WebSocket 事件
+  if (data.status) {
+    const { wsManager } = await import('./websocket');
+    const booking = await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.id, id))
+      .limit(1);
+    
+    if (booking.length > 0) {
+      wsManager.broadcast({
+        type: 'booking_status_changed' as const,
+        bookingId: id,
+        roomTypeId: booking[0].roomTypeId,
+        newStatus: data.status,
+      });
+    }
+  }
+}
+
 export async function deleteBooking(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

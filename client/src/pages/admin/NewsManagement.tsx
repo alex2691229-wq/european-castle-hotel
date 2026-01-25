@@ -1,6 +1,7 @@
 import React from "react";
 // @ts-nocheck
 import { useState, useRef } from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { Loader2, Plus, Trash2, Edit2, Upload, X } from "lucide-react";
 type NewsType = "announcement" | "promotion" | "event";
 
 export default function NewsManagement() {
+  const [, navigate] = useLocation();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
@@ -28,11 +30,15 @@ export default function NewsManagement() {
   const createMutation = trpc.news.create.useMutation({
     onSuccess: () => {
       utils.news.list.invalidate();
+      toast.success('消息已新增');
+      setTimeout(() => navigate('/'), 1000);
     },
   });
   const updateMutation = trpc.news.update.useMutation({
     onSuccess: () => {
       utils.news.list.invalidate();
+      toast.success('消息已更新');
+      setTimeout(() => navigate('/'), 1000);
     },
   });
   const deleteMutation = trpc.news.delete.useMutation({

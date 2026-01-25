@@ -1,6 +1,7 @@
 import React from "react";
 // @ts-nocheck
 import { useState, useRef, useEffect } from "react";
+  import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, X, Save } from "lucide-react";
 
 export default function HomeManagement() {
+  const [, navigate] = useLocation();
   const [carouselImages, setCarouselImages] = useState<string[]>([]);
   const [featureImages, setFeatureImages] = useState({
     vipGarage: "",
@@ -25,6 +27,9 @@ export default function HomeManagement() {
   const updateConfigMutation = trpc.homeConfig.update.useMutation({
     onSuccess: () => {
       toast.success("首頁設定已儲存");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     },
     onError: (error) => {
       toast.error(`儲存失敗：${error.message}`);
@@ -134,12 +139,15 @@ export default function HomeManagement() {
   const handleSaveAll = async () => {
     setIsSaving(true);
     try {
+      console.log('[HomeManagement] Saving config');
       await updateConfigMutation.mutateAsync({
         carouselImages: JSON.stringify(carouselImages),
         vipGarageImage: featureImages.vipGarage,
         deluxeRoomImage: featureImages.deluxeRoom,
         facilitiesImage: featureImages.facilities,
       });
+    } catch (error) {
+      console.error('[HomeManagement] Error:', error);
     } finally {
       setIsSaving(false);
     }
