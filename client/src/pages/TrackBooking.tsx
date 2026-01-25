@@ -1,9 +1,8 @@
-import React from 'react';
 // @ts-nocheck
 'use client';
 
 import React, { useState } from 'react';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '../lib/trpc';
 
 interface BookingDetail {
   id: string;
