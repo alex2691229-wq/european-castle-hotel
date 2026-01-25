@@ -205,3 +205,11 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 更新 debug-seed.ts - 添加管理員帳號創建邏輯
 - [x] 修復登入路由 - 添加 try-catch 確保總是返回 JSON
 - [x] 本地編譯驗證 - 成功
+
+
+## 🟢 配置穩定性驗證 - 完成
+
+- [x] 驗證 vercel.json - /api/:path* 在最上面
+- [x] 驗證 API 文件位置 - debug-seed.ts 和 upload-test.ts 在根目錄 /api
+- [x] 確認無 src/api 目錄
+- [x] 本地編譯成功
