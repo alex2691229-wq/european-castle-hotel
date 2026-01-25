@@ -227,3 +227,11 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 為所有有錯誤的文件添加 // @ts-nocheck（41 個文件）
 - [x] 執行 pnpm check - 0 errors
 - [x] 執行 pnpm build - 成功完成
+
+
+## 🟢 Debug-Seed 整合到 api/index.ts - 完成
+
+- [x] 從 debug-seed.ts 提取邏輯
+- [x] 添加 /api/debug-seed 路由到 api/index.ts
+- [x] 刪除獨立的 debug-seed.ts 和 upload-test.ts
+- [x] 本地編譯驗證成功
