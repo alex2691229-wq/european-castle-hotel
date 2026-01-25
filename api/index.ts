@@ -2,8 +2,12 @@ import express, { Express, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { sql } from 'drizzle-orm';
+import { createHTTPServer } from '@trpc/server/adapters/standalone';
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 
 import { getDb, getAllRoomTypes } from './db.js';
+import { appRouter } from './routers.js';
+import { createContext } from './_core/context.js';
 
 const app: Express = express();
 
@@ -98,6 +102,31 @@ app.get('/api/room-types', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch room types'
+    });
+  }
+});
+
+// tRPC 路由
+app.use('/api/trpc', express.json(), async (req: Request, res: Response) => {
+  try {
+    const response = await fetchRequestHandler({
+      endpoint: '/api/trpc',
+      req: req as any,
+      router: appRouter,
+      createContext: async () => {
+        return createContext({ req, res });
+      },
+    });
+    
+    res.status(response.status);
+    response.headers.forEach((value, key) => {
+      res.setHeader(key, value);
+    });
+    res.send(await response.text());
+  } catch (error) {
+    console.error('[tRPC] Error:', error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Internal server error'
     });
   }
 });

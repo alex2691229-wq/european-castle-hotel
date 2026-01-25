@@ -73,3 +73,12 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 從數據庫讀取消息內容
 - [x] 本地測試驗證
 - [ ] 推送到 clean-start branch
+
+
+## 🟢 快速修複 - tRPC 核心架構 - 已完成
+
+- [x] 恢複 tRPC Server 配置
+- [x] 實現 auth.login 端點
+- [x] 實現 roomTypes.list 端點
+- [x] 確保型別安全（無 @ts-nocheck）
+- [ ] 部署驗證
