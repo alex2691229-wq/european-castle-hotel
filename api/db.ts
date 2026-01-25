@@ -293,3 +293,149 @@ initPromise = initializeDatabase().catch(error => {
     console.error('[Database] Error message:', error.message);
   }
 });
+
+
+// Room Type creation
+export async function createRoomType(data: InsertRoomType) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.insert(roomTypes).values(data);
+    console.log('[Database] Room type created successfully');
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to create room type:', error);
+    throw error;
+  }
+}
+
+// Seed facilities if empty
+export async function seedFacilitiesIfEmpty() {
+  const db = await ensureDB();
+  if (!db) return;
+  
+  try {
+    const existing = await db.select().from(facilities);
+    if (existing.length > 0) {
+      console.log('[Database] Facilities already exist, skipping seed');
+      return;
+    }
+    
+    const defaultFacilities = [
+      {
+        name: '免費 Wi-Fi',
+        nameEn: 'Free Wi-Fi',
+        description: '全館覆蓋高速無線網絡',
+        descriptionEn: 'High-speed wireless network throughout the hotel',
+        icon: 'wifi',
+        images: null,
+        displayOrder: 1,
+        isActive: true,
+      },
+      {
+        name: '游泳池',
+        nameEn: 'Swimming Pool',
+        description: '室內溫水游泳池',
+        descriptionEn: 'Indoor heated swimming pool',
+        icon: 'waves',
+        images: null,
+        displayOrder: 2,
+        isActive: true,
+      },
+      {
+        name: '免費停車',
+        nameEn: 'Free Parking',
+        description: '提供免費停車位',
+        descriptionEn: 'Complimentary parking available',
+        icon: 'car',
+        images: null,
+        displayOrder: 3,
+        isActive: true,
+      },
+      {
+        name: '健身房',
+        nameEn: 'Fitness Center',
+        description: '24小時開放健身房',
+        descriptionEn: '24-hour fitness center',
+        icon: 'dumbbell',
+        images: null,
+        displayOrder: 4,
+        isActive: true,
+      },
+      {
+        name: '餐廳',
+        nameEn: 'Restaurant',
+        description: '提供各式美食',
+        descriptionEn: 'Variety of dining options',
+        icon: 'utensils',
+        images: null,
+        displayOrder: 5,
+        isActive: true,
+      },
+    ];
+    
+    for (const facility of defaultFacilities) {
+      await db.insert(facilities).values(facility);
+    }
+    
+    console.log('[Database] Facilities seeded successfully');
+  } catch (error) {
+    console.error('[Database] Failed to seed facilities:', error);
+  }
+}
+
+// Seed news if empty
+export async function seedNewsIfEmpty() {
+  const db = await ensureDB();
+  if (!db) return;
+  
+  try {
+    const existing = await db.select().from(news);
+    if (existing.length > 0) {
+      console.log('[Database] News already exist, skipping seed');
+      return;
+    }
+    
+    const defaultNews = [
+      {
+        title: '春季優惠活動',
+        titleEn: 'Spring Promotion',
+        content: '本月推出春季優惠方案，住宿享受優惠折扣',
+        contentEn: 'Special spring promotion with discounts on room rates',
+        type: 'promotion',
+        coverImage: null,
+        isPublished: true,
+        publishDate: new Date(),
+      },
+      {
+        title: '新房型上線',
+        titleEn: 'New Room Types Available',
+        content: '新增豪華套房，提供更舒適的住宿體驗',
+        contentEn: 'New luxury suites now available for booking',
+        type: 'announcement',
+        coverImage: null,
+        isPublished: true,
+        publishDate: new Date(),
+      },
+      {
+        title: '暑期活動',
+        titleEn: 'Summer Events',
+        content: '暑期舉辦各項活動，歡迎參加',
+        contentEn: 'Various summer activities and events planned',
+        type: 'event',
+        coverImage: null,
+        isPublished: true,
+        publishDate: new Date(),
+      },
+    ];
+    
+    for (const item of defaultNews) {
+      await db.insert(news).values(item);
+    }
+    
+    console.log('[Database] News seeded successfully');
+  } catch (error) {
+    console.error('[Database] Failed to seed news:', error);
+  }
+}

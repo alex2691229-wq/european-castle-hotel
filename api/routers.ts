@@ -1,4 +1,4 @@
-import { publicProcedure, router, protectedProcedure } from './_core/trpc.js';
+import { router, publicProcedure, protectedProcedure } from './_core/trpc.js';
 import { z } from 'zod';
 import * as db from './db.js';
 import { TRPCError } from '@trpc/server';
@@ -97,7 +97,6 @@ export const appRouter = router({
       }),
   }),
 
-  // Room Types
   roomTypes: router({
     list: publicProcedure.query(async () => {
       return await db.getAllRoomTypes();
@@ -117,12 +116,67 @@ export const appRouter = router({
         console.log('[RoomTypes] Room found:', room.name);
         return room;
       }),
+
+    create: adminProcedure
+      .input(z.object({
+        name: z.string().min(1, '房型名稱不能為空'),
+        nameEn: z.string().optional(),
+        description: z.string().min(1, '房型描述不能為空'),
+        descriptionEn: z.string().optional(),
+        size: z.string().optional(),
+        capacity: z.number().min(1, '容納人數至少為1'),
+        price: z.number().min(0, '價格不能為負數'),
+        weekendPrice: z.number().optional(),
+        maxSalesQuantity: z.number().min(1, '最大銷售數量至少為1').default(10),
+        images: z.string().optional(),
+        amenities: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        console.log('[RoomTypes.create] Creating room with data:', JSON.stringify(input, null, 2));
+        
+        try {
+          const result = await db.createRoomType({
+            name: input.name,
+            nameEn: input.nameEn,
+            description: input.description,
+            descriptionEn: input.descriptionEn,
+            size: input.size,
+            capacity: input.capacity,
+            price: input.price.toString(),
+            weekendPrice: input.weekendPrice?.toString(),
+            maxSalesQuantity: input.maxSalesQuantity,
+            images: input.images,
+            amenities: input.amenities,
+            isAvailable: true,
+            displayOrder: 0,
+          });
+          
+          console.log('[RoomTypes.create] Room created successfully:', result);
+          return result;
+        } catch (error) {
+          console.error('[RoomTypes.create] Error creating room:', error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: error instanceof Error ? error.message : '建立房型失敗',
+          });
+        }
+      }),
+  }),
+
+  news: router({
+    list: publicProcedure.query(async () => {
+      return await db.getAllNews();
+    }),
+  }),
+
+  facilities: router({
+    list: publicProcedure.query(async () => {
+      return await db.getAllFacilities();
+    }),
   }),
 
   // TODO: 以下功能暫時註解，待後續添加
   // upload: router({ ... }),
-  // news: router({ ... }),
-  // facilities: router({ ... }),
   // bookings: router({ ... }),
   // availability: router({ ... }),
   // admin: router({ ... }),

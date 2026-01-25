@@ -113,3 +113,33 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 確保 TypeScript 編譯完全成功（npx tsc --noEmit）
 - [x] 驗證 /api/trpc/roomTypes.list 返回有效 JSON
 - [ ] 部署到 Vercel 並驗證
+
+
+## 🟡 Phase 5：完整功能集成 - 進行中
+
+### 5.1 設施和新聞數據
+- [x] 檢查 facilities 表是否存在並有數據
+- [x] 如果為空，自動填充基本設施數據（Wi-Fi、游泳池、停車場等）
+- [x] 檢查 news/posts 表是否存在並有數據
+- [x] 如果為空，自動填充示例新聞數據
+- [x] 實現 facilities.list tRPC 端點
+- [x] 實現 news.list tRPC 端點
+- [x] 前端正確顯示設施和新聞列表
+
+### 5.2 圖片上傳和存儲
+- [ ] 修復圖片上傳邏輯（改用 Base64 或 URL 輸入）
+- [ ] 實現 Base64 圖片存儲到數據庫
+- [ ] 確保圖片在前端正確顯示
+- [ ] 測試房間圖片上傳
+
+### 5.3 建立房間功能
+- [x] 修復 roomTypes.create tRPC 程序
+- [x] 添加服務端驗證日誌
+- [ ] 測試建立新房間
+- [ ] 驗證新房間在首頁顯示
+
+### 5.4 管理後台完整功能
+- [ ] 設施管理頁面正常顯示
+- [ ] 新聞管理頁面正常顯示
+- [ ] 房間管理頁面正常顯示
+- [ ] 建立房間表單正常工作
