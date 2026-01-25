@@ -181,3 +181,12 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 修正 upload-test.ts 的導入 - 確保完整
 - [x] 修改 vercel.json - 添加 functions 配置以支持獨立 API 路由
 - [x] 本地編譯驗證 - 無 TypeScript 錯誤
+
+
+## 🟢 Vercel 配置最終修復 - 完成
+
+- [x] 驗證 API 文件位置 - 確認在根目錄 /api 中（不在 /src/api）
+- [x] 確認文件名大小寫正確 - debug-seed.ts、upload-test.ts
+- [x] 簡化 vercel.json 配置 - 添加 functions 和正確的 rewrites
+- [x] 添加 API 路由保護 - 確保 /api/* 不被 SPA 路由攔截
+- [x] 本地編譯驗證 - 無錯誤
