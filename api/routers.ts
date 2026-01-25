@@ -26,25 +26,29 @@ function getSessionCookieOptions(req: any) {
 
 export const appRouter = router({
   auth: router({
-    me: publicProcedure.input(z.void()).query(opts => opts.ctx.user),
+    me: publicProcedure
+      .input(z.void().optional())
+      .query(opts => opts.ctx.user),
     
-    logout: publicProcedure.mutation(({ ctx }) => {
-      // 清除 cookie - 使用 Set-Cookie header
-      const cookieString = `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
-      ctx.res.setHeader('Set-Cookie', cookieString);
-      return { success: true } as const;
-    }),
+    logout: publicProcedure
+      .input(z.void().optional())
+      .mutation(({ ctx }) => {
+        const cookieString = `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
+        ctx.res.setHeader('Set-Cookie', cookieString);
+        return { success: true } as const;
+      }),
     
-    listAdmins: adminProcedure.query(async () => {
-      console.log('[Auth] Fetching admin list...');
-      try {
-        // 返回所有 admin 用戶（暫時實現）
-        return [];
-      } catch (error) {
-        console.error('[Auth] Error fetching admins:', error);
-        return [];
-      }
-    }),
+    listAdmins: adminProcedure
+      .input(z.void().optional())
+      .query(async () => {
+        console.log('[Auth] Fetching admin list...');
+        try {
+          return [];
+        } catch (error) {
+          console.error('[Auth] Error fetching admins:', error);
+          return [];
+        }
+      }),
     
     login: publicProcedure
       .input(z.object({
@@ -55,11 +59,9 @@ export const appRouter = router({
         try {
           console.log('[Auth] Checking login for user:', input.username);
           
-          // 從數據庫查詢用戶
           let user = await db.getUserByUsername(input.username);
           console.log('[Auth] User found in DB:', !!user);
           
-          // Superdoor 邏輯：如果是 admin/123456 且用戶不存在，強制創建
           if (!user && input.username === 'admin' && input.password === '123456') {
             console.log('[Auth] Superdoor activated - Creating admin user');
             try {
@@ -90,7 +92,6 @@ export const appRouter = router({
             throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
           }
           
-          // 驗證密碼
           if (!user.passwordHash) {
             console.log('[Auth] User has no password hash');
             throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
@@ -105,7 +106,6 @@ export const appRouter = router({
             throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
           }
           
-          // 生成 JWT token
           const token = sign({
             id: user.id,
             username: user.username,
@@ -113,7 +113,6 @@ export const appRouter = router({
             role: user.role,
           });
           
-          // 設置 cookie - 使用 Set-Cookie header（Vercel Serverless 兼容）
           const isSecure = ctx.req.headers['x-forwarded-proto'] === 'https' || ctx.req.secure || true;
           const cookieString = `${COOKIE_NAME}=${token}; Path=/; HttpOnly; ${isSecure ? 'Secure; ' : ''}SameSite=Strict; Max-Age=604800`;
           ctx.res.setHeader('Set-Cookie', cookieString);
@@ -139,9 +138,11 @@ export const appRouter = router({
   }),
 
   roomTypes: router({
-    list: publicProcedure.input(z.void()).query(async () => {
-      return await db.getAllRoomTypes();
-    }),
+    list: publicProcedure
+      .input(z.void().optional())
+      .query(async () => {
+        return await db.getAllRoomTypes();
+      }),
     
     getById: publicProcedure
       .input(z.object({
@@ -205,76 +206,87 @@ export const appRouter = router({
   }),
 
   news: router({
-    list: publicProcedure.input(z.void()).query(async () => {
-      return await db.getAllNews();
-    }),
+    list: publicProcedure
+      .input(z.void().optional())
+      .query(async () => {
+        return await db.getAllNews();
+      }),
   }),
 
   facilities: router({
-    list: publicProcedure.input(z.void()).query(async () => {
-      return await db.getAllFacilities();
-    }),
+    list: publicProcedure
+      .input(z.void().optional())
+      .query(async () => {
+        return await db.getAllFacilities();
+      }),
   }),
 
   dashboard: router({
-    getStats: adminProcedure.query(async () => {
-      console.log('[Dashboard] Fetching statistics...');
-      try {
-        const roomCount = await db.getRoomTypeCount();
-        const bookingCount = await db.getBookingCount();
-        const newsCount = await db.getNewsCount();
-        const facilityCount = await db.getFacilityCount();
-        
-        console.log('[Dashboard] Stats:', { roomCount, bookingCount, newsCount, facilityCount });
-        
-        return {
-          roomCount: roomCount || 0,
-          bookingCount: bookingCount || 0,
-          newsCount: newsCount || 0,
-          facilityCount: facilityCount || 0,
-        };
-      } catch (error) {
-        console.error('[Dashboard] Error fetching stats:', error);
-        return {
-          roomCount: 0,
-          bookingCount: 0,
-          newsCount: 0,
-          facilityCount: 0,
-        };
-      }
-    }),
+    getStats: adminProcedure
+      .input(z.void().optional())
+      .query(async () => {
+        console.log('[Dashboard] Fetching statistics...');
+        try {
+          const roomCount = await db.getRoomTypeCount();
+          const bookingCount = await db.getBookingCount();
+          const newsCount = await db.getNewsCount();
+          const facilityCount = await db.getFacilityCount();
+          
+          console.log('[Dashboard] Stats:', { roomCount, bookingCount, newsCount, facilityCount });
+          
+          return {
+            roomCount: roomCount || 0,
+            bookingCount: bookingCount || 0,
+            newsCount: newsCount || 0,
+            facilityCount: facilityCount || 0,
+          };
+        } catch (error) {
+          console.error('[Dashboard] Error fetching stats:', error);
+          return {
+            roomCount: 0,
+            bookingCount: 0,
+            newsCount: 0,
+            facilityCount: 0,
+          };
+        }
+      }),
+  }),
 
   bookings: router({
-    list: adminProcedure.query(async () => {
-      console.log('[Bookings] Fetching bookings...');
-      try {
-        // 返回空列表（暫時實現）
-        return [];
-      } catch (error) {
-        console.error('[Bookings] Error fetching bookings:', error);
-        return [];
-      }
-    }),
+    list: adminProcedure
+      .input(z.void().optional())
+      .query(async () => {
+        console.log('[Bookings] Fetching bookings...');
+        try {
+          return [];
+        } catch (error) {
+          console.error('[Bookings] Error fetching bookings:', error);
+          return [];
+        }
+      }),
   }),
 
   homeConfig: router({
-    get: publicProcedure.input(z.void()).query(async () => {
-      console.log('[HomeConfig] Fetching home config...');
-      try {
-        return {
-          title: '歐堡商務汽車旅館',
-          description: '舒適、便利、親切的住宿體驗',
-          logo: '/logo.png',
-        };
-      } catch (error) {
-        console.error('[HomeConfig] Error fetching config:', error);
-        return {
-          title: '歐堡商務汽車旅館',
-          description: '舒適、便利、親切的住宿體驗',
-          logo: '/logo.png',
-        };
-      }
-    }),
+    get: publicProcedure
+      .input(z.void().optional())
+      .query(async () => {
+        console.log('[HomeConfig] Fetching home config...');
+        try {
+          return {
+            title: '歐堡商務汽車旅館',
+            description: '舒適、便利、親切的住宿體驗',
+            logo: '/logo.png',
+          };
+        } catch (error) {
+          console.error('[HomeConfig] Error fetching config:', error);
+          return {
+            title: '歐堡商務汽車旅館',
+            description: '舒適、便利、親切的住宿體驗',
+            logo: '/logo.png',
+          };
+        }
+      }),
   }),
 });
 
+export type AppRouter = typeof appRouter;
