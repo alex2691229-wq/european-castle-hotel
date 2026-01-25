@@ -183,10 +183,11 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 本地編譯驗證 - 無 TypeScript 錯誤
 
 
-## 🟢 Vercel 配置最終修復 - 完成
+## 🟢 Vercel 配置最終修複 - 完成
 
-- [x] 驗證 API 文件位置 - 確認在根目錄 /api 中（不在 /src/api）
-- [x] 確認文件名大小寫正確 - debug-seed.ts、upload-test.ts
+- [x] 驗證 API 檔案位置 - 確認在根目錄 /api 中（不在 /src/api）
+- [x] 確認檔案名大小寫正確 - debug-seed.ts、upload-test.ts
 - [x] 簡化 vercel.json 配置 - 添加 functions 和正確的 rewrites
-- [x] 添加 API 路由保護 - 確保 /api/* 不被 SPA 路由攔截
+- [x] 添加 API 路由保護 - 確保 /api/* 不被 SPA 路由攻擊
 - [x] 本地編譯驗證 - 無錯誤
+- [x] 修正 rewrites 優先順序 - API 路由必須優先於 SPA 路由
