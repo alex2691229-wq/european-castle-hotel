@@ -103,3 +103,13 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] pnpm build 成功，無 TypeScript 錯誤
 - [x] 本地測試成功（首頁、tRPC 端點）
 - [ ] 部署到 Vercel
+
+
+## 🟢 緊急重構 - Vercel Serverless 原生寫法 - 已完成
+
+- [x] 重寫 api/index.ts 使用 Vercel 官方 Serverless 寫法
+- [x] 修複 api/db.ts 的 Null 檢查（使用 Getter）
+- [x] 修複 React 導入問題（login.tsx, index.tsx）
+- [x] 確保 TypeScript 編譯完全成功（npx tsc --noEmit）
+- [x] 驗證 /api/trpc/roomTypes.list 返回有效 JSON
+- [ ] 部署到 Vercel 並驗證
