@@ -183,13 +183,23 @@ export async function getRoomTypeById(id: number): Promise<RoomType | null> {
 // User queries
 export async function getUserByUsername(username: string) {
   const db = await ensureDB();
-  if (!db) return null;
+  if (!db) {
+    console.error('[Database] Database not initialized when fetching user:', username);
+    return null;
+  }
   
   try {
+    console.log('[Database] Fetching user:', username);
     const result = await db.select().from(users).where(sql`${users.username} = ${username}`);
+    console.log('[Database] User query result count:', result.length);
+    if (result[0]) {
+      console.log('[Database] User found:', result[0].username, 'role:', result[0].role);
+    } else {
+      console.log('[Database] No user found for:', username);
+    }
     return result[0] || null;
   } catch (error) {
-    console.error('[Database] Failed to fetch user:', error);
+    console.error('[Database] Failed to fetch user:', username, error);
     return null;
   }
 }

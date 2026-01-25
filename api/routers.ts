@@ -1,10 +1,10 @@
-import { COOKIE_NAME } from './_shared/const.js';
 import { publicProcedure, router, protectedProcedure } from './_core/trpc.js';
 import { z } from 'zod';
 import * as db from './db.js';
 import { TRPCError } from '@trpc/server';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { sign } from './_core/jwt.js';
+import { COOKIE_NAME } from './_shared/const.js';
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -40,20 +40,34 @@ export const appRouter = router({
         password: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
+        console.log('[Auth] Checking login for user:', input.username);
+        
         // 從數據庫查詢用戶
         const user = await db.getUserByUsername(input.username);
+        console.log('[Auth] User found in DB:', !!user);
         
-        if (!user || user.role !== 'admin') {
+        if (!user) {
+          console.log('[Auth] User not found:', input.username);
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+        }
+        
+        if (user.role !== 'admin') {
+          console.log('[Auth] User is not admin, role:', user.role);
           throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
         }
         
         // 驗證密碼
         if (!user.passwordHash) {
+          console.log('[Auth] User has no password hash');
           throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
         }
         
+        console.log('[Auth] Comparing password for user:', input.username);
         const passwordMatch = await bcrypt.compare(input.password, user.passwordHash);
+        console.log('[Auth] Password match result:', passwordMatch);
+        
         if (!passwordMatch) {
+          console.log('[Auth] Password mismatch for user:', input.username);
           throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
         }
         

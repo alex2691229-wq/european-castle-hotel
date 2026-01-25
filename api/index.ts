@@ -5,8 +5,25 @@ import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 import { getDB, getAllRoomTypes } from './db.js';
 import { appRouter } from './routers.js';
 import { createContext } from './_core/context.js';
+import { seedAdminAccount } from './seed-admin.js';
+
+// Seed admin account on startup
+let seedingPromise: Promise<void> | null = null;
+if (!seedingPromise) {
+  seedingPromise = seedAdminAccount().catch(error => {
+    console.error('[Startup] Failed to seed admin account:', error);
+  });
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Ensure seeding is complete
+  if (seedingPromise) {
+    try {
+      await seedingPromise;
+    } catch (error) {
+      console.error('[Handler] Seeding error:', error);
+    }
+  }
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
