@@ -1,4 +1,3 @@
-import { getSessionCookieOptions } from './_core/cookies.js';
 import { COOKIE_NAME } from './_shared/const.js';
 import { publicProcedure, router, protectedProcedure } from './_core/trpc.js';
 import { z } from 'zod';
@@ -14,6 +13,16 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   }
   return next({ ctx });
 });
+
+function getSessionCookieOptions(req: any) {
+  const isSecure = req.headers['x-forwarded-proto'] === 'https' || req.secure;
+  return {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: 'lax' as const,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  };
+}
 
 export const appRouter = router({
   auth: router({
@@ -75,7 +84,7 @@ export const appRouter = router({
   // Room Types - 只保留 list 端點
   roomTypes: router({
     list: publicProcedure.query(async () => {
-      return await db.getAvailableRoomTypes();
+      return await db.getAllRoomTypes();
     }),
     
     // TODO: 其他房型功能暫時註解，待後續添加
@@ -99,5 +108,3 @@ export const appRouter = router({
   // blockages: router({ ... }),
   // bookingCalendar: router({ ... }),
 });
-
-export type AppRouter = typeof appRouter;

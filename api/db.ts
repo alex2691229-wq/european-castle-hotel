@@ -249,3 +249,17 @@ export async function createBooking(data: InsertBooking) {
 initPromise = initializeDatabase().catch(error => {
   console.error('[Database] Initialization failed:', error);
 });
+
+
+export async function getAllBookings(): Promise<Booking[]> {
+  const db = await ensureDB();
+  if (!db) return [];
+  
+  try {
+    const result = await db.select().from(bookings);
+    return result as Booking[];
+  } catch (error) {
+    console.error('[Database] Failed to fetch bookings:', error);
+    return [];
+  }
+}
