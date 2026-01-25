@@ -372,8 +372,23 @@ export const appRouter = router({
 
     create: publicProcedure
       .input(z.any())
-      .mutation(async () => {
-        return { success: true };
+      .mutation(async ({ input }) => {
+        console.log('[Bookings] Creating booking:', input);
+        try {
+          // 模擬保存到數據庫
+          const bookingId = Math.floor(Math.random() * 1000000);
+          const booking = {
+            id: bookingId,
+            ...input,
+            createdAt: new Date(),
+            status: 'pending',
+          };
+          console.log('[Bookings] Booking created:', booking);
+          return booking;
+        } catch (error) {
+          console.error('[Bookings] Error creating booking:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '預訂失敗' });
+        }
       }),
 
     getById: publicProcedure
@@ -390,8 +405,14 @@ export const appRouter = router({
 
     confirmBooking: publicProcedure
       .input(z.any())
-      .mutation(async () => {
-        return { success: true };
+      .mutation(async ({ input }) => {
+        console.log('[Bookings] Confirming booking:', input);
+        try {
+          return { success: true, bookingId: input.id };
+        } catch (error) {
+          console.error('[Bookings] Error confirming booking:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '確認預訂失敗' });
+        }
       }),
 
     deleteBooking: adminProcedure
@@ -514,9 +535,14 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         console.log('[Upload] Uploading image:', input.filename);
         try {
+          // 返回 data URL 或模擬 URL
+          const url = input.data.startsWith('data:') 
+            ? input.data  // 使用 data URL
+            : `data:image/jpeg;base64,${input.data.substring(0, 100)}...`;
+          console.log('[Upload] Image uploaded, returning URL');
           return {
             success: true,
-            url: 'https://placehold.co/600x400',
+            url: 'https://placehold.co/600x400',  // 使用模擬 URL
             filename: input.filename,
           };
         } catch (error) {
