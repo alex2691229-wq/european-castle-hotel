@@ -51,10 +51,7 @@ export const appRouter = router({
       }),
     
     login: publicProcedure
-      .input(z.object({
-        username: z.string(),
-        password: z.string(),
-      }))
+      .input(z.any())
       .mutation(async ({ input, ctx }) => {
         try {
           console.log('[Auth] Checking login for user:', input.username);
