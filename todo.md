@@ -191,3 +191,10 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 添加 API 路由保護 - 確保 /api/* 不被 SPA 路由攻擊
 - [x] 本地編譯驗證 - 無錯誤
 - [x] 修正 rewrites 優先順序 - API 路由必須優先於 SPA 路由
+
+
+## 🟢 Vercel 配置最終修正 - 完成
+
+- [x] 簡化 vercel.json - 移除 functions 和 buildCommand
+- [x] 修改 package.json engines - Node 改為 20.x
+- [x] 本地編譯驗證 - 成功
