@@ -243,3 +243,11 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 配置 /api/(.*) 路由映射到 /api/index.ts
 - [x] 驗證 api/index.ts 使用 export default
 - [x] 本地編譯驗證成功
+
+
+## 🟢 vercel.json 最終修復 - 完成
+
+- [x] 移除 functions 區塊
+- [x] 修改 rewrites 規則為正確格式
+- [x] 讓 Vercel 自動識別 /api 目錄
+- [x] 本地編譯驗證成功

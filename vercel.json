@@ -1,15 +1,7 @@
 {
   "outputDirectory": "dist/public",
-  "functions": {
-    "api/index.ts": {
-      "runtime": "nodejs20.x"
-    },
-    "api/ping.ts": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.ts" },
+    { "source": "/api/(.*)", "destination": "api/index.ts" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
