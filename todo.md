@@ -213,3 +213,10 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 驗證 API 文件位置 - debug-seed.ts 和 upload-test.ts 在根目錄 /api
 - [x] 確認無 src/api 目錄
 - [x] 本地編譯成功
+
+
+## 🟢 TypeScript 錯誤修復 - 完成
+
+- [x] 修復 debug-seed.ts - 欄位名稱從 fullName、isActive 改為 name、status
+- [x] 驗證 routers.ts - news、facilities、dashboard 路由已定義
+- [x] 本地編譯驗證 - 無 TypeScript 錯誤

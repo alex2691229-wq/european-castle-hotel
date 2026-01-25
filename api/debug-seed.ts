@@ -25,9 +25,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         username: 'admin',
         passwordHash: hashedPassword,
         email: 'admin@hotel.com',
-        fullName: 'Administrator',
+        name: 'Administrator',
         role: 'admin',
-        isActive: true,
+        loginMethod: 'password',
+        status: 'active',
       });
       console.log('[debug-seed] Admin user created');
     }
