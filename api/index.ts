@@ -2,7 +2,6 @@ import express, { Express, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { sql } from 'drizzle-orm';
-import { createHTTPServer } from '@trpc/server/adapters/standalone';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 
 import { getDb, getAllRoomTypes } from './db.js';
@@ -106,12 +105,25 @@ app.get('/api/room-types', async (req: Request, res: Response) => {
   }
 });
 
-// tRPC 路由
-app.use('/api/trpc', express.json(), async (req: Request, res: Response) => {
+// tRPC 路由 - 處理所有 /api/trpc/* 請求
+app.all('/api/trpc/:path*', async (req: Request, res: Response) => {
   try {
+    console.log('[tRPC] Handling request:', req.method, req.url);
+    
+    // 構造完整的 URL 用於 tRPC
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3000';
+    const pathWithQuery = req.url.startsWith('/api/trpc') ? req.url : `/api/trpc${req.url}`;
+    const fullUrl = `${protocol}://${host}${pathWithQuery}`;
+    
+    console.log('[tRPC] Full URL:', fullUrl);
+    
     const response = await fetchRequestHandler({
       endpoint: '/api/trpc',
-      req: req as any,
+      req: {
+        ...req,
+        url: fullUrl,
+      } as any,
       router: appRouter,
       createContext: async () => {
         return createContext({ req, res });
