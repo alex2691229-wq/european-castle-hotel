@@ -325,11 +325,13 @@ export const appRouter = router({
             title: '歐堡商務汽車旅館',
             description: '舒適、便利、親切的住宿體驗',
             logo: '/logo.png',
-            carouselImages: [],
+            carouselImages: JSON.stringify([]),
             deluxeRoomImage: '/images/deluxe-room.jpg',
             vipGarageImage: '/images/vip-garage.jpg',
             facilitiesImage: '/images/facilities.jpg',
-            featuredServices: [],
+            featuredServices: JSON.stringify([]),
+            news: JSON.stringify([]),
+            roomTypes: JSON.stringify([]),
           };
         } catch (error) {
           console.error('[HomeConfig] Error fetching config:', error);
@@ -337,11 +339,13 @@ export const appRouter = router({
             title: '歐堡商務汽車旅館',
             description: '舒適、便利、親切的住宿體驗',
             logo: '/logo.png',
-            carouselImages: [],
+            carouselImages: JSON.stringify([]),
             deluxeRoomImage: '/images/deluxe-room.jpg',
             vipGarageImage: '/images/vip-garage.jpg',
             facilitiesImage: '/images/facilities.jpg',
-            featuredServices: [],
+            featuredServices: JSON.stringify([]),
+            news: JSON.stringify([]),
+            roomTypes: JSON.stringify([]),
           };
         }
       }),
@@ -510,11 +514,9 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         console.log('[Upload] Uploading image:', input.filename);
         try {
-          const mockUrl = `/images/${Date.now()}-${input.filename}`;
-          console.log('[Upload] Image uploaded to:', mockUrl);
           return {
             success: true,
-            url: mockUrl,
+            url: 'https://placehold.co/600x400',
             filename: input.filename,
           };
         } catch (error) {
