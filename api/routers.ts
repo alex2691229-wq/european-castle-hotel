@@ -257,7 +257,6 @@ export const appRouter = router({
         console.log('[News] Updating news:', input.id);
         try {
           return {
-            id: input.id,
             ...input,
             updatedAt: new Date(),
           };
