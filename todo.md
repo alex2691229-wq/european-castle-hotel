@@ -153,3 +153,12 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 添加房型自動填充邏輯（如果 room_types 為空則插入預設房型）
 - [x] 本地驗證儀表板格子正確顯示
 - [x] 測試房型建立功能
+
+
+## 🟠 最後通簡 - 強制脚本執行
+
+- [x] 創建標準 API 路由 /api/upload-test.ts 直接寶入 TiDB
+- [x] 執行原始 SQL 命令確保表結構正確
+- [x] 創建隱藏路由 /api/debug-seed 強制填充數據
+- [x] 收集完整的 Vercel 錯誤日誌
+- [x] 測試房型建立功能是否工作
