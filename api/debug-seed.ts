@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getDB } from './db.js';
-import { roomTypes, news, facilities } from '../drizzle/schema.js';
+import { roomTypes, news, facilities, users } from '../drizzle/schema.js';
+import bcryptjs from 'bcryptjs';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -10,6 +11,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!db) {
       console.error('[debug-seed] Database connection failed');
       return res.status(500).json({ error: 'Database connection failed' });
+    }
+
+    // Check and seed admin user
+    console.log('[debug-seed] Checking admin user...');
+    const existingUsers = await db.select().from(users);
+    console.log('[debug-seed] Existing users:', existingUsers.length);
+
+    if (existingUsers.length === 0) {
+      console.log('[debug-seed] Creating admin user...');
+      const hashedPassword = bcryptjs.hashSync('123456', 10);
+      await db.insert(users).values({
+        username: 'admin',
+        passwordHash: hashedPassword,
+        email: 'admin@hotel.com',
+        fullName: 'Administrator',
+        role: 'admin',
+        isActive: true,
+      });
+      console.log('[debug-seed] Admin user created');
     }
 
     // Check and seed room types

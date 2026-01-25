@@ -85,6 +85,7 @@ export const appRouter = router({
         const cookieString = `${COOKIE_NAME}=${token}; Path=/; HttpOnly; ${isSecure ? 'Secure; ' : ''}SameSite=Strict; Max-Age=604800`;
         ctx.res.setHeader('Set-Cookie', cookieString);
         
+        console.log('[Auth] Login successful for user:', input.username);
         return {
           success: true,
           user: {
@@ -94,6 +95,13 @@ export const appRouter = router({
             role: user.role,
           },
         };
+      } catch (error) {
+        console.error('[Auth] Login error:', error);
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '登入失敗' });
+      }
       }),
   }),
 

@@ -198,3 +198,10 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 簡化 vercel.json - 移除 functions 和 buildCommand
 - [x] 修改 package.json engines - Node 改為 20.x
 - [x] 本地編譯驗證 - 成功
+
+
+## 🟢 登入邏輯修復 - 完成
+
+- [x] 更新 debug-seed.ts - 添加管理員帳號創建邏輯
+- [x] 修復登入路由 - 添加 try-catch 確保總是返回 JSON
+- [x] 本地編譯驗證 - 成功
