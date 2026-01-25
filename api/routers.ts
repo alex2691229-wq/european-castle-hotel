@@ -175,6 +175,35 @@ export const appRouter = router({
     }),
   }),
 
+  dashboard: router({
+    getStats: adminProcedure.query(async () => {
+      console.log('[Dashboard] Fetching statistics...');
+      try {
+        const roomCount = await db.getRoomTypeCount();
+        const bookingCount = await db.getBookingCount();
+        const newsCount = await db.getNewsCount();
+        const facilityCount = await db.getFacilityCount();
+        
+        console.log('[Dashboard] Stats:', { roomCount, bookingCount, newsCount, facilityCount });
+        
+        return {
+          roomCount: roomCount || 0,
+          bookingCount: bookingCount || 0,
+          newsCount: newsCount || 0,
+          facilityCount: facilityCount || 0,
+        };
+      } catch (error) {
+        console.error('[Dashboard] Error fetching stats:', error);
+        return {
+          roomCount: 0,
+          bookingCount: 0,
+          newsCount: 0,
+          facilityCount: 0,
+        };
+      }
+    }),
+  }),
+
   // TODO: 以下功能暫時註解，待後續添加
   // upload: router({ ... }),
   // bookings: router({ ... }),

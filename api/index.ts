@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sql } from 'drizzle-orm';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 
-import { getDB, getAllRoomTypes, seedFacilitiesIfEmpty, seedNewsIfEmpty } from './db.js';
+import { getDB, getAllRoomTypes, seedFacilitiesIfEmpty, seedNewsIfEmpty, seedRoomTypesIfEmpty } from './db.js';
 import { appRouter } from './routers.js';
 import { createContext } from './_core/context.js';
 import { seedAdminAccount } from './seed-admin.js';
@@ -13,6 +13,9 @@ if (!seedingPromise) {
   seedingPromise = Promise.all([
     seedAdminAccount().catch(error => {
       console.error('[Startup] Failed to seed admin account:', error);
+    }),
+    seedRoomTypesIfEmpty().catch(error => {
+      console.error('[Startup] Failed to seed room types:', error);
     }),
     seedFacilitiesIfEmpty().catch(error => {
       console.error('[Startup] Failed to seed facilities:', error);

@@ -439,3 +439,127 @@ export async function seedNewsIfEmpty() {
     console.error('[Database] Failed to seed news:', error);
   }
 }
+
+
+// Count functions for dashboard
+export async function getRoomTypeCount(): Promise<number> {
+  const db = await ensureDB();
+  if (!db) return 0;
+  
+  try {
+    const result = await db.select({ count: sql`COUNT(*)` }).from(roomTypes);
+    return result[0]?.count ? Number(result[0].count) : 0;
+  } catch (error) {
+    console.error('[Database] Failed to count room types:', error);
+    return 0;
+  }
+}
+
+export async function getBookingCount(): Promise<number> {
+  const db = await ensureDB();
+  if (!db) return 0;
+  
+  try {
+    const result = await db.select({ count: sql`COUNT(*)` }).from(bookings);
+    return result[0]?.count ? Number(result[0].count) : 0;
+  } catch (error) {
+    console.error('[Database] Failed to count bookings:', error);
+    return 0;
+  }
+}
+
+export async function getNewsCount(): Promise<number> {
+  const db = await ensureDB();
+  if (!db) return 0;
+  
+  try {
+    const result = await db.select({ count: sql`COUNT(*)` }).from(news);
+    return result[0]?.count ? Number(result[0].count) : 0;
+  } catch (error) {
+    console.error('[Database] Failed to count news:', error);
+    return 0;
+  }
+}
+
+export async function getFacilityCount(): Promise<number> {
+  const db = await ensureDB();
+  if (!db) return 0;
+  
+  try {
+    const result = await db.select({ count: sql`COUNT(*)` }).from(facilities);
+    return result[0]?.count ? Number(result[0].count) : 0;
+  } catch (error) {
+    console.error('[Database] Failed to count facilities:', error);
+    return 0;
+  }
+}
+
+// Seed room types if empty
+export async function seedRoomTypesIfEmpty() {
+  const db = await ensureDB();
+  if (!db) return;
+  
+  try {
+    const existing = await db.select().from(roomTypes);
+    if (existing.length > 0) {
+      console.log('[Database] Room types already exist, skipping seed');
+      return;
+    }
+    
+    const defaultRoomTypes = [
+      {
+        name: '豪華套房',
+        nameEn: 'Luxury Suite',
+        description: '寬敞舒適的豪華套房，配備獨立車庫和高級設施',
+        descriptionEn: 'Spacious luxury suite with private garage and premium amenities',
+        size: '50坪',
+        capacity: 4,
+        price: '3500',
+        weekendPrice: '4500',
+        maxSalesQuantity: 5,
+        images: null,
+        amenities: JSON.stringify(['獨立車庫', '豪華衛浴', '高速 Wi-Fi', '液晶電視']),
+        isAvailable: true,
+        displayOrder: 1,
+      },
+      {
+        name: '商務客房',
+        nameEn: 'Business Room',
+        description: '設計簡潔的商務客房，適合出差住宿',
+        descriptionEn: 'Well-designed business room perfect for business travelers',
+        size: '30坪',
+        capacity: 2,
+        price: '2500',
+        weekendPrice: '3200',
+        maxSalesQuantity: 10,
+        images: null,
+        amenities: JSON.stringify(['獨立車庫', '工作區', '高速 Wi-Fi', '淋浴間']),
+        isAvailable: true,
+        displayOrder: 2,
+      },
+      {
+        name: '標準客房',
+        nameEn: 'Standard Room',
+        description: '舒適實惠的標準客房，提供基本設施',
+        descriptionEn: 'Comfortable and affordable standard room with basic amenities',
+        size: '25坪',
+        capacity: 2,
+        price: '1800',
+        weekendPrice: '2300',
+        maxSalesQuantity: 15,
+        images: null,
+        amenities: JSON.stringify(['獨立車庫', '基本設施', 'Wi-Fi', '浴室']),
+        isAvailable: true,
+        displayOrder: 3,
+      },
+    ];
+    
+    for (const roomType of defaultRoomTypes) {
+      await db.insert(roomTypes).values(roomType);
+    }
+    
+    console.log('[Database] Room types seeded successfully');
+  } catch (error) {
+    console.error('[Database] Failed to seed room types:', error);
+  }
+}

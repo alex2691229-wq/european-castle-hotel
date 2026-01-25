@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE room_types MODIFY COLUMN images LONGTEXT;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute ALTER TABLE room_types MODIFY COLUMN images LONGTEXT;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1740
+}
