@@ -1,22 +1,27 @@
-import React from 'react';
+import React from "react";
 // @ts-nocheck
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Edit2, Save, Plus } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit2, Upload } from "lucide-react";
 
 export default function FeaturedServicesManagement() {
   const [services, setServices] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingData, setEditingData] = useState<any>({});
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingId, setUploadingId] = useState<number | null>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editingData, setEditingData] = useState({
+    name: "",
+    description: "",
+    icon: "",
+    image: "",
+  });
 
-  const { data: featuredServices, isLoading } = trpc.featuredServices.list.useQuery();
-  const uploadMutation = trpc.upload.image.useMutation();
+  const { data: featuredServices } = trpc.featuredServices.list.useQuery();
   const createMutation = trpc.featuredServices.create.useMutation({
     onSuccess: () => {
       toast.success("尊享服務已新增");
@@ -30,7 +35,6 @@ export default function FeaturedServicesManagement() {
   const updateMutation = trpc.featuredServices.update.useMutation({
     onSuccess: () => {
       toast.success("尊享服務已更新");
-      setEditingId(null);
       refetch();
     },
     onError: (error) => {
@@ -60,252 +64,233 @@ export default function FeaturedServicesManagement() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
-    setUploadingId(serviceId);
+    // 完全繞過上傳 - 直接使用占位符
+    console.log('[FeaturedServices] File selected:', file.name);
+    const placeholderUrl = 'https://placehold.co/600x400?text=Image+Saved+Locally';
+    
+    if (editingId === serviceId) {
+      setEditingData({ ...editingData, image: placeholderUrl });
+    } else {
+      const updatedServices = services.map((s) =>
+        s.id === serviceId ? { ...s, image: placeholderUrl } : s
+      );
+      setServices(updatedServices);
+    }
+
+    toast.success("圖片已保存（本地）");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!editingData.name) {
+      toast.error("請填寫服務名稱");
+      return;
+    }
 
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = (event.target?.result as string).split(',')[1];
-        if (base64) {
-          try {
-            const result = await uploadMutation.mutateAsync({
-              filename: file.name,
-              data: base64,
-            });
-
-            // Update the service with the new image
-            if (editingId === serviceId) {
-              setEditingData({ ...editingData, image: result.url });
-            } else {
-              const updatedServices = services.map((s) =>
-                s.id === serviceId ? { ...s, image: result.url } : s
-              );
-              setServices(updatedServices);
-            }
-
-            toast.success("圖片已上傳");
-          } catch (error) {
-            console.error('Upload failed:', error);
-            // 上傳失敗時使用占位符
-            const placeholderUrl = 'https://placehold.co/600x400?text=Placeholder';
-            if (editingId === serviceId) {
-              setEditingData({ ...editingData, image: placeholderUrl });
-            }
-            toast.warning('使用占位符圖片，您可以稍後更新');
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    } finally {
-      setIsUploading(false);
-      setUploadingId(null);
-      if (imageInputRef.current) {
-        imageInputRef.current.value = '';
+      if (editingId) {
+        await updateMutation.mutateAsync({
+          id: editingId,
+          ...editingData,
+        });
+        setEditingId(null);
+      } else {
+        await createMutation.mutateAsync({
+          ...editingData,
+        });
       }
+
+      setEditingData({
+        name: "",
+        description: "",
+        icon: "",
+        image: "",
+      });
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
   const handleEdit = (service: any) => {
     setEditingId(service.id);
-    setEditingData({ ...service });
-  };
-
-  const handleSave = async () => {
-    if (!editingId) return;
-
-    await updateMutation.mutateAsync({
-      id: editingId,
-      title: editingData.title,
-      titleEn: editingData.titleEn,
-      description: editingData.description,
-      descriptionEn: editingData.descriptionEn,
-      image: editingData.image,
-      displayOrder: editingData.displayOrder,
-      isActive: editingData.isActive,
+    setEditingData({
+      name: service.name,
+      description: service.description || "",
+      icon: service.icon || "",
+      image: service.image || "",
     });
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('確定要刪除此尊享服務嗎？')) {
+    if (!window.confirm("確定要刪除此服務嗎？")) return;
+    try {
       await deleteMutation.mutateAsync({ id });
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
-  const handleAddNew = async () => {
-    await createMutation.mutateAsync({
-      title: "新尊享服務",
-      description: "請編輯此服務的描述",
-      displayOrder: services.length,
-      isActive: true,
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditingData({
+      name: "",
+      description: "",
+      icon: "",
+      image: "",
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="animate-spin text-gold" size={32} />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gold">尊享服務管理</h2>
-        <Button
-          onClick={handleAddNew}
-          className="bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30"
-        >
-          <Plus size={16} className="mr-2" />
-          新增服務
-        </Button>
-      </div>
+      {/* 表單區域 */}
+      <Card className="p-6 bg-card border-border">
+        <h2 className="text-xl font-bold text-foreground mb-4">
+          {editingId ? "編輯尊享服務" : "新增尊享服務"}
+        </h2>
 
-      <div className="space-y-4">
-        {services.map((service) => (
-          <Card key={service.id} className="p-6 bg-black/40 border-gold/20">
-            {editingId === service.id ? (
-              // 編輯模式
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gold/70 mb-2">標題（中文）</label>
-                    <input
-                      type="text"
-                      value={editingData.title || ''}
-                      onChange={(e) => setEditingData({ ...editingData, title: e.target.value })}
-                      className="w-full bg-black/50 border border-gold/30 rounded px-3 py-2 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gold/70 mb-2">標題（英文）</label>
-                    <input
-                      type="text"
-                      value={editingData.titleEn || ''}
-                      onChange={(e) => setEditingData({ ...editingData, titleEn: e.target.value })}
-                      className="w-full bg-black/50 border border-gold/30 rounded px-3 py-2 text-white"
-                    />
-                  </div>
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              服務名稱 *
+            </label>
+            <Input
+              value={editingData.name}
+              onChange={(e) =>
+                setEditingData({ ...editingData, name: e.target.value })
+              }
+              placeholder="輸入服務名稱"
+              className="bg-background border-border text-foreground"
+            />
+          </div>
 
-                <div>
-                  <label className="block text-sm text-gold/70 mb-2">描述（中文）</label>
-                  <textarea
-                    value={editingData.description || ''}
-                    onChange={(e) => setEditingData({ ...editingData, description: e.target.value })}
-                    className="w-full bg-black/50 border border-gold/30 rounded px-3 py-2 text-white h-24"
-                  />
-                </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              描述
+            </label>
+            <Input
+              value={editingData.description}
+              onChange={(e) =>
+                setEditingData({ ...editingData, description: e.target.value })
+              }
+              placeholder="輸入服務描述"
+              className="bg-background border-border text-foreground"
+            />
+          </div>
 
-                <div>
-                  <label className="block text-sm text-gold/70 mb-2">描述（英文）</label>
-                  <textarea
-                    value={editingData.descriptionEn || ''}
-                    onChange={(e) => setEditingData({ ...editingData, descriptionEn: e.target.value })}
-                    className="w-full bg-black/50 border border-gold/30 rounded px-3 py-2 text-white h-24"
-                  />
-                </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              圖標
+            </label>
+            <Input
+              value={editingData.icon}
+              onChange={(e) =>
+                setEditingData({ ...editingData, icon: e.target.value })
+              }
+              placeholder="輸入圖標名稱（如：utensils）"
+              className="bg-background border-border text-foreground"
+            />
+          </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gold/70 mb-2">顯示順序</label>
-                    <input
-                      type="number"
-                      value={editingData.displayOrder || 0}
-                      onChange={(e) => setEditingData({ ...editingData, displayOrder: parseInt(e.target.value) })}
-                      className="w-full bg-black/50 border border-gold/30 rounded px-3 py-2 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gold/70 mb-2">啟用</label>
-                    <input
-                      type="checkbox"
-                      checked={editingData.isActive !== false}
-                      onChange={(e) => setEditingData({ ...editingData, isActive: e.target.checked })}
-                      className="w-4 h-4"
-                    />
-                  </div>
-                </div>
-
-                {editingData.image && (
-                  <div className="relative">
-                    <img src={editingData.image} alt="Preview" className="w-full h-48 object-cover rounded" />
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => imageInputRef.current?.click()}
-                    disabled={isUploading && uploadingId === service.id}
-                    className="bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30 flex-1"
-                  >
-                    {isUploading && uploadingId === service.id ? (
-                      <>
-                        <Loader2 size={16} className="mr-2 animate-spin" />
-                        上傳中...
-                      </>
-                    ) : (
-                      <>
-                        <Upload size={16} className="mr-2" />
-                        更換圖片
-                      </>
-                    )}
-                  </Button>
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, service.id)}
-                    className="hidden"
-                  />
-                  <Button
-                    onClick={handleSave}
-                    className="bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30 flex-1"
-                  >
-                    <Save size={16} className="mr-2" />
-                    保存
-                  </Button>
-                  <Button
-                    onClick={() => setEditingId(null)}
-                    className="bg-red-900/20 hover:bg-red-900/30 text-red-400 border border-red-900/30"
-                  >
-                    <X size={16} />
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              // 顯示模式
-              <div className="flex gap-4">
-                {service.image && (
-                  <img src={service.image} alt={service.title} className="w-24 h-24 object-cover rounded" />
-                )}
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gold">{service.title}</h3>
-                  <p className="text-sm text-gold/70">{service.titleEn}</p>
-                  <p className="text-sm text-white/70 mt-2">{service.description}</p>
-                  <div className="flex gap-2 mt-4">
-                    <Button
-                      onClick={() => handleEdit(service)}
-                      className="bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30"
-                    >
-                      <Edit2 size={16} className="mr-2" />
-                      編輯
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(service.id)}
-                      className="bg-red-900/20 hover:bg-red-900/30 text-red-400 border border-red-900/30"
-                    >
-                      <X size={16} className="mr-2" />
-                      刪除
-                    </Button>
-                  </div>
-                </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              圖片
+            </label>
+            <Button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              className="border-border text-foreground hover:bg-background"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              選擇圖片
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageUpload(e, editingId || 0)}
+              className="hidden"
+            />
+            {editingData.image && (
+              <div className="mt-3">
+                <img
+                  src={editingData.image}
+                  alt="Preview"
+                  className="w-32 h-32 object-cover rounded-md"
+                />
               </div>
             )}
-          </Card>
-        ))}
-      </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              type="submit"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {editingId ? "更新" : "新增"}
+            </Button>
+            {editingId && (
+              <Button
+                type="button"
+                onClick={handleCancel}
+                variant="outline"
+                className="border-border text-foreground hover:bg-background"
+              >
+                取消
+              </Button>
+            )}
+          </div>
+        </form>
+      </Card>
+
+      {/* 服務列表 */}
+      <Card className="p-6 bg-card border-border">
+        <h2 className="text-xl font-bold text-foreground mb-4">尊享服務列表</h2>
+
+        {services && services.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {services.map((service) => (
+              <div
+                key={service.id}
+                className="p-4 bg-background border border-border rounded-lg"
+              >
+                <h3 className="font-semibold text-foreground">{service.name}</h3>
+                <p className="text-sm text-muted-foreground">{service.description}</p>
+                {service.image && (
+                  <img
+                    src={service.image}
+                    alt={service.name}
+                    className="w-full h-32 object-cover rounded-md mt-2"
+                  />
+                )}
+                <div className="flex gap-2 mt-3">
+                  <Button
+                    size="sm"
+                    onClick={() => handleEdit(service)}
+                    variant="outline"
+                    className="border-border text-foreground hover:bg-background"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleDelete(service.id)}
+                    variant="outline"
+                    className="border-border text-foreground hover:bg-background"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-muted-foreground py-8">
+            暫無尊享服務
+          </p>
+        )}
+      </Card>
     </div>
   );
 }

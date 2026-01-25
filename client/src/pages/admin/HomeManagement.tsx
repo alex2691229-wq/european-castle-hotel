@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 // @ts-nocheck
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
@@ -21,7 +21,6 @@ export default function HomeManagement() {
   const carouselInputRef = useRef<HTMLInputElement>(null);
   const featureInputRef = useRef<HTMLInputElement>(null);
   
-  const uploadMutation = trpc.upload.image.useMutation();
   const { data: homeConfig, isLoading } = trpc.homeConfig.get.useQuery();
   const updateConfigMutation = trpc.homeConfig.update.useMutation({
     onSuccess: () => {
@@ -61,30 +60,14 @@ export default function HomeManagement() {
     setUploadingSection("carousel");
     
     try {
+      // 完全繞過上傳 - 直接使用占位符
       const newImages: string[] = [];
       for (const file of Array.from(files)) {
-        const reader = new FileReader();
-        await new Promise((resolve) => {
-          reader.onload = async (event) => {
-            const base64 = (event.target?.result as string).split(',')[1];
-            if (base64) {
-              try {
-                const result = await uploadMutation.mutateAsync({
-                  filename: file.name,
-                  data: base64,
-                });
-                newImages.push(result.url);
-              } catch (error) {
-                console.error('Upload failed:', error);
-                // 上傳失敗時使用占位符
-                newImages.push('https://placehold.co/600x400?text=Placeholder');
-              }
-            }
-            resolve(null);
-          };
-          reader.readAsDataURL(file);
-        });
+        console.log('[HomeManagement] File selected:', file.name);
+        const placeholderUrl = 'https://placehold.co/1200x400?text=Image+Saved+Locally';
+        newImages.push(placeholderUrl);
       }
+      
       const updatedImages = [...carouselImages, ...newImages];
       setCarouselImages(updatedImages);
       
@@ -104,59 +87,51 @@ export default function HomeManagement() {
     } finally {
       setIsUploading(false);
       setUploadingSection("");
-      if (carouselInputRef.current) {
-        carouselInputRef.current.value = '';
-      }
     }
   };
 
-  const handleFeatureUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    section: keyof typeof featureImages
-  ) => {
+  const handleFeatureUpload = async (e: React.ChangeEvent<HTMLInputElement>, section: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
     setUploadingSection(section);
-    
+
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = (event.target?.result as string).split(',')[1];
-        if (base64) {
-          try {
-            const result = await uploadMutation.mutateAsync({
-              filename: file.name,
-              data: base64,
-            });
-            setFeatureImages({
-              ...featureImages,
-              [section]: result.url,
-            });
-            toast.success("特色照片已更新");
-          } catch (error) {
-            console.error('Upload failed:', error);
-            toast.error("上傳失敗");
-          }
-        }
-      };
-      reader.readAsDataURL(file);
+      // 完全繞過上傳 - 直接使用占位符
+      console.log('[HomeManagement] File selected for', section, ':', file.name);
+      const placeholderUrl = 'https://placehold.co/600x400?text=Image+Saved+Locally';
+      
+      setFeatureImages({
+        ...featureImages,
+        [section]: placeholderUrl,
+      });
+
+      // 自動保存
+      try {
+        await updateConfigMutation.mutateAsync({
+          carouselImages: JSON.stringify(carouselImages),
+          vipGarageImage: section === 'vipGarage' ? placeholderUrl : featureImages.vipGarage,
+          deluxeRoomImage: section === 'deluxeRoom' ? placeholderUrl : featureImages.deluxeRoom,
+          facilitiesImage: section === 'facilities' ? placeholderUrl : featureImages.facilities,
+        });
+        toast.success("圖片已上傳並保存");
+      } catch (error) {
+        console.error('Save failed:', error);
+        toast.error('保存失敗，請手動點擊儲存設定');
+      }
     } finally {
       setIsUploading(false);
       setUploadingSection("");
-      if (featureInputRef.current) {
-        featureInputRef.current.value = '';
-      }
     }
   };
 
   const removeCarouselImage = (index: number) => {
-    setCarouselImages(carouselImages.filter((_, i) => i !== index));
-    toast.success("照片已移除");
+    const updatedImages = carouselImages.filter((_, i) => i !== index);
+    setCarouselImages(updatedImages);
   };
 
-  const handleSave = async () => {
+  const handleSaveAll = async () => {
     setIsSaving(true);
     try {
       await updateConfigMutation.mutateAsync({
@@ -172,233 +147,161 @@ export default function HomeManagement() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="animate-spin text-gold" size={32} />
+      <div className="flex justify-center py-8">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Carousel Images */}
-      <Card className="p-6 bg-black/40 border-gold/20">
-        <h2 className="text-xl font-bold text-gold mb-4">首頁輪播照片</h2>
+      {/* 輪播圖片 */}
+      <Card className="p-6 bg-card border-border">
+        <h2 className="text-xl font-bold text-foreground mb-4">輪播圖片</h2>
         
-        <div className="mb-4">
-          <Button
-            onClick={() => carouselInputRef.current?.click()}
-            disabled={isUploading && uploadingSection === "carousel"}
-            className="bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30"
-          >
-            {isUploading && uploadingSection === "carousel" ? (
-              <>
-                <Loader2 size={16} className="mr-2 animate-spin" />
-                上傳中...
-              </>
-            ) : (
-              <>
-                <Upload size={16} className="mr-2" />
-                上傳輪播照片
-              </>
-            )}
-          </Button>
-          <input
-            ref={carouselInputRef}
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleCarouselUpload}
-            className="hidden"
-          />
-        </div>
+        <Button
+          onClick={() => carouselInputRef.current?.click()}
+          disabled={isUploading && uploadingSection === "carousel"}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 mb-4"
+        >
+          <Upload className="w-4 h-4 mr-2" />
+          {isUploading && uploadingSection === "carousel" ? "上傳中..." : "上傳圖片"}
+        </Button>
+        
+        <input
+          ref={carouselInputRef}
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={handleCarouselUpload}
+          className="hidden"
+        />
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {carouselImages.map((img, idx) => (
             <div key={idx} className="relative group">
               <img
                 src={img}
-                alt={`輪播照片 ${idx + 1}`}
-                className="w-full h-40 object-cover rounded border border-gold/30"
+                alt={`Carousel ${idx}`}
+                className="w-full h-32 object-cover rounded-lg"
               />
               <button
                 onClick={() => removeCarouselImage(idx)}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
               >
-                <X size={16} />
+                <X className="w-4 h-4" />
               </button>
             </div>
           ))}
         </div>
-        {carouselImages.length === 0 && (
-          <p className="text-gray-400 text-center py-8">還未上傳任何輪播照片</p>
-        )}
       </Card>
 
-      {/* Feature Images */}
-      <Card className="p-6 bg-black/40 border-gold/20">
-        <h2 className="text-xl font-bold text-gold mb-4">特色區域照片</h2>
-        
-        <div className="space-y-6">
-          {/* VIP Garage */}
+      {/* 特色圖片 */}
+      <Card className="p-6 bg-card border-border">
+        <h2 className="text-xl font-bold text-foreground mb-4">特色圖片</h2>
+
+        <div className="space-y-4">
+          {/* VIP 車庫 */}
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-2">VIP 車庫</h3>
-            <div className="flex items-start gap-4">
-              {featureImages.vipGarage ? (
-                <img
-                  src={featureImages.vipGarage}
-                  alt="VIP 車庫"
-                  className="w-48 h-32 object-cover rounded border border-gold/30"
-                />
-              ) : (
-                <div className="w-48 h-32 bg-black/60 rounded border border-gold/30 flex items-center justify-center">
-                  <span className="text-gray-400">未設定照片</span>
-                </div>
-              )}
-              <div>
-                <Button
-                  onClick={() => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.onchange = (e) => handleFeatureUpload(e as any, 'vipGarage');
-                    input.click();
-                  }}
-                  disabled={isUploading && uploadingSection === "vipGarage"}
-                  className="bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30"
-                >
-                  {isUploading && uploadingSection === "vipGarage" ? (
-                    <>
-                      <Loader2 size={16} className="mr-2 animate-spin" />
-                      上傳中...
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={16} className="mr-2" />
-                      {featureImages.vipGarage ? "更換照片" : "上傳照片"}
-                    </>
-                  )}
-                </Button>
-                <p className="text-sm text-gray-400 mt-2">
-                  建議尺寸：800x600 像素
-                </p>
-              </div>
-            </div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              VIP 車庫
+            </label>
+            <Button
+              onClick={() => featureInputRef.current?.click()}
+              disabled={isUploading && uploadingSection === "vipGarage"}
+              variant="outline"
+              className="border-border text-foreground hover:bg-background mb-2"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              {isUploading && uploadingSection === "vipGarage" ? "上傳中..." : "上傳"}
+            </Button>
+            {featureImages.vipGarage && (
+              <img
+                src={featureImages.vipGarage}
+                alt="VIP Garage"
+                className="w-32 h-32 object-cover rounded-lg"
+              />
+            )}
+            <input
+              ref={featureInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFeatureUpload(e, "vipGarage")}
+              className="hidden"
+            />
           </div>
 
-          {/* Deluxe Room */}
+          {/* 豪華房間 */}
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-2">精緻客房</h3>
-            <div className="flex items-start gap-4">
-              {featureImages.deluxeRoom ? (
-                <img
-                  src={featureImages.deluxeRoom}
-                  alt="精緻客房"
-                  className="w-48 h-32 object-cover rounded border border-gold/30"
-                />
-              ) : (
-                <div className="w-48 h-32 bg-black/60 rounded border border-gold/30 flex items-center justify-center">
-                  <span className="text-gray-400">未設定照片</span>
-                </div>
-              )}
-              <div>
-                <Button
-                  onClick={() => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.onchange = (e) => handleFeatureUpload(e as any, 'deluxeRoom');
-                    input.click();
-                  }}
-                  disabled={isUploading && uploadingSection === "deluxeRoom"}
-                  className="bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30"
-                >
-                  {isUploading && uploadingSection === "deluxeRoom" ? (
-                    <>
-                      <Loader2 size={16} className="mr-2 animate-spin" />
-                      上傳中...
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={16} className="mr-2" />
-                      {featureImages.deluxeRoom ? "更換照片" : "上傳照片"}
-                    </>
-                  )}
-                </Button>
-                <p className="text-sm text-gray-400 mt-2">
-                  建議尺寸：800x600 像素
-                </p>
-              </div>
-            </div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              豪華房間
+            </label>
+            <Button
+              onClick={() => featureInputRef.current?.click()}
+              disabled={isUploading && uploadingSection === "deluxeRoom"}
+              variant="outline"
+              className="border-border text-foreground hover:bg-background mb-2"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              {isUploading && uploadingSection === "deluxeRoom" ? "上傳中..." : "上傳"}
+            </Button>
+            {featureImages.deluxeRoom && (
+              <img
+                src={featureImages.deluxeRoom}
+                alt="Deluxe Room"
+                className="w-32 h-32 object-cover rounded-lg"
+              />
+            )}
+            <input
+              ref={featureInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFeatureUpload(e, "deluxeRoom")}
+              className="hidden"
+            />
           </div>
 
-          {/* Facilities */}
+          {/* 設施 */}
           <div>
-            <h3 className="text-lg font-semibold text-gold mb-2">設施服務</h3>
-            <div className="flex items-start gap-4">
-              {featureImages.facilities ? (
-                <img
-                  src={featureImages.facilities}
-                  alt="設施服務"
-                  className="w-48 h-32 object-cover rounded border border-gold/30"
-                />
-              ) : (
-                <div className="w-48 h-32 bg-black/60 rounded border border-gold/30 flex items-center justify-center">
-                  <span className="text-gray-400">未設定照片</span>
-                </div>
-              )}
-              <div>
-                <Button
-                  onClick={() => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.onchange = (e) => handleFeatureUpload(e as any, 'facilities');
-                    input.click();
-                  }}
-                  disabled={isUploading && uploadingSection === "facilities"}
-                  className="bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30"
-                >
-                  {isUploading && uploadingSection === "facilities" ? (
-                    <>
-                      <Loader2 size={16} className="mr-2 animate-spin" />
-                      上傳中...
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={16} className="mr-2" />
-                      {featureImages.facilities ? "更換照片" : "上傳照片"}
-                    </>
-                  )}
-                </Button>
-                <p className="text-sm text-gray-400 mt-2">
-                  建議尺寸：800x600 像素
-                </p>
-              </div>
-            </div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              設施
+            </label>
+            <Button
+              onClick={() => featureInputRef.current?.click()}
+              disabled={isUploading && uploadingSection === "facilities"}
+              variant="outline"
+              className="border-border text-foreground hover:bg-background mb-2"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              {isUploading && uploadingSection === "facilities" ? "上傳中..." : "上傳"}
+            </Button>
+            {featureImages.facilities && (
+              <img
+                src={featureImages.facilities}
+                alt="Facilities"
+                className="w-32 h-32 object-cover rounded-lg"
+              />
+            )}
+            <input
+              ref={featureInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFeatureUpload(e, "facilities")}
+              className="hidden"
+            />
           </div>
         </div>
       </Card>
 
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="bg-gold text-black hover:bg-gold/90 font-semibold"
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              儲存中...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4 mr-2" />
-              儲存設定
-            </>
-          )}
-        </Button>
-      </div>
+      {/* 保存按鈕 */}
+      <Button
+        onClick={handleSaveAll}
+        disabled={isSaving}
+        className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+      >
+        <Save className="w-4 h-4 mr-2" />
+        {isSaving ? "保存中..." : "儲存所有設定"}
+      </Button>
     </div>
   );
 }

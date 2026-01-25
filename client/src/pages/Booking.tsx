@@ -179,7 +179,15 @@ export default function Booking() {
         (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      await createBookingMutation.mutateAsync({
+      console.log('[Booking] Submitting booking with data:', {
+        roomTypeId: parseInt(selectedRoomId),
+        guestName,
+        guestPhone,
+        checkInDate: checkInStr,
+        checkOutDate: checkOutStr,
+      });
+
+      const bookingResult = await createBookingMutation.mutateAsync({
         roomTypeId: parseInt(selectedRoomId),
         guestName,
         guestEmail: guestEmail || undefined,
@@ -191,8 +199,11 @@ export default function Booking() {
         specialRequests: specialRequests || undefined,
       });
 
+      console.log('[Booking] Booking result:', bookingResult);
+
       // 儲存訂單數據到 sessionStorage
       const bookingConfirmationData = {
+        bookingId: bookingResult?.id || 'BOOKING-' + Date.now(),
         roomName: selectedRoom?.name,
         checkInDate: checkInStr,
         checkOutDate: checkOutStr,
@@ -206,14 +217,19 @@ export default function Booking() {
       };
       sessionStorage.setItem("bookingConfirmation", JSON.stringify(bookingConfirmationData));
       
-      // 導航到確認頁面
-      navigate("/booking/confirmation");
+      console.log('[Booking] Navigating to confirmation page...');
+      toast.success('預訂成功！');
+      
+      setTimeout(() => {
+        navigate("/booking/confirmation");
+      }, 500);
     } catch (error: any) {
       console.error('[Booking] Error:', error);
       const errorMsg = error?.message || JSON.stringify(error) || '訂房失敗，請稍後再試';
+      console.error('[Booking] Error message:', errorMsg);
       toast.error(errorMsg);
       window.alert('預訂失敗：' + errorMsg);
-      // 不重定向 - 保持在當前頁面
+      return;
     }
   };
 
