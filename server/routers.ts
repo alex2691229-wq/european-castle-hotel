@@ -1105,7 +1105,16 @@ ${roomsContext}
   // Home Config
   homeConfig: router({
     get: publicProcedure.query(async () => {
-      return await db.getHomeConfig();
+      const config = await db.getHomeConfig();
+      return config || {
+        id: 1,
+        carouselImages: '[]',
+        vipGarageImage: '',
+        deluxeRoomImage: '',
+        facilitiesImage: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
     }),
     
     update: adminProcedure
