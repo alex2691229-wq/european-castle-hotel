@@ -44,7 +44,7 @@ export async function getDb() {
     const mysql = await import('mysql2/promise');
     const pool = mysql.createPool({
       uri: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: true },
+      ssl: 'amazon',
       waitForConnections: true,
       connectionLimit: 5,
       queueLimit: 0,
