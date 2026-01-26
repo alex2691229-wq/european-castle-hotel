@@ -188,25 +188,25 @@ export type InsertFeaturedService = typeof featuredServices.$inferInsert;
  */
 export const paymentDetails = mysqlTable("payment_details", {
   id: int("id").autoincrement().primaryKey(),
-  bookingId: int("bookingId").notNull(),
-  paymentMethod: mysqlEnum("paymentMethod", ["bank_transfer", "credit_card", "ecpay", "cash_on_site"]).default("bank_transfer").notNull(),
-  paymentStatus: mysqlEnum("paymentStatus", ["pending", "received", "failed", "refunded"]).default("pending").notNull(),
+  bookingId: int("booking_id").notNull(),
+  paymentMethod: mysqlEnum("payment_method", ["bank_transfer", "credit_card", "ecpay", "cash_on_site"]).default("bank_transfer").notNull(),
+  paymentStatus: mysqlEnum("payment_status", ["pending", "received", "failed", "refunded"]).default("pending").notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).default("TWD").notNull(),
   // Bank transfer specific fields
-  bankName: varchar("bankName", { length: 100 }),
-  bankCode: varchar("bankCode", { length: 10 }),
-  accountNumber: varchar("accountNumber", { length: 50 }),
-  accountName: varchar("accountName", { length: 100 }),
-  transferReference: varchar("transferReference", { length: 100 }), // transfer memo/reference number
-  transferDate: timestamp("transferDate"), // when the transfer was made
-  lastFiveDigits: varchar("lastFiveDigits", { length: 5 }), // last 5 digits of transfer for verification
+  bankName: varchar("bank_name", { length: 100 }),
+  bankCode: varchar("bank_code", { length: 10 }),
+  accountNumber: varchar("account_number", { length: 50 }),
+  accountName: varchar("account_name", { length: 100 }),
+  transferReference: varchar("transfer_reference", { length: 100 }), // transfer memo/reference number
+  transferDate: timestamp("transfer_date"), // when the transfer was made
+  lastFiveDigits: varchar("last_five_digits", { length: 5 }), // last 5 digits of transfer for verification
   // Payment confirmation
-  confirmedAt: timestamp("confirmedAt"), // when payment was confirmed
-  confirmedBy: int("confirmedBy"), // admin user who confirmed the payment
+  confirmedAt: timestamp("confirmed_at"), // when payment was confirmed
+  confirmedBy: int("confirmed_by"), // admin user who confirmed the payment
   notes: text("notes"), // additional notes about the payment
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type PaymentDetail = typeof paymentDetails.$inferSelect;
