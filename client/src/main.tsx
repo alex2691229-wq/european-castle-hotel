@@ -57,14 +57,6 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-createRoot(document.getElementById("root")!).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </trpc.Provider>
-);
-// 加上錯誤邊界保護與 Console 偵錯
 const container = document.getElementById("root");
 
 if (!container) {
