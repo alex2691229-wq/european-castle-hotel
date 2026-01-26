@@ -44,7 +44,7 @@ export async function getDb() {
     const mysql = await import('mysql2/promise');
     const pool = mysql.createPool({
       uri: process.env.DATABASE_URL,
-      ssl: 'strict',
+      ssl: { rejectUnauthorized: false },
       waitForConnections: true,
       connectionLimit: 5,
       queueLimit: 0,
@@ -241,8 +241,7 @@ export async function getAllRoomTypes(): Promise<RoomType[]> {
   
   const result = await db
     .select()
-    .from(roomTypes)
-    .orderBy(roomTypes.displayOrder); // Note: column renamed to display_order in DB
+    .from(roomTypes);
   
   return result;
 }

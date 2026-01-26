@@ -1,0 +1,14 @@
+{
+  "query": "SELECT COUNT(*) as count, GROUP_CONCAT(name) as names FROM room_types;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT COUNT(*) as count, GROUP_CONCAT(name) as names FROM room_types;",
+  "rows": [
+    {
+      "count": "7",
+      "names": "豪華雙人房,標準雙人房,豪華四人房,標準四人房,家庭房,單人房,測試房型aaa"
+    }
+  ],
+  "messages": [],
+  "stdout": "count\tnames\n7\t豪華雙人房,標準雙人房,豪華四人房,標準四人房,家庭房,單人房,測試房型aaa\n",
+  "stderr": "",
+  "execution_time_ms": 1533
+}
