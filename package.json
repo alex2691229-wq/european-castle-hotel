@@ -8,9 +8,10 @@
     "pnpm": "10.x"
   },
   "scripts": {
-    "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
+    "dev": "NODE_ENV=development tsx server/_core/index.ts",
     "build": "vite build",
     "start": "NODE_ENV=production node dist/index.js",
+    "dev:watch": "NODE_ENV=development tsx watch server/_core/index.ts",
     "check": "tsc --skipLibCheck --noEmit 2>/dev/null || true",
     "format": "prettier --write .",
     "test": "vitest run",

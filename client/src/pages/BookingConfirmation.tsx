@@ -10,14 +10,23 @@ export default function BookingConfirmation() {
   const [bookingData, setBookingData] = useState<any>(null);
 
   useEffect(() => {
-    // 從 sessionStorage 獲取訂單數據
     const data = sessionStorage.getItem("bookingConfirmation");
     if (data) {
-      setBookingData(JSON.parse(data));
-      // 清除 sessionStorage
-      sessionStorage.removeItem("bookingConfirmation");
+      try {
+        const parsedData = JSON.parse(data);
+        setBookingData(parsedData);
+        console.log('[BookingConfirmation] Data loaded');
+        // 延遲清除，避免頁面重載時丟失
+        const timer = setTimeout(() => {
+          sessionStorage.removeItem("bookingConfirmation");
+        }, 5000);
+        return () => clearTimeout(timer);
+      } catch (error) {
+        console.error('[BookingConfirmation] Parse error:', error);
+        navigate("/");
+      }
     } else {
-      // 如果沒有數據，重定向到首頁
+      console.log('[BookingConfirmation] No data, redirecting');
       navigate("/");
     }
   }, [navigate]);

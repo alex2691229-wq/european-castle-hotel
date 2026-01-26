@@ -179,36 +179,51 @@ export const appRouter = router({
 
     create: adminProcedure
       .input(z.any())
-      .mutation(async () => {
-        return { success: true };
+      .mutation(async ({ input }) => {
+        console.log('[RoomTypes] Creating:', input?.name);
+        try {
+          const id = await db.createRoomType({
+            name: input?.name || 'Room',
+            description: input?.description || '',
+            capacity: parseInt(input?.capacity) || 2,
+            price: parseFloat(input?.price) || 0,
+          });
+          return { id, success: true };
+        } catch (error) {
+          console.error('[RoomTypes] Create error:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Create failed' });
+        }
       }),
 
     update: adminProcedure
       .input(z.any())
       .mutation(async ({ input }) => {
-        console.log('[HomeConfig] Updating config');
+        console.log('[RoomTypes] Updating:', input?.id);
         try {
-          await db.updateHomeConfig({
-            carouselImages: input?.carouselImages,
-            vipGarageImage: input?.vipGarageImage,
-            deluxeRoomImage: input?.deluxeRoomImage,
-            facilitiesImage: input?.facilitiesImage,
-            title: input?.title,
+          await db.updateRoomType(input?.id, {
+            name: input?.name,
             description: input?.description,
-            logo: input?.logo,
+            capacity: input?.capacity ? parseInt(input.capacity) : undefined,
+            price: input?.price ? parseFloat(input.price) : undefined,
           });
-          console.log('[HomeConfig] Config updated');
           return { success: true };
         } catch (error) {
-          console.error('[HomeConfig] Error:', error);
+          console.error('[RoomTypes] Update error:', error);
           throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Update failed' });
         }
       }),
 
     delete: adminProcedure
       .input(z.any())
-      .mutation(async () => {
-        return { success: true };
+      .mutation(async ({ input }) => {
+        console.log('[RoomTypes] Deleting:', input?.id);
+        try {
+          await db.deleteRoomType(input?.id);
+          return { success: true };
+        } catch (error) {
+          console.error('[RoomTypes] Delete error:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Delete failed' });
+        }
       }),
   }),
 
