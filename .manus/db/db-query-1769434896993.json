@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, name, price FROM room_types LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, name, price FROM room_types LIMIT 10;",
+  "rows": [
+    {
+      "id": "240006",
+      "name": "豪華雙人房",
+      "price": "1680.00"
+    },
+    {
+      "id": "270001",
+      "name": "標準雙床房",
+      "price": "1780.00"
+    },
+    {
+      "id": "300001",
+      "name": "雙人房",
+      "price": "1688.00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tprice\n240006\t豪華雙人房\t1680.00\n270001\t標準雙床房\t1780.00\n300001\t雙人房\t1688.00\n",
+  "stderr": "",
+  "execution_time_ms": 1512
+}

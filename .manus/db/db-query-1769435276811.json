@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO room_types (name, capacity, price, weekendPrice, description) VALUES ('豪華雙人房', 2, 1880, 2500, '豪華雙人房'), ('aaa', 2, 100, 150, 'aaa');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute INSERT INTO room_types (name, capacity, price, weekendPrice, description) VALUES ('豪華雙人房', 2, 1880, 2500, '豪華雙人房'), ('aaa', 2, 100, 150, 'aaa');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1534
+}
