@@ -185,8 +185,24 @@ export const appRouter = router({
 
     update: adminProcedure
       .input(z.any())
-      .mutation(async () => {
-        return { success: true };
+      .mutation(async ({ input }) => {
+        console.log('[HomeConfig] Updating config');
+        try {
+          await db.updateHomeConfig({
+            carouselImages: input?.carouselImages,
+            vipGarageImage: input?.vipGarageImage,
+            deluxeRoomImage: input?.deluxeRoomImage,
+            facilitiesImage: input?.facilitiesImage,
+            title: input?.title,
+            description: input?.description,
+            logo: input?.logo,
+          });
+          console.log('[HomeConfig] Config updated');
+          return { success: true };
+        } catch (error) {
+          console.error('[HomeConfig] Error:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Update failed' });
+        }
       }),
 
     delete: adminProcedure
@@ -335,34 +351,24 @@ export const appRouter = router({
     get: publicProcedure
       .input(z.void().optional())
       .query(async () => {
-        console.log('[HomeConfig] Fetching home config...');
+        console.log('[HomeConfig] Fetching from DB');
         try {
+          const config = await db.getHomeConfig();
+          if (config) {
+            console.log('[HomeConfig] Found in DB');
+            return config;
+          }
+          console.log('[HomeConfig] Not in DB, returning defaults');
           return {
-            title: '歐堡商務汽車旅館',
-            description: '舒適、便利、親切的住宿體驗',
-            logo: '/logo.png',
+            title: 'Default',
             carouselImages: JSON.stringify([]),
-            deluxeRoomImage: '/images/deluxe-room.jpg',
-            vipGarageImage: '/images/vip-garage.jpg',
-            facilitiesImage: '/images/facilities.jpg',
-            featuredServices: JSON.stringify([]),
-            news: JSON.stringify([]),
-            roomTypes: JSON.stringify([]),
+            deluxeRoomImage: '',
+            vipGarageImage: '',
+            facilitiesImage: '',
           };
         } catch (error) {
-          console.error('[HomeConfig] Error fetching config:', error);
-          return {
-            title: '歐堡商務汽車旅館',
-            description: '舒適、便利、親切的住宿體驗',
-            logo: '/logo.png',
-            carouselImages: JSON.stringify([]),
-            deluxeRoomImage: '/images/deluxe-room.jpg',
-            vipGarageImage: '/images/vip-garage.jpg',
-            facilitiesImage: '/images/facilities.jpg',
-            featuredServices: JSON.stringify([]),
-            news: JSON.stringify([]),
-            roomTypes: JSON.stringify([]),
-          };
+          console.error('[HomeConfig] Error:', error);
+          return { title: 'Default', carouselImages: JSON.stringify([]) };
         }
       }),
 

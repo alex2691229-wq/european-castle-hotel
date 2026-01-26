@@ -1,0 +1,25 @@
+{
+  "query": "SELECT COUNT(*) as booking_count FROM bookings; SELECT COUNT(*) as news_count FROM news; SELECT COUNT(*) as config_count FROM home_config;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT COUNT(*) as booking_count FROM bookings; SELECT COUNT(*) as news_count FROM news; SELECT COUNT(*) as config_count FROM home_config;",
+  "rows": [
+    {
+      "booking_count": "4"
+    },
+    {
+      "booking_count": "news_count"
+    },
+    {
+      "booking_count": "96"
+    },
+    {
+      "booking_count": "config_count"
+    },
+    {
+      "booking_count": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "booking_count\n4\nnews_count\n96\nconfig_count\n1\n",
+  "stderr": "",
+  "execution_time_ms": 2898
+}
