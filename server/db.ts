@@ -33,21 +33,30 @@ import { ENV } from './_core/env';
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
-    try {
-      let dbUrl = process.env.DATABASE_URL;
-      // 添加 TiDB SSL 配置（如果還沒有）
-      if (dbUrl && !dbUrl.includes('ssl')) {
-        const separator = dbUrl.includes('?') ? '&' : '?';
-        dbUrl = dbUrl + separator + 'ssl=true';
-      }
-      _db = drizzle(dbUrl);
-      console.log('[Database] Connected successfully with SSL');
-    } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
-      _db = null;
-    }
+  if (_db) return _db;
+  
+  if (!process.env.DATABASE_URL) {
+    console.error('[Database] DATABASE_URL not set');
+    return null;
   }
+  
+  try {
+    const mysql = await import('mysql2/promise');
+    const pool = mysql.createPool({
+      uri: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: true },
+      waitForConnections: true,
+      connectionLimit: 5,
+      queueLimit: 0,
+    });
+    
+    _db = drizzle(pool);
+    console.log('[Database] Connected successfully');
+  } catch (error) {
+    console.error('[Database] Failed to connect:', error);
+    _db = null;
+  }
+  
   return _db;
 }
 

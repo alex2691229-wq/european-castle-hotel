@@ -186,7 +186,7 @@ export const appRouter = router({
   // Room Types
   roomTypes: router({
     list: publicProcedure.query(async () => {
-      return await db.getAvailableRoomTypes();
+      return await db.getAllRoomTypes();
     }),
     
     listAll: adminProcedure.query(async () => {
