@@ -5,17 +5,17 @@ import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean 
  */
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
-  openId: varchar("openId", { length: 64 }).unique(), // Optional for backward compatibility
+  openId: varchar("open_id", { length: 64 }).unique(), // Optional for backward compatibility
   username: varchar("username", { length: 64 }).unique(), // Optional for username/password auth
-  passwordHash: varchar("passwordHash", { length: 255 }),
+  passwordHash: varchar("password_hash", { length: 255 }),
   name: text("name"),
   email: varchar("email", { length: 320 }),
-  loginMethod: varchar("loginMethod", { length: 64 }).default("oauth"),
+  loginMethod: varchar("login_method", { length: 64 }).default("oauth"),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   status: mysqlEnum("status", ["active", "inactive"]).default("active").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  lastSignedIn: timestamp("last_signed_in").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -27,20 +27,20 @@ export type InsertUser = typeof users.$inferInsert;
 export const roomTypes = mysqlTable("room_types", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  nameEn: varchar("nameEn", { length: 100 }),
+  nameEn: varchar("name_en", { length: 100 }),
   description: text("description").notNull(),
-  descriptionEn: text("descriptionEn"),
+  descriptionEn: text("description_en"),
   size: varchar("size", { length: 50 }), // e.g., "30坪"
   capacity: int("capacity").notNull().default(2), // number of guests
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  weekendPrice: decimal("weekendPrice", { precision: 10, scale: 2 }),
-  maxSalesQuantity: int("maxSalesQuantity").default(10).notNull(), // maximum number of rooms that can be sold per day
+  weekendPrice: decimal("weekend_price", { precision: 10, scale: 2 }),
+  maxSalesQuantity: int("max_sales_quantity").default(10).notNull(), // maximum number of rooms that can be sold per day
   images: text("images"), // JSON array of image URLs
   amenities: text("amenities"), // JSON array of amenities
-  isAvailable: boolean("isAvailable").default(true).notNull(),
-  displayOrder: int("displayOrder").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  isAvailable: boolean("is_available").default(true).notNull(),
+  displayOrder: int("display_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type RoomType = typeof roomTypes.$inferSelect;
@@ -51,19 +51,19 @@ export type InsertRoomType = typeof roomTypes.$inferInsert;
  */
 export const bookings = mysqlTable("bookings", {
   id: int("id").autoincrement().primaryKey(),
-  roomTypeId: int("roomTypeId").notNull(),
-  userId: int("userId"),
-  guestName: varchar("guestName", { length: 100 }).notNull(),
-  guestEmail: varchar("guestEmail", { length: 320 }),
-  guestPhone: varchar("guestPhone", { length: 20 }).notNull(),
-  checkInDate: timestamp("checkInDate").notNull(),
-  checkOutDate: timestamp("checkOutDate").notNull(),
-  numberOfGuests: int("numberOfGuests").notNull().default(2),
-  totalPrice: decimal("totalPrice", { precision: 10, scale: 2 }).notNull(),
-  specialRequests: text("specialRequests"),
+  roomTypeId: int("room_type_id").notNull(),
+  userId: int("user_id"),
+  guestName: varchar("guest_name", { length: 100 }).notNull(),
+  guestEmail: varchar("guest_email", { length: 320 }),
+  guestPhone: varchar("guest_phone", { length: 20 }).notNull(),
+  checkInDate: timestamp("check_in_date").notNull(),
+  checkOutDate: timestamp("check_out_date").notNull(),
+  numberOfGuests: int("number_of_guests").notNull().default(2),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  specialRequests: text("special_requests"),
   status: mysqlEnum("status", ["pending", "confirmed", "pending_payment", "paid", "cash_on_site", "completed", "cancelled"]).default("pending").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Booking = typeof bookings.$inferSelect;
@@ -75,15 +75,15 @@ export type InsertBooking = typeof bookings.$inferInsert;
 export const news = mysqlTable("news", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 200 }).notNull(),
-  titleEn: varchar("titleEn", { length: 200 }),
+  titleEn: varchar("title_en", { length: 200 }),
   content: text("content").notNull(),
-  contentEn: text("contentEn"),
+  contentEn: text("content_en"),
   type: mysqlEnum("type", ["announcement", "promotion", "event"]).default("announcement").notNull(),
-  coverImage: varchar("coverImage", { length: 500 }),
-  isPublished: boolean("isPublished").default(true).notNull(),
-  publishDate: timestamp("publishDate").defaultNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  coverImage: varchar("cover_image", { length: 500 }),
+  isPublished: boolean("is_published").default(true).notNull(),
+  publishDate: timestamp("publish_date").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type News = typeof news.$inferSelect;
@@ -95,15 +95,15 @@ export type InsertNews = typeof news.$inferInsert;
 export const facilities = mysqlTable("facilities", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  nameEn: varchar("nameEn", { length: 100 }),
+  nameEn: varchar("name_en", { length: 100 }),
   description: text("description").notNull(),
-  descriptionEn: text("descriptionEn"),
+  descriptionEn: text("description_en"),
   icon: varchar("icon", { length: 50 }), // lucide icon name
   images: text("images"), // JSON array of image URLs
-  displayOrder: int("displayOrder").default(0).notNull(),
-  isActive: boolean("isActive").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  displayOrder: int("display_order").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Facility = typeof facilities.$inferSelect;
@@ -119,8 +119,8 @@ export const contactMessages = mysqlTable("contact_messages", {
   phone: varchar("phone", { length: 20 }),
   subject: varchar("subject", { length: 200 }),
   message: text("message").notNull(),
-  isRead: boolean("isRead").default(false).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export type ContactMessage = typeof contactMessages.$inferSelect;
@@ -131,17 +131,17 @@ export type InsertContactMessage = typeof contactMessages.$inferInsert;
  */
 export const roomAvailability = mysqlTable("room_availability", {
   id: int("id").autoincrement().primaryKey(),
-  roomTypeId: int("roomTypeId").notNull(),
+  roomTypeId: int("room_type_id").notNull(),
   date: timestamp("date").notNull(),
-  isAvailable: boolean("isAvailable").default(true).notNull(),
-  maxSalesQuantity: int("maxSalesQuantity").default(10).notNull(), // maximum number of rooms that can be sold on this date
-  bookedQuantity: int("bookedQuantity").default(0).notNull(), // number of rooms already booked
-  weekdayPrice: decimal("weekdayPrice", { precision: 10, scale: 2 }), // override price for this date (weekday)
-  weekendPrice: decimal("weekendPrice", { precision: 10, scale: 2 }), // override price for this date (weekend)
-  isHolidayOverride: boolean("isHolidayOverride"), // null = auto-detect, true = force holiday, false = force weekday
+  isAvailable: boolean("is_available").default(true).notNull(),
+  maxSalesQuantity: int("max_sales_quantity").default(10).notNull(), // maximum number of rooms that can be sold on this date
+  bookedQuantity: int("booked_quantity").default(0).notNull(), // number of rooms already booked
+  weekdayPrice: decimal("weekday_price", { precision: 10, scale: 2 }), // override price for this date (weekday)
+  weekendPrice: decimal("weekend_price", { precision: 10, scale: 2 }), // override price for this date (weekend)
+  isHolidayOverride: boolean("is_holiday_override"), // null = auto-detect, true = force holiday, false = force weekday
   reason: varchar("reason", { length: 200 }), // optional reason for unavailability
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type RoomAvailability = typeof roomAvailability.$inferSelect;
@@ -152,12 +152,12 @@ export type InsertRoomAvailability = typeof roomAvailability.$inferInsert;
  */
 export const homeConfig = mysqlTable("home_config", {
   id: int("id").autoincrement().primaryKey(),
-  carouselImages: text("carouselImages"), // JSON array of carousel image URLs
-  vipGarageImage: varchar("vipGarageImage", { length: 500 }),
-  deluxeRoomImage: varchar("deluxeRoomImage", { length: 500 }),
-  facilitiesImage: varchar("facilitiesImage", { length: 500 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  carouselImages: text("carousel_images"), // JSON array of carousel image URLs
+  vipGarageImage: varchar("vip_garage_image", { length: 500 }),
+  deluxeRoomImage: varchar("deluxe_room_image", { length: 500 }),
+  facilitiesImage: varchar("facilities_image", { length: 500 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type HomeConfig = typeof homeConfig.$inferSelect;
@@ -170,14 +170,14 @@ export type InsertHomeConfig = typeof homeConfig.$inferInsert;
 export const featuredServices = mysqlTable("featured_services", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 100 }).notNull(),
-  titleEn: varchar("titleEn", { length: 100 }),
+  titleEn: varchar("title_en", { length: 100 }),
   description: text("description").notNull(),
-  descriptionEn: text("descriptionEn"),
+  descriptionEn: text("description_en"),
   image: varchar("image", { length: 500 }),
-  displayOrder: int("displayOrder").default(0).notNull(),
-  isActive: boolean("isActive").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  displayOrder: int("display_order").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type FeaturedService = typeof featuredServices.$inferSelect;

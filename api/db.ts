@@ -672,3 +672,31 @@ export async function getBookingsByPhone(phone: string): Promise<Booking[]> {
     return [];
   }
 }
+
+
+// Booking operations
+export async function deleteBooking(id: number) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.delete(bookings).where(sql`${bookings.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to delete booking:', error);
+    throw error;
+  }
+}
+
+export async function updateBooking(id: number, data: Partial<InsertBooking>) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.update(bookings).set(data).where(sql`${bookings.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to update booking:', error);
+    throw error;
+  }
+}

@@ -185,8 +185,8 @@ export const appRouter = router({
           const id = await db.createRoomType({
             name: input?.name || 'Room',
             description: input?.description || '',
-            capacity: parseInt(input?.capacity) || 2,
-            price: parseFloat(input?.price) || 0,
+            capacity: input?.capacity || 2,
+            price: String(input?.price || 0),
           });
           return { id, success: true };
         } catch (error) {
@@ -203,8 +203,8 @@ export const appRouter = router({
           await db.updateRoomType(input?.id, {
             name: input?.name,
             description: input?.description,
-            capacity: input?.capacity ? parseInt(input.capacity) : undefined,
-            price: input?.price ? parseFloat(input.price) : undefined,
+            capacity: input?.capacity,
+            price: input?.price ? String(input.price) : undefined,
           });
           return { success: true };
         } catch (error) {
