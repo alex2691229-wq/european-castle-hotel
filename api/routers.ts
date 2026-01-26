@@ -178,7 +178,7 @@ export const appRouter = router({
       }),
 
     create: adminProcedure
-      .input(z.any())
+      .input(z.object({ name: z.string(), description: z.string().optional(), capacity: z.number().optional(), price: z.number().optional() }))
       .mutation(async ({ input }) => {
         console.log('[RoomTypes] Creating:', input?.name);
         try {
@@ -196,7 +196,7 @@ export const appRouter = router({
       }),
 
     update: adminProcedure
-      .input(z.any())
+      .input(z.object({ id: z.number(), name: z.string().optional(), description: z.string().optional(), capacity: z.number().optional(), price: z.number().optional() }))
       .mutation(async ({ input }) => {
         console.log('[RoomTypes] Updating:', input?.id);
         try {
@@ -214,16 +214,11 @@ export const appRouter = router({
       }),
 
     delete: adminProcedure
-      .input(z.any())
+      .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
-        console.log('[RoomTypes] Deleting:', input?.id);
-        try {
-          await db.deleteRoomType(input?.id);
-          return { success: true };
-        } catch (error) {
-          console.error('[RoomTypes] Delete error:', error);
-          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Delete failed' });
-        }
+        console.log('[RoomTypes] Deleting ID:', input.id);
+        await db.deleteRoomType(input.id);
+        return { success: true };
       }),
   }),
 

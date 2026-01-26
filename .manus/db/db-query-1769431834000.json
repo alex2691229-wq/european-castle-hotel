@@ -1,0 +1,22 @@
+{
+  "query": "SELECT id, name FROM room_types ORDER BY id DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, name FROM room_types ORDER BY id DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "300001",
+      "name": "雙人房"
+    },
+    {
+      "id": "270001",
+      "name": "標準雙床房"
+    },
+    {
+      "id": "240006",
+      "name": "豪華雙人房"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n300001\t雙人房\n270001\t標準雙床房\n240006\t豪華雙人房\n",
+  "stderr": "",
+  "execution_time_ms": 1512
+}
