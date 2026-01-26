@@ -242,7 +242,7 @@ export async function getAllRoomTypes(): Promise<RoomType[]> {
   const result = await db
     .select()
     .from(roomTypes)
-    .orderBy(roomTypes.displayOrder);
+    .orderBy(roomTypes.displayOrder); // Note: column renamed to display_order in DB
   
   return result;
 }

@@ -1,0 +1,28 @@
+{
+  "query": "SELECT * FROM room_types LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT * FROM room_types LIMIT 1;",
+  "rows": [
+    {
+      "id": "240006",
+      "name": "豪華雙人房",
+      "nameEn": "NULL",
+      "description": "一大床",
+      "descriptionEn": "NULL",
+      "size": "NULL",
+      "capacity": "2",
+      "price": "1680.00",
+      "weekendPrice": "2580.00",
+      "images": "[\"https://d2xsxph8kpxj0f.cloudfront.net/310519663290244859/Un9ncnuBxgCCtamkr3qHdr/room-images/admin/1768447440180-IMG20210702162526_Original.jpeg\"]",
+      "amenities": "",
+      "isAvailable": "1",
+      "displayOrder": "999",
+      "createdAt": "2026-01-15 01:30:53",
+      "updatedAt": "2026-01-15 03:24:10",
+      "maxSalesQuantity": "10"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tnameEn\tdescription\tdescriptionEn\tsize\tcapacity\tprice\tweekendPrice\timages\tamenities\tisAvailable\tdisplayOrder\tcreatedAt\tupdatedAt\tmaxSalesQuantity\n240006\t豪華雙人房\tNULL\t一大床\tNULL\tNULL\t2\t1680.00\t2580.00\t[\"https://d2xsxph8kpxj0f.cloudfront.net/310519663290244859/Un9ncnuBxgCCtamkr3qHdr/room-images/admin/1768447440180-IMG20210702162526_Original.jpeg\"]\t\t1\t999\t2026-01-15 01:30:53\t2026-01-15 03:24:10\t10\n",
+  "stderr": "",
+  "execution_time_ms": 1501
+}
