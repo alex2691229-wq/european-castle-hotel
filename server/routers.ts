@@ -270,9 +270,10 @@ export const appRouter = router({
           const result = await uploadToImgur(input.imageBase64, clientId);
           return { url: result.url, deleteHash: result.deleteHash };
         } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: `Image upload failed: ${error.message}`,
+            message: `Image upload failed: ${errorMessage}`,
           });
         }
       }),
@@ -1309,19 +1310,23 @@ ${roomsContext}
       }))
       .mutation(async ({ input }) => {
         // 儲存關閉日期到資料庫
-        const blockageId = await db.createRoomBlockage(input.roomTypeId, input.dates, input.reason);
+        if (input.dates.length === 0) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'At least one date is required' });
+        }
+        const startDate = new Date(Math.min(...input.dates.map(d => d.getTime())));
+        const endDate = new Date(Math.max(...input.dates.map(d => d.getTime())));
+        const blockageId = await db.createRoomBlockage(input.roomTypeId, startDate, endDate, input.reason);
         return { success: true, message: `已關閉房型 ${input.roomTypeId} 的 ${input.dates.length} 個日期`, blockageId };
       }),
     // 移除房間關閉日期
     unblockDates: adminProcedure
       .input(z.object({
-        roomTypeId: z.number(),
-        dates: z.array(z.date()),
+        blockageId: z.number(),
       }))
       .mutation(async ({ input }) => {
         // 移除資料庫中的關閉記錄
-        await db.deleteRoomBlockage(input.roomTypeId, input.dates);
-        return { success: true, message: `已開啟房型 ${input.roomTypeId} 的 ${input.dates.length} 個日期` };
+        const success = await db.deleteRoomBlockage(input.blockageId);
+        return { success, message: success ? '已開啟房間' : '開啟房間失敗' };
       }),
     // 取得房間關閉狀態
     getBlockedDates: publicProcedure

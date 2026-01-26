@@ -563,3 +563,112 @@ export async function seedRoomTypesIfEmpty() {
     console.error('[Database] Failed to seed room types:', error);
   }
 }
+
+
+// Home Config queries
+export async function getHomeConfig(): Promise<HomeConfig | null> {
+  const db = await ensureDB();
+  if (!db) return null;
+  
+  try {
+    const result = await db.select().from(homeConfig).limit(1);
+    return result[0] as HomeConfig || null;
+  } catch (error) {
+    console.error('[Database] Failed to fetch home config:', error);
+    return null;
+  }
+}
+
+export async function updateHomeConfig(data: Partial<InsertHomeConfig>) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.update(homeConfig).set(data);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to update home config:', error);
+    throw error;
+  }
+}
+
+// Room Type operations
+export async function deleteRoomType(id: number) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.delete(roomTypes).where(sql`${roomTypes.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to delete room type:', error);
+    throw error;
+  }
+}
+
+export async function updateRoomType(id: number, data: Partial<InsertRoomType>) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.update(roomTypes).set(data).where(sql`${roomTypes.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to update room type:', error);
+    throw error;
+  }
+}
+
+// News operations
+export async function createNews(data: InsertNews) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.insert(news).values(data);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to create news:', error);
+    throw error;
+  }
+}
+
+export async function updateNews(id: number, data: Partial<InsertNews>) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.update(news).set(data).where(sql`${news.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to update news:', error);
+    throw error;
+  }
+}
+
+export async function deleteNews(id: number) {
+  const db = await ensureDB();
+  if (!db) throw new Error('Database not initialized');
+  
+  try {
+    const result = await db.delete(news).where(sql`${news.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to delete news:', error);
+    throw error;
+  }
+}
+
+// Booking queries
+export async function getBookingsByPhone(phone: string): Promise<Booking[]> {
+  const db = await ensureDB();
+  if (!db) return [];
+  
+  try {
+    const result = await db.select().from(bookings).where(sql`${bookings.guestPhone} = ${phone}`);
+    return result as Booking[];
+  } catch (error) {
+    console.error('[Database] Failed to fetch bookings by phone:', error);
+    return [];
+  }
+}
