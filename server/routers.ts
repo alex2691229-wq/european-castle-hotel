@@ -210,13 +210,13 @@ export const appRouter = router({
         description: z.string(),
         descriptionEn: z.string().optional(),
         size: z.string().optional(),
-        capacity: z.number().default(2),
-        price: z.string(),
-        weekendPrice: z.string().optional(),
+        capacity: z.coerce.number().default(2),
+        price: z.coerce.number(),
+        weekendPrice: z.coerce.number().optional(),
         images: z.string().optional(),
         amenities: z.string().optional(),
-        displayOrder: z.number().default(0),
-        maxSalesQuantity: z.number().default(10),
+        displayOrder: z.coerce.number().default(0),
+        maxSalesQuantity: z.coerce.number().default(10),
       }))
       .mutation(async ({ input }) => {
         const id = await db.createRoomType(input);
@@ -231,14 +231,13 @@ export const appRouter = router({
         description: z.string().optional(),
         descriptionEn: z.string().optional(),
         size: z.string().optional(),
-        capacity: z.number().optional(),
-        price: z.string().optional(),
-        weekendPrice: z.string().optional(),
+        capacity: z.coerce.number().optional(),
+        price: z.coerce.number().optional(),
+        weekendPrice: z.coerce.number().optional(),
         images: z.string().optional(),
         amenities: z.string().optional(),
-        isAvailable: z.boolean().optional(),
-        displayOrder: z.number().optional(),
-        maxSalesQuantity: z.number().optional(),
+        displayOrder: z.coerce.number().optional(),
+        maxSalesQuantity: z.coerce.number().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
