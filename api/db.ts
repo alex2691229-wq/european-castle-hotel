@@ -156,13 +156,19 @@ export async function ensureDB() {
 // Room Type queries
 export async function getAllRoomTypes(): Promise<RoomType[]> {
   const db = await ensureDB();
-  if (!db) return [];
+  if (!db) {
+    console.log('[DEBUG] Database not initialized');
+    return [];
+  }
   
   try {
     const result = await db.select().from(roomTypes);
+    console.log('[DEBUG_ROOMS] Raw database results:', JSON.stringify(result, null, 2));
+    console.log('[DEBUG_ROOMS] Result count:', result.length);
     return result as RoomType[];
   } catch (error) {
     console.error('[Database] Failed to fetch room types:', error);
+    console.error('[DEBUG] Error details:', error instanceof Error ? error.message : String(error));
     return [];
   }
 }
