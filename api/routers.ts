@@ -178,7 +178,7 @@ export const appRouter = router({
       }),
 
     create: adminProcedure
-      .input(z.object({ name: z.string(), description: z.string().optional(), capacity: z.number().optional(), price: z.number().optional() }))
+      .input(z.object({ name: z.string(), description: z.string().optional(), capacity: z.coerce.number().optional(), price: z.coerce.number().optional() }))
       .mutation(async ({ input }) => {
         console.log('[RoomTypes] Creating:', input?.name);
         try {
@@ -186,7 +186,7 @@ export const appRouter = router({
             name: input?.name || 'Room',
             description: input?.description || '',
             capacity: input?.capacity || 2,
-            price: String(input?.price || 0),
+            price: input?.price || 0,
           });
           return { id, success: true };
         } catch (error) {
@@ -196,7 +196,7 @@ export const appRouter = router({
       }),
 
     update: adminProcedure
-      .input(z.object({ id: z.number(), name: z.string().optional(), description: z.string().optional(), capacity: z.number().optional(), price: z.number().optional() }))
+      .input(z.object({ id: z.number(), name: z.string().optional(), description: z.string().optional(), capacity: z.coerce.number().optional(), price: z.coerce.number().optional() }))
       .mutation(async ({ input }) => {
         console.log('[RoomTypes] Updating:', input?.id);
         try {
@@ -204,7 +204,7 @@ export const appRouter = router({
             name: input?.name,
             description: input?.description,
             capacity: input?.capacity,
-            price: input?.price ? String(input.price) : undefined,
+            price: input?.price ? Number(input.price) : undefined,
           });
           return { success: true };
         } catch (error) {
