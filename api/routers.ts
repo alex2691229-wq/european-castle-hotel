@@ -186,7 +186,7 @@ export const appRouter = router({
             name: input?.name || 'Room',
             description: input?.description || '',
             capacity: input?.capacity || 2,
-            price: input?.price || 0,
+            price: String(input?.price || 0),
           });
           return { id, success: true };
         } catch (error) {
@@ -204,7 +204,7 @@ export const appRouter = router({
             name: input?.name,
             description: input?.description,
             capacity: input?.capacity,
-            price: input?.price ? Number(input.price) : undefined,
+            price: input?.price ? String(input.price) : undefined,
           });
           return { success: true };
         } catch (error) {
@@ -425,7 +425,7 @@ export const appRouter = router({
             checkInDate: checkInDate,
             checkOutDate: checkOutDate,
             numberOfGuests: parseInt(input?.numberOfGuests) || 2,
-            totalPrice: parseFloat(input?.totalPrice) || 0,
+            totalPrice: String(parseFloat(input?.totalPrice) || 0),
             specialRequests: input?.specialRequests || undefined,
             status: 'pending',
           });
