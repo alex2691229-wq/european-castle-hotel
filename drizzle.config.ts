@@ -18,5 +18,5 @@ export default defineConfig<Config>({
   dbCredentials: {
     url: urlWithSSL,
   },
-  casing: "camelCase",
+  // 移除全局 casing 設置，使用手動列名映射
 });
