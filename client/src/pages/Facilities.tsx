@@ -84,19 +84,11 @@ export default function Facilities() {
                         <h3 className="text-2xl font-bold text-foreground mb-2">
                           {facility.name}
                         </h3>
-                        {facility.nameEn && (
-                          <p className="text-sm text-muted-foreground tracking-wider mb-4">
-                            {facility.nameEn}
-                          </p>
-                        )}
+
                         <p className="text-muted-foreground leading-relaxed">
                           {facility.description}
                         </p>
-                        {facility.descriptionEn && (
-                          <p className="text-muted-foreground/70 leading-relaxed mt-3 text-sm">
-                            {facility.descriptionEn}
-                          </p>
-                        )}
+
                       </div>
                     </div>
                   </CardContent>

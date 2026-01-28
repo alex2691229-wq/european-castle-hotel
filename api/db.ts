@@ -331,9 +331,7 @@ export async function seedFacilitiesIfEmpty() {
     const defaultFacilities: InsertFacility[] = [
       {
         name: '免費 Wi-Fi',
-        nameEn: 'Free Wi-Fi',
         description: '全館覆蓋高速無線網絡',
-        descriptionEn: 'High-speed wireless network throughout the hotel',
         icon: 'wifi',
         images: null,
         displayOrder: 1,
@@ -341,9 +339,7 @@ export async function seedFacilitiesIfEmpty() {
       },
       {
         name: '游泳池',
-        nameEn: 'Swimming Pool',
         description: '室內溫水游泳池',
-        descriptionEn: 'Indoor heated swimming pool',
         icon: 'waves',
         images: null,
         displayOrder: 2,
@@ -351,9 +347,7 @@ export async function seedFacilitiesIfEmpty() {
       },
       {
         name: '免費停車',
-        nameEn: 'Free Parking',
         description: '提供免費停車位',
-        descriptionEn: 'Complimentary parking available',
         icon: 'car',
         images: null,
         displayOrder: 3,
@@ -361,9 +355,7 @@ export async function seedFacilitiesIfEmpty() {
       },
       {
         name: '健身房',
-        nameEn: 'Fitness Center',
         description: '24小時開放健身房',
-        descriptionEn: '24-hour fitness center',
         icon: 'dumbbell',
         images: null,
         displayOrder: 4,
@@ -371,9 +363,7 @@ export async function seedFacilitiesIfEmpty() {
       },
       {
         name: '餐廳',
-        nameEn: 'Restaurant',
         description: '提供各式美食',
-        descriptionEn: 'Variety of dining options',
         icon: 'utensils',
         images: null,
         displayOrder: 5,
@@ -405,10 +395,8 @@ export async function seedNewsIfEmpty() {
     
     const defaultNews: InsertNews[] = [
       {
-        title: '春季優惠活動',
-        titleEn: 'Spring Promotion',
-        content: '本月推出春季優惠方案，住宿享受優惠折扣',
-        contentEn: 'Special spring promotion with discounts on room rates',
+        title: '春季儯惠活動',
+        content: '本月推出春季儯惠方案，住宿享受儯惠折扥',
         type: 'promotion',
         coverImage: null,
         isPublished: true,
@@ -416,9 +404,7 @@ export async function seedNewsIfEmpty() {
       },
       {
         title: '新房型上線',
-        titleEn: 'New Room Types Available',
         content: '新增豪華套房，提供更舒適的住宿體驗',
-        contentEn: 'New luxury suites now available for booking',
         type: 'announcement',
         coverImage: null,
         isPublished: true,
@@ -426,9 +412,7 @@ export async function seedNewsIfEmpty() {
       },
       {
         title: '暑期活動',
-        titleEn: 'Summer Events',
         content: '暑期舉辦各項活動，歡迎參加',
-        contentEn: 'Various summer activities and events planned',
         type: 'event',
         coverImage: null,
         isPublished: true,
@@ -515,9 +499,7 @@ export async function seedRoomTypesIfEmpty() {
     const defaultRoomTypes: InsertRoomType[] = [
       {
         name: '豪華套房',
-        nameEn: 'Luxury Suite',
-        description: '寬敞舒適的豪華套房，配備獨立車庫和高級設施',
-        descriptionEn: 'Spacious luxury suite with private garage and premium amenities',
+        description: '寶敎舒適的豪華套房，配備獨立車庫和高級設施',
         size: '50坪',
         capacity: 4,
         price: '3500.00',
@@ -530,9 +512,7 @@ export async function seedRoomTypesIfEmpty() {
       },
       {
         name: '商務客房',
-        nameEn: 'Business Room',
         description: '設計簡潔的商務客房，適合出差住宿',
-        descriptionEn: 'Well-designed business room perfect for business travelers',
         size: '30坪',
         capacity: 2,
         price: '2500.00',
@@ -545,9 +525,7 @@ export async function seedRoomTypesIfEmpty() {
       },
       {
         name: '標準客房',
-        nameEn: 'Standard Room',
         description: '舒適實惠的標準客房，提供基本設施',
-        descriptionEn: 'Comfortable and affordable standard room with basic amenities',
         size: '25坪',
         capacity: 2,
         price: '1800.00',
