@@ -25,6 +25,10 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    watch: {
+      ignored: ['**/.env.local', '**/node_modules/**', '**/.git/**', '**/dist/**', '**/.drizzle/**'],
+      usePolling: false,
+    },
     host: true,
     allowedHosts: [
       ".manuspre.computer",

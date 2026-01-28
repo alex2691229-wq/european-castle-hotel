@@ -1,0 +1,58 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'room_types' ORDER BY ORDINAL_POSITION;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'room_types' ORDER BY ORDINAL_POSITION;",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "name"
+    },
+    {
+      "COLUMN_NAME": "nameEn"
+    },
+    {
+      "COLUMN_NAME": "description"
+    },
+    {
+      "COLUMN_NAME": "descriptionEn"
+    },
+    {
+      "COLUMN_NAME": "size"
+    },
+    {
+      "COLUMN_NAME": "capacity"
+    },
+    {
+      "COLUMN_NAME": "price"
+    },
+    {
+      "COLUMN_NAME": "weekendPrice"
+    },
+    {
+      "COLUMN_NAME": "images"
+    },
+    {
+      "COLUMN_NAME": "amenities"
+    },
+    {
+      "COLUMN_NAME": "isAvailable"
+    },
+    {
+      "COLUMN_NAME": "display_order"
+    },
+    {
+      "COLUMN_NAME": "createdAt"
+    },
+    {
+      "COLUMN_NAME": "updatedAt"
+    },
+    {
+      "COLUMN_NAME": "maxSalesQuantity"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nname\nnameEn\ndescription\ndescriptionEn\nsize\ncapacity\nprice\nweekendPrice\nimages\namenities\nisAvailable\ndisplay_order\ncreatedAt\nupdatedAt\nmaxSalesQuantity\n",
+  "stderr": "",
+  "execution_time_ms": 1534
+}
