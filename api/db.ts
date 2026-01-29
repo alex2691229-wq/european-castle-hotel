@@ -73,7 +73,7 @@ async function initializeDatabase() {
       uri: databaseUrl,
       ssl: {
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true,
+        rejectUnauthorized: false, // 禁用證書驗證以解決 Vercel 環境的 SSL 問題
       },
       connectTimeout: 10000,
       enableKeepAlive: true,
