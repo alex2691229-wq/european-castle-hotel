@@ -36,18 +36,11 @@ let _db: MySql2Database | null = null;
 let initPromise: Promise<void> | null = null;
 
 /**
- * Get database instance. Ensures singleton pattern.
+ * Get database instance (synchronous - only returns if already initialized).
+ * For most cases, use ensureDB() instead to wait for initialization.
  */
 export function getDB() {
-  if (_db) {
-    return _db;
-  }
-  
-  if (initPromise) {
-    return null;
-  }
-
-  return null;
+  return _db;
 }
 
 /**
@@ -75,7 +68,7 @@ async function initializeDatabase() {
         minVersion: 'TLSv1.2',
         rejectUnauthorized: false, // 禁用證書驗證以解決 Vercel 環境的 SSL 問題
       },
-      connectTimeout: 10000,
+      connectTimeout: 15000, // 增加到 15 秒以應對 Vercel 冷啟動和 SSL 握手延遲
       enableKeepAlive: true,
       waitForConnections: true,
       connectionLimit: 1,
