@@ -1,0 +1,122 @@
+{
+  "query": "SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='room_types' ORDER BY ORDINAL_POSITION;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='room_types' ORDER BY ORDINAL_POSITION;",
+  "rows": [
+    {
+      "COLUMN_NAME": "id",
+      "COLUMN_TYPE": "int(11)",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "PRI",
+      "EXTRA": "auto_increment"
+    },
+    {
+      "COLUMN_NAME": "name",
+      "COLUMN_TYPE": "varchar(100)",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "nameEn",
+      "COLUMN_TYPE": "varchar(100)",
+      "IS_NULLABLE": "YES",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "description",
+      "COLUMN_TYPE": "text",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "descriptionEn",
+      "COLUMN_TYPE": "text",
+      "IS_NULLABLE": "YES",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "size",
+      "COLUMN_TYPE": "varchar(50)",
+      "IS_NULLABLE": "YES",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "capacity",
+      "COLUMN_TYPE": "int(11)",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "price",
+      "COLUMN_TYPE": "decimal(10,2)",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "weekendPrice",
+      "COLUMN_TYPE": "decimal(10,2)",
+      "IS_NULLABLE": "YES",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "images",
+      "COLUMN_TYPE": "longtext",
+      "IS_NULLABLE": "YES",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "amenities",
+      "COLUMN_TYPE": "text",
+      "IS_NULLABLE": "YES",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "isAvailable",
+      "COLUMN_TYPE": "tinyint(1)",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "display_order",
+      "COLUMN_TYPE": "int(11)",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "createdAt",
+      "COLUMN_TYPE": "timestamp",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    },
+    {
+      "COLUMN_NAME": "updatedAt",
+      "COLUMN_TYPE": "timestamp",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    },
+    {
+      "COLUMN_NAME": "maxSalesQuantity",
+      "COLUMN_TYPE": "int(11)",
+      "IS_NULLABLE": "NO",
+      "COLUMN_KEY": "",
+      "EXTRA": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\tCOLUMN_TYPE\tIS_NULLABLE\tCOLUMN_KEY\tEXTRA\nid\tint(11)\tNO\tPRI\tauto_increment\nname\tvarchar(100)\tNO\t\t\nnameEn\tvarchar(100)\tYES\t\t\ndescription\ttext\tNO\t\t\ndescriptionEn\ttext\tYES\t\t\nsize\tvarchar(50)\tYES\t\t\ncapacity\tint(11)\tNO\t\t\nprice\tdecimal(10,2)\tNO\t\t\nweekendPrice\tdecimal(10,2)\tYES\t\t\nimages\tlongtext\tYES\t\t\namenities\ttext\tYES\t\t\nisAvailable\ttinyint(1)\tNO\t\t\ndisplay_order\tint(11)\tNO\t\t\ncreatedAt\ttimestamp\tNO\t\t\nupdatedAt\ttimestamp\tNO\t\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\nmaxSalesQuantity\tint(11)\tNO\t\t\n",
+  "stderr": "",
+  "execution_time_ms": 1598
+}

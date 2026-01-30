@@ -310,12 +310,22 @@ export async function getAllBookings(): Promise<Booking[]> {
 export async function createRoomType(data: InsertRoomType) {
   try {
     const db = await getDB();
-    console.log('[Database] Creating room type...');
+    console.log('[Database] Creating room type with data:', JSON.stringify(data, null, 2));
     const result = await db.insert(roomTypes).values(data);
-    console.log('[Database] ✓ Room type created successfully');
+    console.log('[Database] ✓ Room type created successfully, result:', result);
     return result;
   } catch (error) {
-    console.error('[Database] Failed to create room type:', error);
+    console.error('[Database] Failed to create room type');
+    if (error instanceof Error) {
+      console.error('[Database] Error message:', error.message);
+      console.error('[Database] Error code:', (error as any).code);
+      console.error('[Database] Error errno:', (error as any).errno);
+      console.error('[Database] Error sqlState:', (error as any).sqlState);
+      console.error('[Database] Error sqlMessage:', (error as any).sqlMessage);
+      console.error('[Database] Full error:', error);
+    } else {
+      console.error('[Database] Unknown error type:', error);
+    }
     throw error;
   }
 }
@@ -484,12 +494,29 @@ export async function seedRoomTypesIfEmpty() {
     ];
     
     for (const roomType of defaultRoomTypes) {
-      await db.insert(roomTypes).values(roomType);
+      try {
+        console.log('[Database] Seeding room type:', roomType.name);
+        await db.insert(roomTypes).values(roomType);
+        console.log('[Database] ✓ Seeded room type:', roomType.name);
+      } catch (insertError) {
+        console.error('[Database] Failed to seed room type:', roomType.name);
+        if (insertError instanceof Error) {
+          console.error('[Database] Error message:', insertError.message);
+          console.error('[Database] Error code:', (insertError as any).code);
+          console.error('[Database] Error sqlMessage:', (insertError as any).sqlMessage);
+        }
+        throw insertError;
+      }
     }
     
     console.log('[Database] Room types seeded successfully');
   } catch (error) {
-    console.error('[Database] Failed to seed room types:', error);
+    console.error('[Database] Failed to seed room types');
+    if (error instanceof Error) {
+      console.error('[Database] Error message:', error.message);
+      console.error('[Database] Error code:', (error as any).code);
+      console.error('[Database] Error sqlMessage:', (error as any).sqlMessage);
+    }
   }
 }
 
