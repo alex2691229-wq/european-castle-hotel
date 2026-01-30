@@ -84,20 +84,44 @@ async function initializeDatabase(): Promise<MySql2Database> {
 
       console.log('[Database] DATABASE_URL detected:', maskDatabaseUrl(databaseUrl));
 
-      // Parse connection parameters
-      const connectionConfig: any = {
-        uri: databaseUrl,
-        ssl: {
-          minVersion: 'TLSv1.2',
-          rejectUnauthorized: false,
-        },
-        connectTimeout: 20000, // 20 seconds for Vercel cold start
-        enableKeepAlive: true,
-        waitForConnections: true,
-        connectionLimit: 1,
-        queueLimit: 0,
-        idleTimeout: 60000,
-      };
+      // Parse connection parameters from URL
+      let connectionConfig: any;
+      try {
+        const url = new URL(databaseUrl);
+        const host = url.hostname;
+        const port = parseInt(url.port || '3306');
+        const user = url.username;
+        const password = url.password;
+        const database = url.pathname.split('/')[1];
+        
+        console.log('[Database] Parsed connection details:');
+        console.log('[Database]   Host:', host);
+        console.log('[Database]   Port:', port);
+        console.log('[Database]   User:', user);
+        console.log('[Database]   Database:', database);
+        
+        connectionConfig = {
+          host,
+          port,
+          user,
+          password,
+          database,
+          ssl: {
+            minVersion: 'TLSv1.2',
+            rejectUnauthorized: false,
+          },
+          connectTimeout: 20000, // 20 seconds for Vercel cold start
+          enableKeepAlive: true,
+          waitForConnections: true,
+          connectionLimit: 1,
+          queueLimit: 0,
+          idleTimeout: 60000,
+        };
+      } catch (parseError) {
+        const error = new Error('[Database] Failed to parse DATABASE_URL: ' + (parseError instanceof Error ? parseError.message : String(parseError)));
+        console.error(error.message);
+        throw error;
+      }
 
       console.log('[Database] Creating connection pool with config:', {
         connectTimeout: connectionConfig.connectTimeout,
