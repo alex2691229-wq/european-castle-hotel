@@ -135,12 +135,16 @@ async function initializeDatabase(): Promise<MySql2Database> {
       // Create Drizzle instance
       _db = drizzle(pool);
 
-      // Perform forced connection test
+      // Perform forced connection test using raw mysql2
       console.log('[Database] Performing forced connection test...');
+      let testConnection: any;
       try {
-        const testResult = await _db.execute(sql`SELECT 1 as test`);
+        testConnection = await pool.getConnection();
+        console.log('[Database] ✓ Pool connection acquired');
+        
+        const [rows] = await testConnection.execute('SELECT 1 as test');
         console.log('[Database] ✓ Connection test PASSED');
-        console.log('[Database] Test result:', testResult);
+        console.log('[Database] Test result:', rows);
       } catch (testError) {
         const errorMsg = testError instanceof Error ? testError.message : String(testError);
         const errorCode = (testError as any)?.code || 'UNKNOWN';
@@ -164,6 +168,14 @@ async function initializeDatabase(): Promise<MySql2Database> {
         }
         
         throw testError;
+      } finally {
+        if (testConnection) {
+          try {
+            testConnection.release();
+          } catch (e) {
+            console.error('[Database] Error releasing test connection:', e);
+          }
+        }
       }
 
       // Query room_types to verify data access
