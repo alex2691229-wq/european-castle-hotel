@@ -385,3 +385,272 @@ console.log('[Database] Module loaded, initializing database...');
 initializeDatabase().catch(error => {
   console.error('[Database] Module-level initialization failed:', error instanceof Error ? error.message : String(error));
 });
+
+// Count functions for dashboard
+export async function getRoomTypeCount(): Promise<number> {
+  try {
+    const db = await getDB();
+    const result = await db.select({ count: sql`COUNT(*)` }).from(roomTypes);
+    return result[0]?.count ? Number(result[0].count) : 0;
+  } catch (error) {
+    console.error('[Database] Failed to count room types:', error);
+    return 0;
+  }
+}
+
+export async function getBookingCount(): Promise<number> {
+  try {
+    const db = await getDB();
+    const result = await db.select({ count: sql`COUNT(*)` }).from(bookings);
+    return result[0]?.count ? Number(result[0].count) : 0;
+  } catch (error) {
+    console.error('[Database] Failed to count bookings:', error);
+    return 0;
+  }
+}
+
+export async function getNewsCount(): Promise<number> {
+  try {
+    const db = await getDB();
+    const result = await db.select({ count: sql`COUNT(*)` }).from(news);
+    return result[0]?.count ? Number(result[0].count) : 0;
+  } catch (error) {
+    console.error('[Database] Failed to count news:', error);
+    return 0;
+  }
+}
+
+export async function getFacilityCount(): Promise<number> {
+  try {
+    const db = await getDB();
+    const result = await db.select({ count: sql`COUNT(*)` }).from(facilities);
+    return result[0]?.count ? Number(result[0].count) : 0;
+  } catch (error) {
+    console.error('[Database] Failed to count facilities:', error);
+    return 0;
+  }
+}
+
+// Seed room types if empty
+export async function seedRoomTypesIfEmpty() {
+  try {
+    const db = await getDB();
+    const existing = await db.select().from(roomTypes);
+    if (existing.length > 0) {
+      console.log('[Database] Room types already exist, skipping seed');
+      return;
+    }
+    
+    const defaultRoomTypes: InsertRoomType[] = [
+      {
+        name: '豪華套房',
+        description: '寶敎舒適的豪華套房，配備獨立車庫和高級設施',
+        size: '50坪',
+        capacity: 4,
+        price: '3500.00',
+        weekendPrice: '4500.00',
+        maxSalesQuantity: 5,
+        images: null,
+        amenities: JSON.stringify(['獨立車庫', '豪華衛浴', '高速 Wi-Fi', '液晶電視']),
+        isAvailable: true,
+        displayOrder: 1,
+      },
+      {
+        name: '商務客房',
+        description: '設計簡潔的商務客房，適合出差住宿',
+        size: '30坪',
+        capacity: 2,
+        price: '2500.00',
+        weekendPrice: '3200.00',
+        maxSalesQuantity: 10,
+        images: null,
+        amenities: JSON.stringify(['獨立車庫', '工作區', '高速 Wi-Fi', '淋浴間']),
+        isAvailable: true,
+        displayOrder: 2,
+      },
+      {
+        name: '標準客房',
+        description: '舒適實惠的標準客房，提供基本設施',
+        size: '25坪',
+        capacity: 2,
+        price: '1800.00',
+        weekendPrice: '2300.00',
+        maxSalesQuantity: 15,
+        images: null,
+        amenities: JSON.stringify(['獨立車庫', '基本設施', 'Wi-Fi', '浴室']),
+        isAvailable: true,
+        displayOrder: 3,
+      },
+    ];
+    
+    for (const roomType of defaultRoomTypes) {
+      await db.insert(roomTypes).values(roomType);
+    }
+    
+    console.log('[Database] Room types seeded successfully');
+  } catch (error) {
+    console.error('[Database] Failed to seed room types:', error);
+  }
+}
+
+// Seed news if empty
+export async function seedNewsIfEmpty() {
+  try {
+    const db = await getDB();
+    const existing = await db.select().from(news);
+    if (existing.length > 0) {
+      console.log('[Database] News already exist, skipping seed');
+      return;
+    }
+    
+    const defaultNews: InsertNews[] = [
+      {
+        title: '春季儯惠活動',
+        content: '本月推出春季儯惠方案，住宿享受儯惠折扥',
+        type: 'promotion',
+        coverImage: null,
+        isPublished: true,
+        publishDate: new Date(),
+      },
+      {
+        title: '新房型上線',
+        content: '新增豪華套房，提供更舒適的住宿體驗',
+        type: 'announcement',
+        coverImage: null,
+        isPublished: true,
+        publishDate: new Date(),
+      },
+      {
+        title: '暑期活動',
+        content: '暑期舉辦各項活動，歡迎參加',
+        type: 'event',
+        coverImage: null,
+        isPublished: true,
+        publishDate: new Date(),
+      },
+    ];
+    
+    for (const item of defaultNews) {
+      await db.insert(news).values(item);
+    }
+    
+    console.log('[Database] News seeded successfully');
+  } catch (error) {
+    console.error('[Database] Failed to seed news:', error);
+  }
+}
+
+// Home Config queries
+export async function getHomeConfig(): Promise<HomeConfig | null> {
+  try {
+    const db = await getDB();
+    const result = await db.select().from(homeConfig).limit(1);
+    return result[0] as HomeConfig || null;
+  } catch (error) {
+    console.error('[Database] Failed to fetch home config:', error);
+    return null;
+  }
+}
+
+export async function updateHomeConfig(data: Partial<InsertHomeConfig>) {
+  try {
+    const db = await getDB();
+    const result = await db.update(homeConfig).set(data);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to update home config:', error);
+    throw error;
+  }
+}
+
+// Room Type operations
+export async function deleteRoomType(id: number) {
+  try {
+    const db = await getDB();
+    const result = await db.delete(roomTypes).where(sql`${roomTypes.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to delete room type:', error);
+    throw error;
+  }
+}
+
+export async function updateRoomType(id: number, data: Partial<InsertRoomType>) {
+  try {
+    const db = await getDB();
+    const result = await db.update(roomTypes).set(data).where(sql`${roomTypes.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to update room type:', error);
+    throw error;
+  }
+}
+
+// News operations
+export async function createNews(data: InsertNews) {
+  try {
+    const db = await getDB();
+    const result = await db.insert(news).values(data);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to create news:', error);
+    throw error;
+  }
+}
+
+export async function updateNews(id: number, data: Partial<InsertNews>) {
+  try {
+    const db = await getDB();
+    const result = await db.update(news).set(data).where(sql`${news.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to update news:', error);
+    throw error;
+  }
+}
+
+export async function deleteNews(id: number) {
+  try {
+    const db = await getDB();
+    const result = await db.delete(news).where(sql`${news.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to delete news:', error);
+    throw error;
+  }
+}
+
+// Booking queries
+export async function getBookingsByPhone(phone: string): Promise<Booking[]> {
+  try {
+    const db = await getDB();
+    const result = await db.select().from(bookings).where(sql`${bookings.guestPhone} = ${phone}`);
+    return result as Booking[];
+  } catch (error) {
+    console.error('[Database] Failed to fetch bookings by phone:', error);
+    return [];
+  }
+}
+
+// Booking operations
+export async function deleteBooking(id: number) {
+  try {
+    const db = await getDB();
+    const result = await db.delete(bookings).where(sql`${bookings.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to delete booking:', error);
+    throw error;
+  }
+}
+
+export async function updateBooking(id: number, data: Partial<InsertBooking>) {
+  try {
+    const db = await getDB();
+    const result = await db.update(bookings).set(data).where(sql`${bookings.id} = ${id}`);
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to update booking:', error);
+    throw error;
+  }
+}
