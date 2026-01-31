@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, name, images FROM room_types LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, name, images FROM room_types LIMIT 10",
+  "rows": [
+    {
+      "id": "360001",
+      "name": "豪華雙人房",
+      "images": "NULL"
+    },
+    {
+      "id": "360002",
+      "name": "標準雙人房",
+      "images": "NULL"
+    },
+    {
+      "id": "360003",
+      "name": "豪華四人房",
+      "images": "NULL"
+    },
+    {
+      "id": "360004",
+      "name": "標準四人房",
+      "images": "NULL"
+    },
+    {
+      "id": "360005",
+      "name": "家庭房",
+      "images": "NULL"
+    },
+    {
+      "id": "360006",
+      "name": "單人房",
+      "images": "NULL"
+    },
+    {
+      "id": "360007",
+      "name": "測試房型aaa",
+      "images": "NULL"
+    },
+    {
+      "id": "390001",
+      "name": "測試房型 - 正確",
+      "images": "NULL"
+    },
+    {
+      "id": "390002",
+      "name": "測試房型 - 正確",
+      "images": "NULL"
+    },
+    {
+      "id": "420001",
+      "name": "原始 SQL 測試",
+      "images": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\timages\n360001\t豪華雙人房\tNULL\n360002\t標準雙人房\tNULL\n360003\t豪華四人房\tNULL\n360004\t標準四人房\tNULL\n360005\t家庭房\tNULL\n360006\t單人房\tNULL\n360007\t測試房型aaa\tNULL\n390001\t測試房型 - 正確\tNULL\n390002\t測試房型 - 正確\tNULL\n420001\t原始 SQL 測試\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1511
+}

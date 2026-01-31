@@ -319,3 +319,38 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
   - 修正 keepAliveInitialDelayMs → keepAliveInitialDelay
   - 修正 getAllRoomTypes() 返回類型
 - [x] 準備部署到 Vercel
+
+## 🟡 最後衝刺 - 進行中
+
+- [ ] 修復 Vercel 上的 API 查詢失敗
+- [ ] 完成訂單自動提醒系統
+- [ ] 全面測試所有功能
+- [ ] 準備交付
+
+
+## 🟢 房型圖片 Cloudinary 實施 - 已完成
+
+- [x] 驗證數據庫房型是否有 Cloudinary images URL
+- [x] 更新所有房型的 images 欄位為 Cloudinary URL（6 個主要房型）
+- [x] 驗證 RoomCard 組件已讀取 images 字段
+- [x] 實現 Cloudinary 轉換參數優化（w=500,h=400,c_fill,q_auto,f_auto）
+- [x] 測試圖片在本地開發環境顯示
+- [x] 圖片上傳邏輯已實現（base64 → Cloudinary）
+- [x] 圖片預覽和刪除功能已實現
+
+## 🟡 訂單自動提醒系統 - 進行中
+
+- [x] 創建 booking_notifications 表
+- [ ] 實現郵件通知服務（Resend）
+- [ ] 實現 Slack 通知服務
+- [ ] 實現 SMS 通知服務（Twilio）
+- [ ] 創建每日提醒定時任務
+- [ ] 前端訂單管理頁面集成
+- [ ] 測試完整通知流程
+
+## 🔴 Vercel 部署 - 緊急
+
+- [ ] 提交代碼到 GitHub
+- [ ] 驗證 Vercel 部署成功
+- [ ] 驗證 API 查詢恢復（房型列表頁面）
+- [ ] 驗證 Cloudinary 圖片顯示
