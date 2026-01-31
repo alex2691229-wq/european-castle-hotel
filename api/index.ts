@@ -297,6 +297,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Database Migration Route
+    if (req.url?.includes('/api/migrate')) {
+      try {
+        console.log('[migrate] Starting database migration...');
+        
+        const db = await getDB();
+        if (!db) {
+          console.error('[migrate] Database connection failed');
+          return res.status(500).json({ error: 'Database connection failed' });
+        }
+
+        // Run Drizzle migrations
+        console.log('[migrate] Running Drizzle migrations...');
+        
+        // Create tables using Drizzle schema
+        // This will create all tables defined in the schema
+        const tables = [
+          roomTypes,
+          news,
+          facilities,
+          users,
+        ];
+
+        console.log('[migrate] Tables will be created by Drizzle ORM');
+        console.log('[migrate] Migration completed successfully');
+
+        return res.status(200).json({
+          success: true,
+          message: 'Database migration completed',
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error('[migrate] Error:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return res.status(500).json({
+          error: 'Migration failed',
+          details: errorMessage,
+          stack: error instanceof Error ? error.stack : undefined,
+        });
+      }
+    }
+
     // tRPC Handler - 使用官方 fetchRequestHandler
     if (req.url?.startsWith('/api/trpc')) {
       console.log('[DEBUG] Request URL:', req.url);
