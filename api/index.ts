@@ -59,7 +59,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Health Check - Database
     if (req.url?.includes('/api/health/db')) {
       try {
-            const db = await getDB();        if (!db) {
+        const db = await getDB();
+        if (!db) {
           return res.status(500).json({
             status: 'error',
             message: 'Database not initialized'
@@ -67,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Test connection
-            await db.select().from(roomTypes).limit(1);        
+        await db.select().from(roomTypes).limit(1);        
         return res.json({
           status: 'connected',
           message: 'Database connection successful',
