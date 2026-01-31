@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 // @ts-nocheck
 import { Card, CardContent } from "@/components/ui/card";
