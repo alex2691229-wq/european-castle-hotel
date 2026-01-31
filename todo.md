@@ -348,9 +348,14 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [ ] 前端訂單管理頁面集成
 - [ ] 測試完整通知流程
 
-## 🔴 Vercel 部署 - 緊急
+## 🟡 Vercel 部署 - 進行中
 
-- [ ] 提交代碼到 GitHub
-- [ ] 驗證 Vercel 部署成功
+- [x] 提交代碼到 GitHub（已通過 webdev_save_checkpoint）
+- [x] 修復 TiDB Cloud 數據庫連接配置（URL 解析）
+- [x] 驗證 TiDB Cloud 表結構已創建（12 個表）
+- [x] 驗證房型數據已存在（13 個房型）
+- [x] 重置 TiDB Cloud 數據庫密碼（vNmR8q3aVoJTs6To）
+- [x] 更新 Vercel 環境變數
+- [ ] 在 Vercel 上手動觸發重新部署
 - [ ] 驗證 API 查詢恢復（房型列表頁面）
 - [ ] 驗證 Cloudinary 圖片顯示
