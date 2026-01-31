@@ -31,6 +31,28 @@ import {
 import { ENV } from './_core/env';
 
 let _db: any = null;
+let _connectionRetries = 0;
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+/**
+ * 重試邏輯：在連線失敗時自動重試
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  retries = MAX_RETRIES
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error: any) {
+    if (retries > 0 && error?.code === 'PROTOCOL_CONNECTION_LOST') {
+      console.warn(`[Database] Connection lost, retrying... (${MAX_RETRIES - retries + 1}/${MAX_RETRIES})`);
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+      return retryWithBackoff(fn, retries - 1);
+    }
+    throw error;
+  }
+}
 
 export async function getDb() {
   if (_db) return _db;
@@ -42,19 +64,38 @@ export async function getDb() {
   
   try {
     const mysql = await import('mysql2/promise');
+    
+    // 優化連線配置：SSL、Timeout、連線池
     const pool = mysql.createPool({
       uri: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
+      // SSL 配置：TiDB Cloud 要求 SSL 認證
+      ssl: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true, // 必須啟用 SSL 認證
+      },
+      // 連線超時配置
+      connectTimeout: 10000, // 增加超時等待，避免冷啟動失敗
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
+      // 連線池配置：Serverless 環境應限制連線數
       waitForConnections: true,
-      connectionLimit: 5,
+      connectionLimit: 1, // Serverless 環境建議限制為 1
+      maxIdle: 1,
+      idleTimeout: 60000,
       queueLimit: 0,
     });
     
+    // 測試連線
+    const connection = await pool.getConnection();
+    connection.release();
+    
     _db = drizzle(pool);
-    console.log('[Database] Connected successfully');
+    _connectionRetries = 0; // 重置重試計數
+    console.log('[Database] Connected successfully with SSL enabled');
   } catch (error) {
     console.error('[Database] Failed to connect:', error);
     _db = null;
+    _connectionRetries++;
   }
   
   return _db;
@@ -239,11 +280,17 @@ export async function getAllRoomTypes(): Promise<RoomType[]> {
   const db = await getDb();
   if (!db) return [];
   
-  const result = await db
-    .select()
-    .from(roomTypes);
-  
-  return result;
+  try {
+    const result = await retryWithBackoff(() =>
+      db
+        .select()
+        .from(roomTypes) as any
+    ) as RoomType[];
+    return result;
+  } catch (error) {
+    console.error('[Database] Failed to get all room types:', error);
+    return [];
+  }
 }
 
 export async function getAvailableRoomTypes(): Promise<RoomType[]> {

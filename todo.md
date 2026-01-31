@@ -299,3 +299,23 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 檢查 room_types.images 欄位長度（text 類型足夠）
 - [x] 測試完整上傳流程
 - [x] 驗證 Cloudinary 憑證有效性
+
+
+## 🟢 API 查詢失敗修復 - 已完成
+
+- [x] 診斷當前數據庫連線配置
+- [x] 檢查 DATABASE_URL 環境變數（SSL 配置）
+- [x] 優化連線配置（SSL、Timeout、連線池）
+  - SSL 認證改為 rejectUnauthorized: true
+  - connectTimeout 增加到 10000ms
+  - connectionLimit 限制為 1（Serverless 最佳實踐）
+  - 添加 enableKeepAlive 保持連線活躍
+- [x] 添加重試機制（Retry Logic）
+  - 實現 retryWithBackoff() 函數
+  - 最多重試 3 次
+  - 重試延遲 1000ms
+- [x] 更新 getAllRoomTypes() 使用重試邏輯
+- [x] 修復 TypeScript 編譯錯誤
+  - 修正 keepAliveInitialDelayMs → keepAliveInitialDelay
+  - 修正 getAllRoomTypes() 返回類型
+- [x] 準備部署到 Vercel
