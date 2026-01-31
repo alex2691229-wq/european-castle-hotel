@@ -285,3 +285,17 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 驗證房型管理頁面正常顯示
 - [x] 確認 12 個房型數據正確加載
 - [x] 驗證新增房型表單可用
+
+
+## 🟢 Cloudinary 圖片上傳功能 - 已完成
+
+- [x] 安裝 cloudinary 套件（版本 2.9.0）
+- [x] 建立 /api/upload.ts 端點
+- [x] 配置 Cloudinary 環境變數（CLOUD_NAME、API_KEY、API_SECRET）
+- [x] 實現圖片上傳邏輯（自動優化、自動格式轉化）
+- [x] 串接管理後台房型表單
+- [x] 實現圖片選擇和上傳功能
+- [x] 將上傳的 imageUrl 填入房型資料
+- [x] 檢查 room_types.images 欄位長度（text 類型足夠）
+- [x] 測試完整上傳流程
+- [x] 驗證 Cloudinary 憑證有效性
