@@ -23,6 +23,7 @@ export type InsertUser = typeof users.$inferInsert;
 
 /**
  * Room types table - stores different room categories
+ * Note: This table has mixed column naming (camelCase + snake_case)
  */
 export const roomTypes = mysqlTable("room_types", {
   id: int("id").autoincrement().primaryKey(),
@@ -37,10 +38,10 @@ export const roomTypes = mysqlTable("room_types", {
   maxSalesQuantity: int("max_sales_quantity").default(10).notNull(), // maximum number of rooms that can be sold per day
   images: text("images"), // JSON array of image URLs
   amenities: text("amenities"), // JSON array of amenities
-  isAvailable: boolean("is_available").default(true).notNull(),
-  displayOrder: int("display_order").default(0).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  isAvailable: boolean("isAvailable").default(true).notNull(),
+  displayOrder: int("displayOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type RoomType = typeof roomTypes.$inferSelect;
@@ -75,9 +76,9 @@ export type InsertBooking = typeof bookings.$inferInsert;
 export const news = mysqlTable("news", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 200 }).notNull(),
-  titleEn: varchar("title_en", { length: 200 }),
+  titleEn: varchar("titleEn", { length: 200 }),
   content: text("content").notNull(),
-  contentEn: text("content_en"),
+  contentEn: text("contentEn"),
   type: mysqlEnum("type", ["announcement", "promotion", "event"]).default("announcement").notNull(),
   coverImage: varchar("coverImage", { length: 500 }),
   isPublished: boolean("isPublished").default(true).notNull(),
@@ -95,9 +96,9 @@ export type InsertNews = typeof news.$inferInsert;
 export const facilities = mysqlTable("facilities", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  nameEn: varchar("name_en", { length: 100 }),
+  nameEn: varchar("nameEn", { length: 100 }),
   description: text("description").notNull(),
-  descriptionEn: text("description_en"),
+  descriptionEn: text("descriptionEn"),
   icon: varchar("icon", { length: 50 }), // lucide icon name
   images: text("images"), // JSON array of image URLs
   displayOrder: int("displayOrder").default(0).notNull(),

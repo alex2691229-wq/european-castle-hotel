@@ -99,7 +99,7 @@ export async function getDb() {
     const [result] = await connection.query('SELECT 1');
     connection.release();
     
-    _db = drizzle(pool);
+    _db = drizzle(pool, { mode: 'default' });
     _connectionRetries = 0; // 重置重試計數
     console.log('[Database] Connected successfully with SSL enabled');
     console.log('[Database] SELECT 1 test passed!');
