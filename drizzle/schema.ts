@@ -37,10 +37,10 @@ export const roomTypes = mysqlTable("room_types", {
   maxSalesQuantity: int("max_sales_quantity").default(10).notNull(), // maximum number of rooms that can be sold per day
   images: text("images"), // JSON array of image URLs
   amenities: text("amenities"), // JSON array of amenities
-  isAvailable: boolean("isAvailable").default(true).notNull(),
+  isAvailable: boolean("is_available").default(true).notNull(),
   displayOrder: int("display_order").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type RoomType = typeof roomTypes.$inferSelect;
