@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 // @ts-nocheck
 import { Button } from "@/components/ui/button";

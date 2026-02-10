@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS booking_notifications (\n  id INT PRIMARY KEY AUTO_INCREMENT,\n  booking_id INT NOT NULL,\n  notification_type ENUM('email', 'slack', 'sms') NOT NULL,\n  recipient VARCHAR(200) NOT NULL,\n  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  status ENUM('pending', 'sent', 'failed') DEFAULT 'pending',\n  error_message TEXT,\n  FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,\n  INDEX idx_booking_id (booking_id),\n  INDEX idx_status (status)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute CREATE TABLE IF NOT EXISTS booking_notifications (\n  id INT PRIMARY KEY AUTO_INCREMENT,\n  booking_id INT NOT NULL,\n  notification_type ENUM('email', 'slack', 'sms') NOT NULL,\n  recipient VARCHAR(200) NOT NULL,\n  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  status ENUM('pending', 'sent', 'failed') DEFAULT 'pending',\n  error_message TEXT,\n  FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,\n  INDEX idx_booking_id (booking_id),\n  INDEX idx_status (status)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1796
+}

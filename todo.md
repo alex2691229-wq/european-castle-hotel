@@ -269,10 +269,93 @@ DATABASE_URL=mysql://user:password@gateway01.ap-northeast-1.prod.aws.tidbcloud.c
 - [x] 本地編譯驗證成功
 
 
-## 🔴 全功能修復 - 儀表板完整功能 - 進行中
+## 🟢 全功能修復 - 儀表板完整功能 - 已完成
 
 - [x] 驗證 api/index.ts 的 tRPC 路由配置
 - [x] 修復房型創建驗證規則（z.coerce.number()）
 - [x] 添加缺失的路由（bookings、homeConfig、auth.listAdmins）
-- [ ] 修復 React 引用錯誤
-- [ ] 驗證儀表板完整功能
+- [x] 修復 React 引用錯誤
+- [x] 驗證儀表板完整功能
+
+## 🟢 管理員登入和房型管理 - 已完成
+
+- [x] 重置 admin 帳號密碼為 123456
+- [x] 驗證 bcryptjs 密碼比較邏輯
+- [x] 成功用 admin/123456 登入管理後台
+- [x] 驗證房型管理頁面正常顯示
+- [x] 確認 12 個房型數據正確加載
+- [x] 驗證新增房型表單可用
+
+
+## 🟢 Cloudinary 圖片上傳功能 - 已完成
+
+- [x] 安裝 cloudinary 套件（版本 2.9.0）
+- [x] 建立 /api/upload.ts 端點
+- [x] 配置 Cloudinary 環境變數（CLOUD_NAME、API_KEY、API_SECRET）
+- [x] 實現圖片上傳邏輯（自動優化、自動格式轉化）
+- [x] 串接管理後台房型表單
+- [x] 實現圖片選擇和上傳功能
+- [x] 將上傳的 imageUrl 填入房型資料
+- [x] 檢查 room_types.images 欄位長度（text 類型足夠）
+- [x] 測試完整上傳流程
+- [x] 驗證 Cloudinary 憑證有效性
+
+
+## 🟢 API 查詢失敗修復 - 已完成
+
+- [x] 診斷當前數據庫連線配置
+- [x] 檢查 DATABASE_URL 環境變數（SSL 配置）
+- [x] 優化連線配置（SSL、Timeout、連線池）
+  - SSL 認證改為 rejectUnauthorized: true
+  - connectTimeout 增加到 10000ms
+  - connectionLimit 限制為 1（Serverless 最佳實踐）
+  - 添加 enableKeepAlive 保持連線活躍
+- [x] 添加重試機制（Retry Logic）
+  - 實現 retryWithBackoff() 函數
+  - 最多重試 3 次
+  - 重試延遲 1000ms
+- [x] 更新 getAllRoomTypes() 使用重試邏輯
+- [x] 修復 TypeScript 編譯錯誤
+  - 修正 keepAliveInitialDelayMs → keepAliveInitialDelay
+  - 修正 getAllRoomTypes() 返回類型
+- [x] 準備部署到 Vercel
+
+## 🟡 最後衝刺 - 進行中
+
+- [ ] 修復 Vercel 上的 API 查詢失敗
+- [ ] 完成訂單自動提醒系統
+- [ ] 全面測試所有功能
+- [ ] 準備交付
+
+
+## 🟢 房型圖片 Cloudinary 實施 - 已完成
+
+- [x] 驗證數據庫房型是否有 Cloudinary images URL
+- [x] 更新所有房型的 images 欄位為 Cloudinary URL（6 個主要房型）
+- [x] 驗證 RoomCard 組件已讀取 images 字段
+- [x] 實現 Cloudinary 轉換參數優化（w=500,h=400,c_fill,q_auto,f_auto）
+- [x] 測試圖片在本地開發環境顯示
+- [x] 圖片上傳邏輯已實現（base64 → Cloudinary）
+- [x] 圖片預覽和刪除功能已實現
+
+## 🟡 訂單自動提醒系統 - 進行中
+
+- [x] 創建 booking_notifications 表
+- [ ] 實現郵件通知服務（Resend）
+- [ ] 實現 Slack 通知服務
+- [ ] 實現 SMS 通知服務（Twilio）
+- [ ] 創建每日提醒定時任務
+- [ ] 前端訂單管理頁面集成
+- [ ] 測試完整通知流程
+
+## 🟡 Vercel 部署 - 進行中
+
+- [x] 提交代碼到 GitHub（已通過 webdev_save_checkpoint）
+- [x] 修復 TiDB Cloud 數據庫連接配置（URL 解析）
+- [x] 驗證 TiDB Cloud 表結構已創建（12 個表）
+- [x] 驗證房型數據已存在（13 個房型）
+- [x] 重置 TiDB Cloud 數據庫密碼（vNmR8q3aVoJTs6To）
+- [x] 更新 Vercel 環境變數
+- [ ] 在 Vercel 上手動觸發重新部署
+- [ ] 驗證 API 查詢恢復（房型列表頁面）
+- [ ] 驗證 Cloudinary 圖片顯示

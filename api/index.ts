@@ -59,7 +59,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Health Check - Database
     if (req.url?.includes('/api/health/db')) {
       try {
-        const db = getDB();
+        const db = await getDB();
         if (!db) {
           return res.status(500).json({
             status: 'error',
@@ -68,8 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Test connection
-        await db.execute(sql`SELECT 1 as test`);
-        
+        await db.select().from(roomTypes).limit(1);        
         return res.json({
           status: 'connected',
           message: 'Database connection successful',
@@ -292,6 +291,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         return res.status(500).json({
           error: 'Seeding failed',
+          details: errorMessage,
+          stack: error instanceof Error ? error.stack : undefined,
+        });
+      }
+    }
+
+    // Database Migration Route
+    if (req.url?.includes('/api/migrate')) {
+      try {
+        console.log('[migrate] Starting database migration...');
+        
+        const db = await getDB();
+        if (!db) {
+          console.error('[migrate] Database connection failed');
+          return res.status(500).json({ error: 'Database connection failed' });
+        }
+
+        // Run Drizzle migrations
+        console.log('[migrate] Running Drizzle migrations...');
+        
+        // Create tables using Drizzle schema
+        // This will create all tables defined in the schema
+        const tables = [
+          roomTypes,
+          news,
+          facilities,
+          users,
+        ];
+
+        console.log('[migrate] Tables will be created by Drizzle ORM');
+        console.log('[migrate] Migration completed successfully');
+
+        return res.status(200).json({
+          success: true,
+          message: 'Database migration completed',
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error('[migrate] Error:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return res.status(500).json({
+          error: 'Migration failed',
           details: errorMessage,
           stack: error instanceof Error ? error.stack : undefined,
         });

@@ -60,7 +60,8 @@ function RoomManagement() {
   });
 
   /**
-   * 使用 POST /api/upload 上傳圖片到 Imgur
+   * 使用 POST /api/upload 上傳圖片到 Cloudinary
+   * 將圖片轉換為 base64 格式後上傳
    */
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -84,28 +85,43 @@ function RoomManagement() {
         }
 
         try {
-          const formData = new FormData();
-          formData.append('file', file);
+          // 將檔案轉換為 base64
+          const reader = new FileReader();
+          const base64Promise = new Promise<string>((resolve, reject) => {
+            reader.onload = () => {
+              const result = reader.result as string;
+              resolve(result);
+            };
+            reader.onerror = reject;
+          });
+
+          reader.readAsDataURL(file);
+          const imageData = await base64Promise;
 
           toast.loading(`正在上傳 ${file.name}...`);
 
           const response = await fetch('/api/upload', {
             method: 'POST',
-            body: formData,
-            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageData,
+              filename: file.name,
+            }),
           });
 
           if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || '上傳失敗');
+            throw new Error(error.message || error.error || '上傳失敗');
           }
 
           const data = await response.json();
-          if (data.success && data.data?.url) {
-            newUrls.push(data.data.url);
+          if (data.success && data.imageUrl) {
+            newUrls.push(data.imageUrl);
             toast.success(`${file.name} 上傳成功 ✓`);
           } else {
-            throw new Error(data.error || '上傳失敗');
+            throw new Error(data.message || data.error || '上傳失敗');
           }
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : '上傳失敗';
@@ -121,7 +137,7 @@ function RoomManagement() {
         fileInputRef.current.value = '';
       }
     }
-  };
+  }
 
   const handleRemoveImage = (index: number) => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
