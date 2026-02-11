@@ -1,0 +1,46 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "booking_notifications"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "bookings"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "contact_messages"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "facilities"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "featured_services"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "home_config"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "news"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "payment_details"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "room_availability"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "room_types"
+    },
+    {
+      "Tables_in_Un9ncnuBxgCCtamkr3qHdr": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_Un9ncnuBxgCCtamkr3qHdr\n__drizzle_migrations\nbooking_notifications\nbookings\ncontact_messages\nfacilities\nfeatured_services\nhome_config\nnews\npayment_details\nroom_availability\nroom_types\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 1605
+}

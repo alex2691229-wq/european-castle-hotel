@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, username, name, role, status, passwordHash, loginMethod, createdAt FROM users WHERE username='admin';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, username, name, role, status, passwordHash, loginMethod, createdAt FROM users WHERE username='admin';",
+  "rows": [
+    {
+      "id": "300089",
+      "username": "admin",
+      "name": "管理員",
+      "role": "admin",
+      "status": "active",
+      "passwordHash": "$2b$10$ODV0Z3NvnadH7q0U5XZ0ceqT9d87jDz86SLVQr.0QvE.Ll27IZ4gG",
+      "loginMethod": "password",
+      "createdAt": "2026-01-14 06:56:07"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tname\trole\tstatus\tpasswordHash\tloginMethod\tcreatedAt\n300089\tadmin\t管理員\tadmin\tactive\t$2b$10$ODV0Z3NvnadH7q0U5XZ0ceqT9d87jDz86SLVQr.0QvE.Ll27IZ4gG\tpassword\t2026-01-14 06:56:07\n",
+  "stderr": "",
+  "execution_time_ms": 1537
+}

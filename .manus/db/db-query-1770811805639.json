@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE room_types \nADD COLUMN IF NOT EXISTS weekend_price DECIMAL(10, 2),\nADD COLUMN IF NOT EXISTS max_sales_quantity INT DEFAULT 10,\nADD COLUMN IF NOT EXISTS images LONGTEXT,\nADD COLUMN IF NOT EXISTS amenities LONGTEXT,\nADD COLUMN IF NOT EXISTS isAvailable BOOLEAN DEFAULT true,\nADD COLUMN IF NOT EXISTS displayOrder INT DEFAULT 0;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute ALTER TABLE room_types \nADD COLUMN IF NOT EXISTS weekend_price DECIMAL(10, 2),\nADD COLUMN IF NOT EXISTS max_sales_quantity INT DEFAULT 10,\nADD COLUMN IF NOT EXISTS images LONGTEXT,\nADD COLUMN IF NOT EXISTS amenities LONGTEXT,\nADD COLUMN IF NOT EXISTS isAvailable BOOLEAN DEFAULT true,\nADD COLUMN IF NOT EXISTS displayOrder INT DEFAULT 0;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2549
+}

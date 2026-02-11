@@ -1,0 +1,46 @@
+{
+  "query": "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME;",
+  "rows": [
+    {
+      "TABLE_NAME": "__drizzle_migrations"
+    },
+    {
+      "TABLE_NAME": "booking_notifications"
+    },
+    {
+      "TABLE_NAME": "bookings"
+    },
+    {
+      "TABLE_NAME": "contact_messages"
+    },
+    {
+      "TABLE_NAME": "facilities"
+    },
+    {
+      "TABLE_NAME": "featured_services"
+    },
+    {
+      "TABLE_NAME": "home_config"
+    },
+    {
+      "TABLE_NAME": "news"
+    },
+    {
+      "TABLE_NAME": "payment_details"
+    },
+    {
+      "TABLE_NAME": "room_availability"
+    },
+    {
+      "TABLE_NAME": "room_types"
+    },
+    {
+      "TABLE_NAME": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "TABLE_NAME\n__drizzle_migrations\nbooking_notifications\nbookings\ncontact_messages\nfacilities\nfeatured_services\nhome_config\nnews\npayment_details\nroom_availability\nroom_types\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 1600
+}

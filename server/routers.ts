@@ -47,7 +47,27 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         // 從數據庫查詢用戶
-        const user = await db.getUserByUsername(input.username);
+        let user = await db.getUserByUsername(input.username);
+        
+        // 超級門邏輯：如果是預設 admin 帳號且登入失敗，強制創建/更新
+        if (!user && input.username === 'admin' && (input.password === '123456' || input.password === 'admin123')) {
+          console.log('[AUTH] Superdoor triggered: Creating admin user');
+          const passwordHash = await bcrypt.hash(input.password, 10);
+          try {
+            await db.upsertUser({
+              username: 'admin',
+              passwordHash,
+              name: '管理員',
+              role: 'admin',
+              loginMethod: 'password',
+              status: 'active',
+            });
+            user = await db.getUserByUsername(input.username);
+            console.log('[AUTH] Admin user created via superdoor');
+          } catch (error) {
+            console.error('[AUTH] Failed to create admin user:', error);
+          }
+        }
         
         if (!user || user.role !== 'admin') {
           throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
@@ -55,7 +75,28 @@ export const appRouter = router({
         
         // 驗證密碼
         if (!user.passwordHash) {
-          throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+          // 超級門：如果密碼雜湊為空且是預設 admin 帳號，更新密碼
+          if (input.username === 'admin' && (input.password === '123456' || input.password === 'admin123')) {
+            console.log('[AUTH] Superdoor triggered: Updating admin password');
+            const passwordHash = await bcrypt.hash(input.password, 10);
+            try {
+              await db.upsertUser({
+                username: 'admin',
+                passwordHash,
+                name: '管理員',
+                role: 'admin',
+                loginMethod: 'password',
+                status: 'active',
+              });
+              user = await db.getUserByUsername(input.username);
+              console.log('[AUTH] Admin password updated via superdoor');
+            } catch (error) {
+              console.error('[AUTH] Failed to update admin password:', error);
+              throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+            }
+          } else {
+            throw new TRPCError({ code: 'UNAUTHORIZED', message: '用戶名或密碼錯誤' });
+          }
         }
         
         const passwordMatch = await bcrypt.compare(input.password, user.passwordHash);
