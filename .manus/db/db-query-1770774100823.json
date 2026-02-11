@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, username, passwordHash FROM users WHERE username='admin';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4C7dh5n6yXuaUbo.root --database Un9ncnuBxgCCtamkr3qHdr --execute SELECT id, username, passwordHash FROM users WHERE username='admin';",
+  "rows": [
+    {
+      "id": "300089",
+      "username": "admin",
+      "passwordHash": "$2b$10$DbdCy4WjC2XVFncTjk0ha.YxMk9acXKyR.rV2FX7gCcingMPoa6W."
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tusername\tpasswordHash\n300089\tadmin\t$2b$10$DbdCy4WjC2XVFncTjk0ha.YxMk9acXKyR.rV2FX7gCcingMPoa6W.\n",
+  "stderr": "",
+  "execution_time_ms": 1583
+}
