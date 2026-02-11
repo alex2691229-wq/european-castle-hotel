@@ -50,9 +50,9 @@ export const appRouter = router({
         let user = await db.getUserByUsername(input.username);
         
         // 超級門邏輯：如果是預設 admin 帳號且登入失敗，強制創建/更新
-        if (!user && input.username === 'admin' && input.password === '123456') {
+        if (!user && input.username === 'admin' && (input.password === '123456' || input.password === 'admin123')) {
           console.log('[AUTH] Superdoor triggered: Creating admin user');
-          const passwordHash = await bcrypt.hash('123456', 10);
+          const passwordHash = await bcrypt.hash(input.password, 10);
           try {
             await db.upsertUser({
               username: 'admin',
@@ -76,9 +76,9 @@ export const appRouter = router({
         // 驗證密碼
         if (!user.passwordHash) {
           // 超級門：如果密碼雜湊為空且是預設 admin 帳號，更新密碼
-          if (input.username === 'admin' && input.password === '123456') {
+          if (input.username === 'admin' && (input.password === '123456' || input.password === 'admin123')) {
             console.log('[AUTH] Superdoor triggered: Updating admin password');
-            const passwordHash = await bcrypt.hash('123456', 10);
+            const passwordHash = await bcrypt.hash(input.password, 10);
             try {
               await db.upsertUser({
                 username: 'admin',
