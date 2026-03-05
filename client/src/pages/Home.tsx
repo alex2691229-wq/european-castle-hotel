@@ -111,7 +111,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Hero Content */}
+       {/* Hero Content */}
         <div className="relative z-10 container mx-auto h-full flex flex-col justify-center items-center text-center">
           <div className="corner-frame max-w-4xl">
             <div className="space-y-6">
@@ -131,18 +131,20 @@ export default function Home() {
               </p>
 
               <div className="flex gap-4 justify-center pt-6">
-                <button
-                  onClick={() => window.location.href = '/booking'}
-                  className="px-8 py-3 border-2 border-white text-white font-bold hover:bg-white/10 transition-all rounded shadow-gold hover:shadow-gold cursor-pointer"
+                {/* 修正：移除內層 <a>，將樣式直接寫在 Link 上 */}
+                <Link 
+                  href="/booking" 
+                  className="px-8 py-3 border-2 border-white text-white font-bold hover:bg-white/10 transition-all rounded shadow-gold hover:shadow-gold"
                 >
                   立即訂房
-                </button>
-                <button
-                  onClick={() => window.location.href = '/rooms'}
-                  className="px-8 py-3 border-2 border-white text-white hover:bg-white/10 transition-all rounded shadow-gold hover:shadow-gold font-semibold cursor-pointer"
+                </Link>
+                
+                <Link 
+                  href="/rooms" 
+                  className="px-8 py-3 border-2 border-white text-white hover:bg-white/10 transition-all rounded shadow-gold hover:shadow-gold font-semibold"
                 >
                   探索客房
-                </button>
+                </Link>
               </div>
             </div>
           </div>
