@@ -197,6 +197,27 @@ export async function getUserByUsername(username: string): Promise<InsertUser | 
   }
 }
 
+export async function updateUserLastSignedIn(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update user lastSignedIn: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db
+      .update(users)
+      .set({
+        lastSignedIn: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  } catch (error) {
+    console.error("[Database] Error in updateUserLastSignedIn:", error);
+    throw error;
+  }
+}
+
 export async function getAllRoomTypes(): Promise<RoomType[]> {
   const db = await getDb();
   if (!db) {
