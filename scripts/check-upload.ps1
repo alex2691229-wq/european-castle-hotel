@@ -1,5 +1,5 @@
 param(
-  [string]$BaseUrl = "http://localhost:3000",
+  [string]$BaseUrl = "",
   [string]$FilePath = "client/public/hotel_exterior_day.jpeg"
 )
 
@@ -9,17 +9,35 @@ if (-not (Test-Path $FilePath)) {
   Write-Error "Test image not found: $FilePath"
 }
 
-Write-Host "[1/2] Checking API status: $BaseUrl/api/status"
-$statusResp = Invoke-RestMethod -Method Get -Uri "$BaseUrl/api/status"
-$statusResp | ConvertTo-Json -Depth 5
-
-Write-Host "[2/2] Uploading image: $FilePath -> $BaseUrl/api/upload"
-$raw = curl.exe -s -X POST "$BaseUrl/api/upload" -F "file=@$FilePath"
-$uploadResp = $raw | ConvertFrom-Json
-$uploadResp | ConvertTo-Json -Depth 8
-
-if ($uploadResp.success -ne $true) {
-  Write-Error "Upload failed. See response above."
+$candidates = @()
+if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
+  $candidates = @("http://localhost:3000", "http://localhost:3001")
+} else {
+  $candidates = @($BaseUrl)
 }
 
-Write-Host "Upload check passed."
+$errors = @()
+foreach ($candidate in $candidates) {
+  try {
+    Write-Host "[1/2] Checking API status: $candidate/api/status"
+    $statusResp = Invoke-RestMethod -Method Get -Uri "$candidate/api/status" -TimeoutSec 3
+    $statusResp | ConvertTo-Json -Depth 5
+
+    Write-Host "[2/2] Uploading image: $FilePath -> $candidate/api/upload"
+    $raw = curl.exe -s -X POST "$candidate/api/upload" -F "file=@$FilePath"
+    $uploadResp = $raw | ConvertFrom-Json
+    $uploadResp | ConvertTo-Json -Depth 8
+
+    if ($uploadResp.success -eq $true) {
+      Write-Host "Upload check passed on $candidate."
+      exit 0
+    }
+
+    $msg = if ($uploadResp.error) { $uploadResp.error } else { "Unknown upload error" }
+    $errors += "${candidate}: ${msg}"
+  } catch {
+    $errors += "${candidate}: $($_.Exception.Message)"
+  }
+}
+
+Write-Error ("Upload failed on all candidates. " + ($errors -join " | "))

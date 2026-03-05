@@ -9,6 +9,11 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { TrackingModal } from "@/components/TrackingModal";
 
+const DEFAULT_HERO_IMAGES = [
+  "/hotel_exterior_night.webp",
+  "/hotel_exterior_day.webp",
+];
+
 export default function Home() {
   const { data: roomTypes, isLoading: roomsLoading } = trpc.roomTypes.list.useQuery();
   const { data: newsItems } = trpc.news.list.useQuery();
@@ -16,25 +21,27 @@ export default function Home() {
   const { data: featuredServices } = trpc.featuredServices.list.useQuery();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
-  const assetBaseUrl = import.meta.env.VITE_API_URL
-    ? import.meta.env.VITE_API_URL.replace(/\/$/, "")
-    : "";
-  const [heroImages, setHeroImages] = useState<string[]>([
-    `${assetBaseUrl}/hotel_exterior_night.webp`,
-    `${assetBaseUrl}/hotel_exterior_day.webp`,
-  ]);
+  const [heroImages, setHeroImages] = useState<string[]>(DEFAULT_HERO_IMAGES);
 
   // 從資料庫更新輪播圖片
   useEffect(() => {
     if (homeConfig?.carouselImages) {
       try {
-        const images = JSON.parse(homeConfig.carouselImages);
-        if (Array.isArray(images) && images.length > 0) {
+        const parsed = JSON.parse(homeConfig.carouselImages);
+        const images = Array.isArray(parsed)
+          ? parsed.filter((url) => typeof url === "string" && url.trim().length > 0)
+          : [];
+        if (images.length > 0) {
           setHeroImages(images);
+        } else {
+          setHeroImages(DEFAULT_HERO_IMAGES);
         }
       } catch (error) {
         console.error("Failed to parse carousel images:", error);
+        setHeroImages(DEFAULT_HERO_IMAGES);
       }
+    } else {
+      setHeroImages(DEFAULT_HERO_IMAGES);
     }
   }, [homeConfig]);
 
@@ -108,6 +115,11 @@ export default function Home() {
                 src={image}
                 alt={`Slide ${index + 1}`}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const fallback = DEFAULT_HERO_IMAGES[index % DEFAULT_HERO_IMAGES.length];
+                  if (e.currentTarget.src.endsWith(fallback)) return;
+                  e.currentTarget.src = fallback;
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
             </div>

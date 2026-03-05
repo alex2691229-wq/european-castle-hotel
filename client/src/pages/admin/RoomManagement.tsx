@@ -91,10 +91,31 @@ function RoomManagement() {
 
           toast.loading(`正在上傳 ${file.name}...`);
 
-          const response = await fetch('/api/upload', {
+          let response = await fetch('/api/upload', {
             method: 'POST',
             body: formData,
           });
+
+          if (!response.ok) {
+            const reader = new FileReader();
+            const base64Promise = new Promise<string>((resolve, reject) => {
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = reject;
+            });
+            reader.readAsDataURL(file);
+            const imageData = await base64Promise;
+
+            response = await fetch('/api/upload', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                imageData,
+                filename: file.name,
+              }),
+            });
+          }
 
           if (!response.ok) {
             const error = await response.json();
