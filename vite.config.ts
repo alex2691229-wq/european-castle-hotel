@@ -50,5 +50,10 @@ export default defineConfig({
         rewrite: (path) => path,
       },
     },
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5173,
+    }
   },
 });
