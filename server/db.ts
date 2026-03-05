@@ -433,3 +433,176 @@ export async function updateHomeConfig(data: Partial<InsertHomeConfig>): Promise
 
 // Import eq for where clauses
 import { eq } from "drizzle-orm";
+
+
+/**
+ * Featured Services functions
+ */
+export async function getAllFeaturedServices(): Promise<FeaturedService[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get featured services: database not available");
+    return [];
+  }
+
+  try {
+    return await db.select().from(featuredServices).orderBy(featuredServices.displayOrder);
+  } catch (error) {
+    console.error("[Database] Failed to fetch featured services:", error);
+    return [];
+  }
+}
+
+export async function getFeaturedServiceById(id: number): Promise<FeaturedService | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get featured service: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(featuredServices)
+      .where(eq(featuredServices.id, id))
+      .limit(1);
+    
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Error in getFeaturedServiceById:", error);
+    return null;
+  }
+}
+
+export async function createFeaturedService(data: InsertFeaturedService): Promise<FeaturedService | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create featured service: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.insert(featuredServices).values(data);
+    const id = result.insertId as number;
+    return await getFeaturedServiceById(id);
+  } catch (error) {
+    console.error("[Database] Error in createFeaturedService:", error);
+    throw error;
+  }
+}
+
+export async function updateFeaturedService(id: number, data: Partial<InsertFeaturedService>): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update featured service: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.update(featuredServices).set(data).where(eq(featuredServices.id, id));
+  } catch (error) {
+    console.error("[Database] Error in updateFeaturedService:", error);
+    throw error;
+  }
+}
+
+export async function deleteFeaturedService(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete featured service: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.delete(featuredServices).where(eq(featuredServices.id, id));
+  } catch (error) {
+    console.error("[Database] Error in deleteFeaturedService:", error);
+    throw error;
+  }
+}
+
+/**
+ * Facilities functions
+ */
+export async function getAllFacilities(): Promise<Facility[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get facilities: database not available");
+    return [];
+  }
+
+  try {
+    return await db.select().from(facilities).orderBy(facilities.displayOrder);
+  } catch (error) {
+    console.error("[Database] Failed to fetch facilities:", error);
+    return [];
+  }
+}
+
+export async function getFacilityById(id: number): Promise<Facility | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get facility: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(facilities)
+      .where(eq(facilities.id, id))
+      .limit(1);
+    
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Error in getFacilityById:", error);
+    return null;
+  }
+}
+
+export async function createFacility(data: InsertFacility): Promise<Facility | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create facility: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db.insert(facilities).values(data);
+    const id = result.insertId as number;
+    return await getFacilityById(id);
+  } catch (error) {
+    console.error("[Database] Error in createFacility:", error);
+    throw error;
+  }
+}
+
+export async function updateFacility(id: number, data: Partial<InsertFacility>): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update facility: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.update(facilities).set(data).where(eq(facilities.id, id));
+  } catch (error) {
+    console.error("[Database] Error in updateFacility:", error);
+    throw error;
+  }
+}
+
+export async function deleteFacility(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete facility: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.delete(facilities).where(eq(facilities.id, id));
+  } catch (error) {
+    console.error("[Database] Error in deleteFacility:", error);
+    throw error;
+  }
+}

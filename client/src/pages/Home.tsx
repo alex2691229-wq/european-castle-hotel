@@ -131,16 +131,18 @@ export default function Home() {
               </p>
 
               <div className="flex gap-4 justify-center pt-6">
-                <Link href="/booking">
-                  <a className="px-8 py-3 border-2 border-white text-white font-bold hover:bg-white/10 transition-all rounded shadow-gold hover:shadow-gold">
-                    立即訂房
-                  </a>
-                </Link>
-                <Link href="/rooms">
-                  <a className="px-8 py-3 border-2 border-white text-white hover:bg-white/10 transition-all rounded shadow-gold hover:shadow-gold font-semibold">
-                    探索客房
-                  </a>
-                </Link>
+                <button
+                  onClick={() => window.location.href = '/booking'}
+                  className="px-8 py-3 border-2 border-white text-white font-bold hover:bg-white/10 transition-all rounded shadow-gold hover:shadow-gold cursor-pointer"
+                >
+                  立即訂房
+                </button>
+                <button
+                  onClick={() => window.location.href = '/rooms'}
+                  className="px-8 py-3 border-2 border-white text-white hover:bg-white/10 transition-all rounded shadow-gold hover:shadow-gold font-semibold cursor-pointer"
+                >
+                  探索客房
+                </button>
               </div>
             </div>
           </div>
