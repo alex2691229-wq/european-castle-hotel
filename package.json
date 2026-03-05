@@ -12,6 +12,7 @@
     "build": "vite build",
     "start": "cross-env NODE_ENV=production tsx server/_core/index.ts",
     "dev:watch": "cross-env NODE_ENV=development tsx watch server/_core/index.ts",
+    "check:upload": "powershell -ExecutionPolicy Bypass -File scripts/check-upload.ps1",
     "check": "tsc --skipLibCheck --noEmit 2>/dev/null || true",
     "format": "prettier --write .",
     "test": "vitest run",

@@ -85,30 +85,15 @@ function RoomManagement() {
         }
 
         try {
-          // 將檔案轉換為 base64
-          const reader = new FileReader();
-          const base64Promise = new Promise<string>((resolve, reject) => {
-            reader.onload = () => {
-              const result = reader.result as string;
-              resolve(result);
-            };
-            reader.onerror = reject;
-          });
-
-          reader.readAsDataURL(file);
-          const imageData = await base64Promise;
+          // 使用 multipart/form-data，上傳欄位名必須是 file
+          const formData = new FormData();
+          formData.append('file', file);
 
           toast.loading(`正在上傳 ${file.name}...`);
 
           const response = await fetch('/api/upload', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              imageData,
-              filename: file.name,
-            }),
+            body: formData,
           });
 
           if (!response.ok) {
@@ -117,8 +102,9 @@ function RoomManagement() {
           }
 
           const data = await response.json();
-          if (data.success && data.imageUrl) {
-            newUrls.push(data.imageUrl);
+          const uploadedUrl = data?.imageUrl || data?.data?.url;
+          if (data.success && uploadedUrl) {
+            newUrls.push(uploadedUrl);
             toast.success(`${file.name} 上傳成功 ✓`);
           } else {
             throw new Error(data.message || data.error || '上傳失敗');

@@ -55,6 +55,7 @@ export async function handleUpload(req: Request, res: Response) {
     // 返回成功響應
     return res.json({
       success: true,
+      imageUrl: result.url,
       data: {
         url: result.url,
         publicId: result.publicId,
