@@ -16,9 +16,12 @@ export default function Home() {
   const { data: featuredServices } = trpc.featuredServices.list.useQuery();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+  const assetBaseUrl = import.meta.env.VITE_API_URL
+    ? import.meta.env.VITE_API_URL.replace(/\/$/, "")
+    : "";
   const [heroImages, setHeroImages] = useState<string[]>([
-`${import.meta.env.VITE_API_URL}/hotel_exterior_night.webp`,
-    `${import.meta.env.VITE_API_URL}/hotel_exterior_day.webp`,
+    `${assetBaseUrl}/hotel_exterior_night.webp`,
+    `${assetBaseUrl}/hotel_exterior_day.webp`,
   ]);
 
   // 從資料庫更新輪播圖片
